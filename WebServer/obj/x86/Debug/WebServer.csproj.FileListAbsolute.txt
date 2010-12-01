@@ -6,3 +6,11 @@ c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\WebServer\bi
 c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\WebServer\obj\x86\Debug\ResolveAssemblyReference.cache
 c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\WebServer\obj\x86\Debug\WebServer.exe
 c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\WebServer\obj\x86\Debug\WebServer.pdb
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WebServer.exe.config
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WebServer.exe
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WebServer.pdb
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\TransportService.dll
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\TransportService.pdb
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WebServer.exe
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WebServer.pdb

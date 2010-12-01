@@ -13,9 +13,7 @@ namespace TransportService
     {
 
         [OperationContract]
-        string GetData(int value);
-        [OperationContract]
-        ChunkResponse GetChunk(ChunkRequest chkr);
+        ChunkResponse GetChunk(int activeBuffer, int RID, int CID);
         //        [OperationContract]
         //        CompositeType GetDataUsingDataContract(CompositeType composite);
 
@@ -26,8 +24,8 @@ namespace TransportService
     public abstract class AbstractMessage
     {
         protected string messageType;
-        protected string rID;
-        protected string cID;
+        protected int rID;
+        protected int cID;
 
         [DataMember]
         public abstract string MessageType
@@ -37,14 +35,14 @@ namespace TransportService
         }
 
         [DataMember]
-        public abstract string RID
+        public abstract int RID
         {
             get;
             set;
         }
 
         [DataMember]
-        public abstract string CID
+        public abstract int CID
         {
             get;
             set;
@@ -54,8 +52,18 @@ namespace TransportService
     [DataContract]
     public class ChunkRequest : AbstractMessage
     {
-        new string messageType = "CHKRQ";
+        new string messageType;
         int activeBuffer;
+
+        public ChunkRequest() { }
+
+        public ChunkRequest(int activeBuffer, int RID, int CID)
+        {
+            this.messageType = "CHKRQ";
+            this.activeBuffer = activeBuffer;
+            this.CID = CID;
+            this.RID = RID;
+        }
 
         [DataMember]
         public override string MessageType
@@ -65,14 +73,14 @@ namespace TransportService
         }
 
         [DataMember]
-        public override string RID
+        public override int RID
         {
             get { return rID; }
             set { rID = value; }
         }
 
         [DataMember]
-        public override string CID
+        public override int CID
         {
             get { return cID; }
             set { cID = value; }
@@ -89,9 +97,19 @@ namespace TransportService
     [DataContract]
     public class ChunkResponse : AbstractMessage
     {
-        new string messageType = "CHKRQ";
+        new string messageType;
         int servingBuffer;
         byte[] payload;
+
+        public ChunkResponse() { }
+
+        public ChunkResponse(int servingBuffer, int RID, int CID, byte[] payload)
+        {
+            this.messageType = "CHKRQ";
+            this.servingBuffer = servingBuffer;
+            this.RID = RID;
+            this.CID = CID;
+        }
 
         [DataMember]
         public override string MessageType
@@ -101,14 +119,14 @@ namespace TransportService
         }
 
         [DataMember]
-        public override string RID
+        public override int RID
         {
             get { return rID; }
             set { rID = value; }
         }
 
         [DataMember]
-        public override string CID
+        public override int CID
         {
             get { return cID; }
             set { cID = value; }

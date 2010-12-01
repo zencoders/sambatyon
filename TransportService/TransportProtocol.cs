@@ -10,14 +10,15 @@ namespace TransportService
     // NOTA: è possibile utilizzare il comando "Rinomina" del menu "Refactoring" per modificare il nome di classe "Service1" nel codice, nel file svc e nel file di configurazione contemporaneamente.
     public class TransportProtocol : ITransportProtocol
     {
-        public string GetData(int value)
-        {
-            Console.WriteLine(string.Format("Received: {0}", value));
-            return string.Format("You entered: {0}", value);
-        }
 
-        public ChunkResponse GetChunk(ChunkRequest chkr)
+        public ChunkResponse GetChunk(int activeBuffer, int RID, int CID)
         {
+            ChunkRequest chkrq = new ChunkRequest(activeBuffer, RID, CID);
+            while (true)
+            {
+                Console.WriteLine(Convert.ToString(RID)+Convert.ToString(CID));
+                System.Threading.Thread.Sleep(1000);
+            }
             return new ChunkResponse();
         }
 
