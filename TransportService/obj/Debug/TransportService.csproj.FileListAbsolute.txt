@@ -1,0 +1,5 @@
+c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\TransportService\bin\Debug\TransportService.dll
+c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\TransportService\bin\Debug\TransportService.pdb
+c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\TransportService\obj\Debug\ResolveAssemblyReference.cache
+c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\TransportService\obj\Debug\TransportService.dll
+c:\users\seby\documents\visual studio 2010\Projects\ProgettoMalgeri\TransportService\obj\Debug\TransportService.pdb
