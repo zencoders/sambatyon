@@ -8,8 +8,8 @@
     <ProjectGuid>{49FD3F87-0FB7-4605-B256-5A4AA486268B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebServer</RootNamespace>
-    <AssemblyName>WebServer</AssemblyName>
+    <RootNamespace>WCFServiceHost</RootNamespace>
+    <AssemblyName>WCFServiceHost</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
