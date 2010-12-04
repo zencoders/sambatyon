@@ -7,33 +7,26 @@ using System.Text;
 
 namespace TransportService
 {
-    // NOTA: è possibile utilizzare il comando "Rinomina" del menu "Refactoring" per modificare il nome di classe "Service1" nel codice, nel file svc e nel file di configurazione contemporaneamente.
     public class TransportProtocol : ITransportProtocol
     {
 
-        public ChunkResponse GetChunk(int activeBuffer, int RID, int CID)
+        public ChunkResponse GetChunk(ChunkRequest chkrq)
         {
-            ChunkRequest chkrq = new ChunkRequest(activeBuffer, RID, CID);
-            while (true)
-            {
-                Console.WriteLine(Convert.ToString(RID)+Convert.ToString(CID));
-                System.Threading.Thread.Sleep(1000);
-            }
-            return new ChunkResponse();
+            byte[] a = BitConverter.GetBytes(3678);
+            return new ChunkResponse(10, chkrq.RID, chkrq.CID, a);
+            //TODO: Implement the method
         }
+    }
 
-        //public CompositeType GetDataUsingDataContract(CompositeType composite)
-        //{
-        //    if (composite == null)
-        //    {
-        //        throw new ArgumentNullException("composite");
-        //    }
-        //    if (composite.BoolValue)
-        //    {
-        //        composite.StringValue += "Suffix";
-        //    }
-        //    return composite;
-        //}
-
+    public class Transferer
+    {
+        public ChunkResponse GetRemoteChunk(ChunkRequest chkrq, string address)
+        {
+            ITransportProtocol svc = ChannelFactory<ITransportProtocol>.CreateChannel(
+                new NetTcpBinding(), new EndpointAddress(address)
+            );
+            ChunkResponse result = svc.GetChunk(chkrq);
+            return result;
+        }
     }
 }

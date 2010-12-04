@@ -7,17 +7,12 @@ using System.Text;
 
 namespace TransportService
 {
-    // NOTA: è possibile utilizzare il comando "Rinomina" del menu "Refactoring" per modificare il nome di interfaccia "IService1" nel codice e nel file di configurazione contemporaneamente.
     [ServiceContract]
     public interface ITransportProtocol
     {
 
         [OperationContract]
-        ChunkResponse GetChunk(int activeBuffer, int RID, int CID);
-        //        [OperationContract]
-        //        CompositeType GetDataUsingDataContract(CompositeType composite);
-
-        // TODO: aggiungere qui le operazioni del servizio
+        ChunkResponse GetChunk(ChunkRequest chkrq);
     }
 
     [DataContract]

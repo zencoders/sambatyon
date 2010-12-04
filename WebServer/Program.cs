@@ -11,28 +11,42 @@ namespace ConsoleHost
     {
         static void Main(string[] args)
         {
-            Type serviceType = typeof(TransportProtocol);
-           // Uri serviceUri = new Uri("http://localhost:8080/");
-            ServiceHost host = new ServiceHost(serviceType);
-
-            host.Open();
-            #region Output dispatchers listening
-            foreach (Uri uri in host.BaseAddresses)
+            try
             {
-                Console.WriteLine("\t{0}", uri.ToString());
-            }
+                Type serviceType = typeof(TransportProtocol);
+                ServiceHost host = new ServiceHost(serviceType);
 
-            Console.WriteLine();
-            Console.WriteLine("Number of dispatchers listening : {0}", host.ChannelDispatchers.Count);
-            foreach (System.ServiceModel.Dispatcher.ChannelDispatcher dispatcher in host.ChannelDispatchers)
+                host.Open();
+                #region Output dispatchers listening
+                foreach (Uri uri in host.BaseAddresses)
+                {
+                    Console.WriteLine("\t{0}", uri.ToString());
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Number of dispatchers listening : {0}", host.ChannelDispatchers.Count);
+                foreach (System.ServiceModel.Dispatcher.ChannelDispatcher dispatcher in host.ChannelDispatchers)
+                {
+                    Console.WriteLine("\t{0}, {1}", dispatcher.Listener.Uri.ToString(), dispatcher.BindingName);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Press <ENTER> to terminate Host");
+                Console.ReadLine();
+                #endregion
+            }
+            catch (AddressAlreadyInUseException)
             {
-                Console.WriteLine("\t{0}, {1}", dispatcher.Listener.Uri.ToString(), dispatcher.BindingName);
+                Console.WriteLine("Unable to Connect like a Server because there is already one on this machine");
             }
-
-            Console.WriteLine();
-            Console.WriteLine("Press <ENTER> to terminate Host");
-            Console.ReadLine();
-            #endregion
+            //Example CODE
+            if(args.Length >= 4) {
+                ChunkRequest chkrq = new ChunkRequest(System.Convert.ToInt32(args[0]), System.Convert.ToInt32(args[1]), System.Convert.ToInt32(args[2]));
+                Transferer tsf = new Transferer();
+                ChunkResponse result = tsf.GetRemoteChunk(chkrq, args[3]);
+                Console.WriteLine("Remote Serving Buffer is: {0}", result.ServingBuffer);
+            }
+            //
         }
     }
 }
