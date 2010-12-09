@@ -41,7 +41,7 @@ namespace ConsoleHost
             }
             //Example CODE
             if(args.Length >= 4) {
-                ChunkRequest chkrq = new ChunkRequest(System.Convert.ToInt32(args[0]), System.Convert.ToInt32(args[1]), System.Convert.ToInt32(args[2]));
+                ChunkRequest chkrq = new ChunkRequest(System.Convert.ToInt32(args[0]), args[1], System.Convert.ToInt32(args[2]));
                 Transferer tsf = new Transferer();
                 ChunkResponse result = tsf.GetRemoteChunk(chkrq, args[3]);
                 Console.WriteLine("Remote Serving Buffer is: {0}", result.ServingBuffer);

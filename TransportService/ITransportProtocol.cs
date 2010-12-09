@@ -10,7 +10,6 @@ namespace TransportService
     [ServiceContract]
     public interface ITransportProtocol
     {
-
         [OperationContract]
         ChunkResponse GetChunk(ChunkRequest chkrq);
     }
@@ -19,7 +18,7 @@ namespace TransportService
     public abstract class AbstractMessage
     {
         protected string messageType;
-        protected int rID;
+        protected string rID;
         protected int cID;
 
         [DataMember]
@@ -30,7 +29,7 @@ namespace TransportService
         }
 
         [DataMember]
-        public abstract int RID
+        public abstract string RID
         {
             get;
             set;
@@ -48,14 +47,14 @@ namespace TransportService
     public class ChunkRequest : AbstractMessage
     {
         new string messageType;
-        int activeBuffer;
+//        int activeBuffer;
 
         public ChunkRequest() { }
 
-        public ChunkRequest(int activeBuffer, int RID, int CID)
+        public ChunkRequest(/*int activeBuffer, */string RID, int CID)
         {
             this.messageType = "CHKRQ";
-            this.activeBuffer = activeBuffer;
+//            this.activeBuffer = activeBuffer;
             this.CID = CID;
             this.RID = RID;
         }
@@ -68,7 +67,7 @@ namespace TransportService
         }
 
         [DataMember]
-        public override int RID
+        public override string RID
         {
             get { return rID; }
             set { rID = value; }
@@ -81,12 +80,12 @@ namespace TransportService
             set { cID = value; }
         }
 
-        [DataMember]
+  /*      [DataMember]
         public int ActiveBuffer
         {
             get { return activeBuffer; }
             set { activeBuffer = value; }
-        }
+        }*/
     }
 
     [DataContract]
@@ -98,7 +97,7 @@ namespace TransportService
 
         public ChunkResponse() { }
 
-        public ChunkResponse(int servingBuffer, int RID, int CID, byte[] payload)
+        public ChunkResponse(int servingBuffer, string RID, int CID, byte[] payload)
         {
             this.messageType = "CHKRQ";
             this.servingBuffer = servingBuffer;
@@ -114,7 +113,7 @@ namespace TransportService
         }
 
         [DataMember]
-        public override int RID
+        public override string RID
         {
             get { return rID; }
             set { rID = value; }
