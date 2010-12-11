@@ -5,8 +5,6 @@ using TransportService;
 using System.Linq;
 using System.Text;
 
-/*
- **/
 namespace ConsoleHost
 {
     class Program
