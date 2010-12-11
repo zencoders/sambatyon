@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -15,16 +16,15 @@ namespace TransportService
         private int poolSize;
         private ThreadPoolObject[] threadPool;
         private Thread worker;
-        private List<int> buffer;
+        private ArrayList buffer;
         private string RID;
-        private int length;
         private Dictionary<string, float> peerQueue;
-        private Stream s;
         private bool shouldStop;
         private int maxNumber;
-        private int next;
+        private int nextThread;
+        private StreamWriter writer;
 
-        public Transferer(string RID, int length, Dictionary<string, float> peerQueue, Stream s)
+        public Transferer(string RID, int begin, int length, Dictionary<string, float> peerQueue, Stream s)
         {
             AppSettingsReader asr = new AppSettingsReader();
             this.poolSize = (int)asr.GetValue("ThreadPoolSize", typeof(int));
@@ -34,14 +34,22 @@ namespace TransportService
                 this.threadPool[i] = new ThreadPoolObject();
             }
             this.RID = RID;
-            this.length = length;
             this.peerQueue = peerQueue;
-            this.s = s;
-            this.buffer = new List<int>();
+            this.buffer = new ArrayList();
             this.maxNumber = System.Convert.ToInt32(Math.Ceiling((double)(length / ((int)asr.GetValue("ChunkLength", typeof(int))))));
-//            this.buffer = new int[System.Convert.ToInt32(Math.Ceiling((double)(length / ((int)asr.GetValue("ChunkLength", typeof(int))))))];
+            this.maxNumber -= begin;
             this.worker = new Thread(() => DoWork());
-            this.next = 0;
+            this.nextThread = 0;
+            this.writer = new StreamWriter(s);
+        }
+
+        private void GetNextChunk()
+        {
+            string address = this.GetBestPeer();
+            ChunkResponse result = this.GetRemoteChunk(new ChunkRequest(), address);
+            this.buffer.Add(result.CID);
+            this.writer.Write(result.Payload);            
+            //RICALCOLA IL PUNTEGGIO DEL PEER E RIMETTILO IN LISTA
         }
 
         private ChunkResponse GetRemoteChunk(ChunkRequest chkrq, string address)
@@ -55,19 +63,25 @@ namespace TransportService
 
         private void DoWork()
         {
-            StreamWriter sw = new StreamWriter(this.s);
             while ( ! this.FullyDownloaded() )
             {
-                ThreadPoolObject chunkGetter = this.GetNext();
-                chunkGetter.assignAndStart(new ThreadStart(() => GetRemoteChunk(new ChunkRequest(), "aaa")));
+                ThreadPoolObject chunkGetter = this.GetNextThreadInPool();
+                chunkGetter.assignAndStart(new ThreadStart(() => GetNextChunk()));
             }
         }
 
-        private ThreadPoolObject GetNext()
+        private ThreadPoolObject GetNextThreadInPool()
         {
-            int prev = this.next;
-            this.next++;
-            return this.threadPool[prev % this.poolSize];
+            int prevThread = this.nextThread;
+            this.nextThread++;
+            return this.threadPool[prevThread % this.poolSize];
+        }
+
+        private string GetBestPeer()
+        {
+            string best = this.peerQueue.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+            this.peerQueue.Remove(best);
+            return best;
         }
 
         private bool FullyDownloaded()
