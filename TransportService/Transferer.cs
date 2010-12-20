@@ -175,6 +175,10 @@ namespace TransportService
             this.maxNumber -= begin;
             this.writer = new StreamWriter(s);
             this.buffer = new Dictionary<int,BufferChunk>();
+            for (int i = begin; i < length; i++)
+            {
+                this.buffer[i] = new BufferChunk();
+            }
             this.nextChunkToWrite = begin;
             this.worker.Start();
         }
