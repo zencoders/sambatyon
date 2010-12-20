@@ -103,8 +103,9 @@ namespace TransportService
                 this.buffer[nextChunk].ActualCondition = BufferChunk.condition.DIRTY;
                 result = this.GetRemoteChunk(new ChunkRequest(this.RID, nextChunk), address);
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e.ToString());
                 this.buffer[nextChunk].ActualCondition = BufferChunk.condition.CLEAN;
                 this.peerQueue.Remove(address);
                 return;
@@ -148,6 +149,8 @@ namespace TransportService
 
         private string GetBestPeer()
         {
+            Console.WriteLine("getbestpeer");
+            Console.WriteLine(this.peerQueue.Count());
             string best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
             this.peerQueue.Remove(best);
             return best;
@@ -169,6 +172,8 @@ namespace TransportService
         {
             this.RID = RID;
             this.peerQueue = peerQueue;
+            Console.WriteLine("start");
+            Console.WriteLine(this.peerQueue.Count());
             this.maxNumber = System.Convert.ToInt32(
                 Math.Ceiling((double)(length / ((int)asr.GetValue("ChunkLength", typeof(int)))))
             );

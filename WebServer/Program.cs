@@ -45,7 +45,7 @@ namespace ConsoleHost
 //                ChunkRequest chkrq = new ChunkRequest(System.Convert.ToInt32(args[0]), args[1], System.Convert.ToInt32(args[2]));
                 Transferer tsf = new Transferer();
                 Dictionary<string, float> p2p = new Dictionary<string,float>();
-                p2p["localhost:9999"] = (float)0.50;
+                p2p["net.tcp://localhost:9999/TransportProtocol"] = (float)0.50;
                 System.Console.WriteLine("AAAAAAAAAAAAA");
                 System.Console.WriteLine(p2p.Count());
                 MemoryStream s = new MemoryStream();
@@ -53,7 +53,10 @@ namespace ConsoleHost
                 StreamReader sr = new StreamReader(s);
                 while (true)
                 {
-                    System.Console.Write(sr.Read());
+                    while (sr.Peek() >= 0) 
+                    {
+                        Console.Write("AAA" + (char)sr.Read());
+                    }
                 }
 //                Console.WriteLine("Remote Serving Buffer is: {0}", result.ServingBuffer);
             }

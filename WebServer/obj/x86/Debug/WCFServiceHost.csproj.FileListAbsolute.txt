@@ -1,8 +1,0 @@
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\TransportService.dll
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\TransportService.pdb
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.exe.config
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.exe
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.pdb
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WCFServiceHost.exe
-C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WCFServiceHost.pdb
