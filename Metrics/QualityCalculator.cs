@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using TagLib;
 using TagLib.Mpeg;
 
-namespace Metrics
-{
+namespace Metrics{
 	/// <summary>
 	/// Description of QualityCalculator.
 	/// </summary>
@@ -108,14 +107,10 @@ namespace Metrics
 		}
 		public static QualityCoefficient calculateFileQuality(String filepath) {			
 			return new QualityCoefficient(calculateFQ(filepath));
+		}		
+		public static QualityCoefficient calculateQualityCoefficient(String searchString,String[] tags,int buffered,int queueSize,String filepath) {
+			return new QualityCoefficient(calculateFQ(filepath),calculateAFF(searchString,tags),calculatePQ(buffered,queueSize));
 		}
-		//TODO: implement global quality calculation
-		//public static QualityCoefficient cal
 		#endregion
-		public static void Main() {
-			String[] sensTags={"Raining Blood","Reign in Blood","Slayer"};
-			Console.WriteLine(QualityCalculator.calculateSearchAffinity("slayer rain",sensTags));
-			Console.ReadLine();
-		}
 	}
 }
