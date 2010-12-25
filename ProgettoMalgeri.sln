@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+# SharpDevelop 4.0.0.6842
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransportService", "TransportService\TransportService.csproj", "{8C128D0C-5E16-4709-8EE8-BE8EBF79E9CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCFServiceHost", "WebServer\WCFServiceHost.csproj", "{49FD3F87-0FB7-4605-B256-5A4AA486268B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metrics", "Metrics\Metrics.csproj", "{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +38,18 @@ Global
 		{49FD3F87-0FB7-4605-B256-5A4AA486268B}.Release|Mixed Platforms.Build.0 = Release|x86
 		{49FD3F87-0FB7-4605-B256-5A4AA486268B}.Release|x86.ActiveCfg = Release|x86
 		{49FD3F87-0FB7-4605-B256-5A4AA486268B}.Release|x86.Build.0 = Release|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Debug|Any CPU.Build.0 = Debug|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Debug|x86.Build.0 = Debug|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Debug|x86.ActiveCfg = Debug|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Release|Any CPU.Build.0 = Release|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Release|Any CPU.ActiveCfg = Release|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Release|Mixed Platforms.Build.0 = Release|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Release|x86.Build.0 = Release|x86
+		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

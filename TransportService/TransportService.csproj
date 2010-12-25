@@ -42,8 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BufferChunk.cs" />
-    <Compile Include="Messages.cs" />
     <Compile Include="ThreadPoolObject.cs" />
     <Compile Include="Transferer.cs" />
     <Compile Include="ITransportProtocol.cs" />
