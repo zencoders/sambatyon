@@ -4,7 +4,7 @@
     <ProjectGuid>{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Metrics</RootNamespace>
     <AssemblyName>Metrics</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -19,6 +19,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <RunSourceAnalysis>False</RunSourceAnalysis>
+    <StartupObject>Metrics.QualityCalculator</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -55,6 +56,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileQualityCoefficient.cs" />
+    <Compile Include="QualityCalculator.cs" />
     <Compile Include="QualityCoefficient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
