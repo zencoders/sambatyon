@@ -9,7 +9,7 @@
 using System;
 using System.Net;
 
-namespace Daylight
+namespace Kademlia
 {
 	/// <summary>
 	/// Represents the information needed to contact another node.

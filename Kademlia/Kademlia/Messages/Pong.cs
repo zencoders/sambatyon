@@ -8,7 +8,7 @@
  */
 using System;
 
-namespace Daylight.Messages
+namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Represents a ping reply.

@@ -8,7 +8,7 @@
  */
 using System;
 
-namespace Daylight.Messages
+namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Represents a response message, in the same conversation as an original message.

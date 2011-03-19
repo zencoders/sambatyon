@@ -8,7 +8,7 @@
  */
 using System;
 
-namespace Daylight.Messages
+namespace Kademlia.Messages
 {
 	/// <summary>
 	/// A delegate for handling message events.

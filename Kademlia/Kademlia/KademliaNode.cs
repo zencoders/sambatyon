@@ -15,9 +15,9 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-using Daylight.Messages;
+using Kademlia.Messages;
 
-namespace Daylight
+namespace Kademlia
 {
 	/// <summary>
 	/// Functions as a peer in the overlay network.

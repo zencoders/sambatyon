@@ -9,7 +9,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Daylight.Messages
+namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Description of FindKeyContactResponse.

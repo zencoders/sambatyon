@@ -14,7 +14,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
 using System.IO;
 
-namespace Daylight
+namespace Kademlia
 {
 	/// <summary>
 	/// Stores key/value pairs assigned to our node.

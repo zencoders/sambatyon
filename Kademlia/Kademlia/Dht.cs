@@ -9,8 +9,10 @@
 using System;
 using System.Net;
 using System.Collections.Generic;
+using System.Xml.Linq;
+using System.Linq;
 
-namespace Daylight
+namespace Kademlia
 {
 	/// <summary>
 	/// This is the class you use to use the library.
@@ -21,9 +23,10 @@ namespace Daylight
 	public class Dht
 	{
 		private const int MAX_SIZE = 8 * 1024; // 8K is big
-		private const string DEFAULT_OVERLAY_URL = "http://comsmart.org/Daylight/";
+        private const string DEFAULT_NODES_FILE = "nodes.xml";
+/*		private const string DEFAULT_OVERLAY_URL = "http://comsmart.org/Daylight/";
 		private const string LIST_FRAGMENT = "list.php";
-		private const string REGISTER_FRAGMENT = "ping.php?port="; // Append port number.
+		private const string REGISTER_FRAGMENT = "ping.php?port="; // Append port number.*/
 		
 		private KademliaNode dhtNode;
 		
@@ -33,7 +36,7 @@ namespace Daylight
 		/// with regard to UPnP and storage on the local filesystem. It also
 		/// will by default announce itself to the master list.
 		/// </summary>
-		public Dht() : this(DEFAULT_OVERLAY_URL, true)
+		public Dht() : this(DEFAULT_NODES_FILE)
 		{
 			// Nothing to do!
 		}
@@ -45,7 +48,7 @@ namespace Daylight
 		/// </summary>
 		/// <param name="overlayUrl"></param>
 		/// <param name="register"></param>
-		public Dht(string overlayUrl, bool register)
+		public Dht(string nodesFile)
 		{
 			// Make a new node and get port
 			dhtNode = new KademliaNode();
@@ -53,43 +56,50 @@ namespace Daylight
 			Console.WriteLine("We are on UDP port " + ourPort.ToString());
 			
 			// Bootstrap with some nodes
-			WebClient downloader = new WebClient();
-			downloader.Proxy = null; // TODO: Let client specify proxy
+			//WebClient downloader = new WebClient();
+			//downloader.Proxy = null; // TODO: Let client specify proxy
 			Console.WriteLine("Getting bootstrap list...");
 			// TODO: Handle 404, etc.
-			string list = downloader.DownloadString(overlayUrl + LIST_FRAGMENT); // Get master list
-			string[] hosts = list.Split('\n');
+			//string list = downloader.DownloadString(overlayUrl + LIST_FRAGMENT); // Get master list
+			//string[] hosts = list.Split('\n');
+
+            XDocument xmlDoc = XDocument.Load(nodesFile);
+            
+            var nodes = from node in xmlDoc.Descendants("Node")
+                            select new
+                            {
+                                Host = node.Element("Host").Value,
+                                Port = node.Element("Port").Value,
+                            };
+
 			
-			foreach(string host in hosts) {
+			foreach(var node in nodes) {
 				// Each line is <ip> <port>
-				string[] parts = host.Split(' ');
-				if(parts.Length == 2) {
-					try {
-						IPEndPoint bootstrapNode = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
-						Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
-						if(dhtNode.Bootstrap(bootstrapNode)) {
-							Console.WriteLine("OK!");
-						} else {
-							Console.WriteLine("Failed.");
-						}
-					} catch (Exception ex) {
-						Console.WriteLine("Bad entry!");
+				try {
+					IPEndPoint bootstrapNode = new IPEndPoint(IPAddress.Parse(node.Host), int.Parse(node.Port));
+					Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
+					if(dhtNode.Bootstrap(bootstrapNode)) {
+						Console.WriteLine("OK!");
+					} else {
+						Console.WriteLine("Failed.");
 					}
+				} catch (Exception ex) {
+					Console.WriteLine("Bad entry!");
 				}
 			}
 			
 			// Join the network officially
 			Console.WriteLine("Joining network...");
 			if(dhtNode.JoinNetwork()) {
-				Console.WriteLine("Daylight online");
-				if(register) { // Announce our presence
+				Console.WriteLine("Online");
+/*				if(register) { // Announce our presence
 					downloader.DownloadString(overlayUrl + REGISTER_FRAGMENT + ourPort.ToString());
 					Console.WriteLine("Announced presence");
-				}
+				}*/
 				
 			} else {
-				Console.WriteLine("Unable to connect to Daylight overlay!\n"
-				                   + "Check that the master server is returning accessible nodes.");
+				Console.WriteLine("Unable to connect to Kademlia overlay!\n"
+				                   + "Check that nodes list has accessible nodes.");
 			}
 		}
 		

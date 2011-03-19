@@ -9,7 +9,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Daylight
+namespace Kademlia
 {
 	/// <summary>
 	/// A list of contacts.

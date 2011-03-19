@@ -14,7 +14,7 @@ using System.Web;
 using System.Threading;
 using System.Reflection;
 
-namespace Daylight
+namespace Kademlia
 {
 	/// <summary>
 	/// Represents a 160-bit number which is used both as a nodeID and as a key for the DHT.

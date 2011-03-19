@@ -2,45 +2,44 @@
  * Created by SharpDevelop.
  * User: anovak
  * Date: 6/23/2010
- * Time: 6:49 PM
+ * Time: 7:27 PM
  * 
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
 
-namespace Daylight.Messages
+namespace Kademlia.Messages
 {
 	/// <summary>
-	/// A message asking if another node will store data for us, and if we need to send the data.
-	/// Maybe they already have it.
-	/// We have to send the timestamp with it for people to republish stuff.
+	/// Send along the data in response to an affirmative StoreResponse.
 	/// </summary>
 	[Serializable]
-	public class StoreQuery : Message
+	public class StoreData : Response
 	{
 		private ID key;
-		private ID dataHash;
+		private ID dataHash; // Distinguish multiple values for a given key
+		private string data;
 		private DateTime publication;
-		private int valueSize;
 		
 		/// <summary>
-		/// Make a new STORE_QUERY message.
+		/// Make a mesage to store the given data.
 		/// </summary>
 		/// <param name="nodeID"></param>
-		/// <param name="toStore"></param>
-		/// <param name="hash">A hash of the data value</param>
+		/// <param name="request"></param>
+		/// <param name="theKey"></param>
+		/// <param name="theDataHash"></param>
+		/// <param name="theData"></param>
 		/// <param name="originalPublication"></param>
-		/// <param name="dataSize"></param>
-		public StoreQuery(ID nodeID, ID toStore, ID hash, DateTime originalPublication, int dataSize) : base(nodeID)
+		public StoreData(ID nodeID, StoreResponse request, ID theKey, ID theDataHash, string theData, DateTime originalPublication) : base(nodeID, request)
 		{
-			key = toStore;
-			dataHash = hash;
+			key = theKey;
+			data = theData;
+			dataHash = theDataHash;
 			publication = originalPublication;
-			valueSize = dataSize;
 		}
 		
 		/// <summary>
-		/// Returns the key that we want stored.
+		/// Return the key we want to store at.
 		/// </summary>
 		/// <returns></returns>
 		public ID GetKey()
@@ -49,21 +48,21 @@ namespace Daylight.Messages
 		}
 		
 		/// <summary>
-		/// Gets the hash of the data value we're asking about.
+		/// Get the data to store.
+		/// </summary>
+		/// <returns></returns>
+		public string GetData()
+		{
+			return data;
+		}
+		
+		/// <summary>
+		/// Gets the data value hash.
 		/// </summary>
 		/// <returns></returns>
 		public ID GetDataHash()
 		{
 			return dataHash;
-		}
-		
-		/// <summary>
-		/// Returns the size of the value we're storing, in bytes
-		/// </summary>
-		/// <returns></returns>
-		public int GetValueSize()
-		{
-			return valueSize;
 		}
 		
 		/// <summary>
@@ -77,7 +76,7 @@ namespace Daylight.Messages
 		
 		public override string GetName()
 		{
-			return "STORE_QUERY";
+			return "STORE_DATA";
 		}
 	}
 }
