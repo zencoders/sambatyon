@@ -77,7 +77,7 @@ namespace KademliaTester
 			Console.WriteLine("Find tests complete");
 			
 			Console.WriteLine("Testing DHT");
-			Dht dht = new Dht("C:\\Users\\seby\\Documents\\progetto_malgeri\\p2p-player\\nodes.xml");
+			Dht dht = new Dht("C:\\Users\\seby\\Documents\\progetto_malgeri\\p2p-player\\nodes"+Console.ReadLine()+".xml");
 			dht.Put("A", "The value for A");
 			Console.WriteLine("A = " + dht.Get("A"));
 			
@@ -93,7 +93,7 @@ namespace KademliaTester
 			          
 			
 			Console.WriteLine("Testing complete! Press any key to exit the program.");
-			Console.ReadKey(true);
+            Console.ReadLine();
 		}
 	}
 }

@@ -107,11 +107,13 @@ namespace TransportService
             {
                 Console.WriteLine(e.ToString());
                 this.buffer[nextChunk].ActualCondition = BufferChunk.condition.CLEAN;
-                this.peerQueue.Remove(address);
+            //    this.peerQueue.Remove(address);
                 return;
             }
             this.SaveOnBuffer(result.CID, result.Payload);
             //RICALCOLA IL PUNTEGGIO DEL PEER E AGGIORNALO
+            //SIMULO IL RICALCOLO
+            this.peerQueue.Add(address, 10);
         }
 
         private ChunkResponse GetRemoteChunk(ChunkRequest chkrq, string address)
@@ -151,6 +153,7 @@ namespace TransportService
         {
             Console.WriteLine("getbestpeer");
             Console.WriteLine(this.peerQueue.Count());
+            Thread.Sleep(1000);
             string best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
             this.peerQueue.Remove(best);
             return best;
