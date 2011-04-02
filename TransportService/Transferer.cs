@@ -56,6 +56,7 @@ namespace TransportService
         private int nextThread;
         private StreamWriter writer;
         private int nextChunkToWrite;
+        private AutoResetEvent peerQueueNotEmpty = new AutoResetEvent(true);
 
         public Transferer()
         {
@@ -76,7 +77,8 @@ namespace TransportService
         {
             this.writer.Write(e.Payload);
             this.nextChunkToWrite++;
-            while(this.buffer.ContainsKey(this.nextChunkToWrite)){
+            Console.WriteLine("WRITTEN");
+            while(this.buffer.ContainsKey(this.nextChunkToWrite) && this.buffer[this.nextChunkToWrite].ActualCondition == BufferChunk.condition.DOWNLOADED){
                 this.writer.Write(this.buffer[this.nextChunkToWrite]);
                 this.nextChunkToWrite++;
             }
@@ -89,7 +91,12 @@ namespace TransportService
             this.buffer[CID].ActualCondition = BufferChunk.condition.DOWNLOADED;
             if (CID == this.nextChunkToWrite)
             {
+                Console.WriteLine("IN WRITING!");
                 NextArrived(new object(), new NextArrivedEventArgs(CID, payload));
+            }
+            else
+            {
+                Console.WriteLine("ARRIVED: " + CID + "; ATTENDING: " + this.nextChunkToWrite);
             }
         }
 
@@ -114,6 +121,7 @@ namespace TransportService
             //RICALCOLA IL PUNTEGGIO DEL PEER E AGGIORNALO
             //SIMULO IL RICALCOLO
             this.peerQueue.Add(address, 10);
+            this.peerQueueNotEmpty.Set();
         }
 
         private ChunkResponse GetRemoteChunk(ChunkRequest chkrq, string address)
@@ -129,8 +137,14 @@ namespace TransportService
         {
             while ( (!this.FullyDownloaded()) && (!this.shouldStop))
             {
+            //    Thread.Sleep(1000);
                 ThreadPoolObject chunkGetter = this.GetNextThreadInPool();
                 chunkGetter.assignAndStart(new ThreadStart(() => GetNextChunk()));
+            }
+            Console.WriteLine("FINISHED!");
+            for (int i = this.maxNumber - this.buffer.Count(); i < this.maxNumber; i++)
+            {
+                Console.WriteLine(this.buffer[i].Payload);
             }
         }
 
@@ -143,25 +157,50 @@ namespace TransportService
 
         private int NextChunkToGet()
         {
-            int best = this.buffer.AsParallel().Where(
+            int best = -1;
+            try{
+            best = this.buffer.AsParallel().Where(
                 Elem => Elem.Value.ActualCondition == BufferChunk.condition.CLEAN
                 ).Aggregate((l, r) => l.Key < r.Key ? l : r).Key;
+            } catch(Exception e){
+                int a = this.buffer.AsParallel().Where(Elem => Elem.Value.ActualCondition == BufferChunk.condition.CLEAN
+                    ).Count();
+                int b = this.buffer.AsParallel().Where(Elem => Elem.Value.ActualCondition == BufferChunk.condition.DOWNLOADED
+                    ).Count();
+                int c = this.buffer.AsParallel().Where(Elem => Elem.Value.ActualCondition == BufferChunk.condition.DIRTY
+                    ).Count();
+                Console.WriteLine("BUFFER LENGTH " + this.buffer.Count());
+                Console.WriteLine("MAX LENGTH " + this.maxNumber);
+                Console.WriteLine("CLEAN " + a);
+                Console.WriteLine("DOWNLOADED " + b);
+                Console.WriteLine("DIRTY " + c);
+            }
             return best;
         }
 
         private string GetBestPeer()
         {
+            if (this.peerQueue.Count() <= 0)
+            {
+                this.peerQueueNotEmpty.WaitOne();
+            }
+            this.peerQueueNotEmpty.Reset();
             Console.WriteLine("getbestpeer");
             Console.WriteLine(this.peerQueue.Count());
-            Thread.Sleep(1000);
             string best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
             this.peerQueue.Remove(best);
+            if (this.peerQueue.Count > 0)
+            {
+                this.peerQueueNotEmpty.Set();
+            }
             return best;
         }
 
         private bool FullyDownloaded()
         {
-            if (this.buffer.Count == this.maxNumber)
+            int downloaded = this.buffer.AsParallel().Where(Elem => Elem.Value.ActualCondition == BufferChunk.condition.DOWNLOADED
+                ).Count();
+            if (downloaded >= this.buffer.Count())
             {
                 return true;
             }
@@ -183,7 +222,7 @@ namespace TransportService
             this.maxNumber -= begin;
             this.writer = new StreamWriter(s);
             this.buffer = new Dictionary<int,BufferChunk>();
-            for (int i = begin; i < length; i++)
+            for (int i = begin; i < this.maxNumber; i++)
             {
                 this.buffer[i] = new BufferChunk();
             }
