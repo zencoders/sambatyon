@@ -10,7 +10,7 @@ namespace Persistence {
     /// <summary>
     /// Classe rappresentante il Modello per una traccia.
     /// </summary>
-    public class TrackModel
+    public class TrackModel 
     {
         #region Attributes
         /// <summary>
@@ -39,41 +39,75 @@ namespace Persistence {
         private String _filename;
         #endregion
         #region Properties
-        public String title
+        /// <summary>
+        /// Titolo del brano
+        /// </summary>
+        public String Title
         {
             get
             {
                 return this._title;
             }
+            set
+            {
+                this._title = value;
+            }
         }
-        public String author
+        /// <summary>
+        /// Autore del brano
+        /// </summary>
+        public String Author
         {
             get
             {
                 return this._author;
             }
+            set
+            {
+                this._author = value;
+            }
         }
-        public String album
+        /// <summary>
+        /// Album all'interno del quale si trova la traccia
+        /// </summary>
+        public String Album
         {
             get
             {
                 return this._album;
             }
+            set
+            {
+                this._album = value;
+            }
         }
-        public String year
+        /// <summary>
+        /// Anno, sotto forma di stringa, del brano
+        /// </summary>
+        public String Year
         {
             get
             {
                 return this._year;
             }
+            set
+            {
+                this._year = value;
+            }
         }
-        public String id {
+        /// <summary>
+        /// Id del brano all'interno del DB. In genere si tratta del checksum MD5 del file
+        /// </summary>
+        public String Id {
             get
             { 
                 return this._id;
             }
         }
-        public String filname{
+        /// <summary>
+        /// Path del file contenente il brano.
+        /// </summary>
+        public String Filename{
             get
             {
                 return this._filename;
@@ -113,7 +147,8 @@ namespace Persistence {
         /// </summary>
         /// <param name="data">Array di Stringhe contenente i dati per generare il modello.</param>
         /// <returns>L'oggetto TrackModel creato dai dati oppure null se i dati sono insufficienti o errati</returns>
-        static TrackModel loadFromData(String[] data) {
+        public static TrackModel LoadFromData(String[] data) {
+            TrackRepositoryFactory.GetRepositoryInstance("pippo");
             if (data.Length<6) {
                 return null;
             } else {
@@ -126,7 +161,7 @@ namespace Persistence {
         /// </summary>
         /// <param name="filename">Il path del file da cui leggere i dati</param>
         /// <returns>L'oggetto TrackModel creato leggendo il file oppure null se il file non esiste oppure non contiene dati.</returns>
-        static TrackModel loadFromFile(String filename) {
+        public static TrackModel LoadFromFile(String filename) {
             if (System.IO.File.Exists(filename)) {
                 AudioFile mpegFile = new AudioFile(filename);
                 TagLib.Tag fileTag = mpegFile.GetTag(TagLib.TagTypes.Id3v2, false);
