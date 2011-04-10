@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WCFServiceHost.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="tcpPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)">9999</Value>
+    </Setting>
+    <Setting Name="httpPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)">9998</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
