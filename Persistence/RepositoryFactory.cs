@@ -6,14 +6,14 @@ using System.Text;
 namespace Persistence
 {
     /// <summary>
-    /// Classe Factory che si occupa della creazione dei TrackRepository in modo da mascherare le classi specializzate.
-    /// Le classi create per essere richiamate dalla Factory devono essere contenute nel namespace Persistence.Repository e 
-    /// devono chiamarsi <c><i>NomeTipo</i>TrackRepository</c> e devono avere un attributo costante chiamato RepositoryType 
+    /// Classe Factory che si occupa della creazione dei Repository in modo da mascherare le classi specializzate.
+    /// Le classi create per essere richiamate dalla Factory devono essere contenute nel namespace Persistence.RepositoryImpl e 
+    /// devono chiamarsi <c><i>NomeTipo</i>Repository</c> e devono avere un attributo costante chiamato RepositoryType 
     /// contenente una stringa che identifica il tipo del repository.
     /// Il tipo del repository viene usato dalla Factory per generarne un'istanza.
     /// </summary>
-    /// <seealso cref="Persistence.TrackRepository"/>
-    public static class TrackRepositoryFactory
+    /// <seealso cref="Persistence.Repository"/>
+    public static class RepositoryFactory
     {
         /// <summary>
         /// Metodo privato che genera il nome della classe del Repository in base al suo tipo.
@@ -21,17 +21,17 @@ namespace Persistence
         /// <param name="repType">Il tipo di repository</param>
         /// <returns>La stringa contenente il nome completo della classe implementante il repository del tipo richiesto.</returns>
         private static String _generateRepositoryClassName(String repType) {
-            return "Persistence.Repository." + repType + "TrackRepository";
+            return "Persistence.RepositoryImpl." + repType + "Repository";
         }
         /// <summary>
         /// Metodo statico per ottenere un'istanza di un repository di un tipo specificato.
-        /// Se tutto va a buon fine il metodo ritornerà un oggetto delle classe Persistence.Repository.TipoTrackRepository derivata
-        /// dalla classe astratta Persistence.TrackRepository.
+        /// Se tutto va a buon fine il metodo ritornerà un oggetto delle classe Persistence.RepositoryImpl.TipoRepository derivata
+        /// dalla classe astratta Persistence.Repository.
         /// Se viene richiesto un tipo di repository non disponibile verrà sollevata un'eccezione; è quindi preferibile, nel caso in 
         /// cui non si sia sicuri della disponibilità di un tipo di repository, usare il metodo IsValidRepositoryType della Factory.
         /// </summary>
         /// <example>
-        /// Persistence.TrackRepository repo=Persistence.TrackRepositoryFactory("raven");
+        /// Persistence.Repository repo=Persistence.RepositoryFactory("raven");
         /// Console.Writeline(repo.RepositoryType); //raven
         /// </example>
         /// <param name="repType">Stringa rappresentante il tipo di repository richiesto.</param>
@@ -42,7 +42,7 @@ namespace Persistence
         /// richiesto risulti vuota</exception>
         /// <exception cref="System.ArgumentNullException">Eccezione sollevata nel caso in cui la stringa contenente il tipo di
         /// repository richiesto risulti essere nulla</exception>
-        public static TrackRepository GetRepositoryInstance(String repType)
+        public static Repository GetRepositoryInstance(String repType)
         {
             if (repType != null)
             {
@@ -53,7 +53,12 @@ namespace Persistence
                     {
                         Type reflectedRepository = Type.GetType(className, true, true);
                         object rep = reflectedRepository.GetConstructor(Type.EmptyTypes).Invoke(null);
-                        return rep as TrackRepository;
+                        Repository inst=rep as Repository;
+                        if (inst.RepositoryType.Equals(repType)) {                           
+                            return inst;
+                        } else {
+                            throw new TypeLoadException("Type "+inst.RepositoryType+" is different from the expected "+repType+"!");
+                        }
                     }
                     catch (Exception ex)
                     {

@@ -49,12 +49,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompleteTag.cs" />
+    <Compile Include="ILoadable.cs" />
     <Compile Include="LightTag.cs" />
-    <Compile Include="TrackRepository.cs" />
+    <Compile Include="RavenRepository.cs" />
+    <Compile Include="Repository.cs" />
     <Compile Include="RepositoryResponse.cs" />
     <Compile Include="TrackModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TrackRepositoryFactory.cs" />
+    <Compile Include="RepositoryFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

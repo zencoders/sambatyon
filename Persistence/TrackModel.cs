@@ -10,9 +10,9 @@ namespace Persistence {
     /// <summary>
     /// Classe rappresentante il Modello per una traccia.
     /// </summary>
-    public class TrackModel 
+    public class TrackModel : ILoadable
     {
-        #region Attributes
+        /*#region Attributes
         /// <summary>
         /// Id del brano all'interno del DB. In genere si tratta del checksum MD5 del file
         /// </summary>
@@ -187,6 +187,75 @@ namespace Persistence {
                 return null;
             }
         }
+        #endregion
+         */
+        public TrackModel()
+        {
+            this.Tag = new Tag.CompleteTag();
+            this.Filepath = "";
+        }
+        public TrackModel(string filename)
+        {
+            this.Tag = new Tag.CompleteTag(filename);
+            this.Filepath = filename;
+        }
+        public string Hash
+        {
+            get
+            {
+                return Tag.Hash;
+            }
+        }
+        public string Filepath
+        {
+            get;
+            private set;
+        }
+        public Tag.CompleteTag Tag {
+            get;
+            private set;
+        }
+
+
+        #region ILoadable
+
+        public class TrackDatabaseType
+        {
+            public string Key
+            {
+                get;
+                set;
+            }
+            public string Filename
+            {
+                get;
+                set;
+            }
+        }
+        public dynamic GetAsDatabaseType()
+        {
+            return new TrackDatabaseType
+            {
+                Key = this.Hash,
+                Filename = this.Filepath
+            };
+        }
+
+        public bool LoadFromDatabaseType(dynamic data)
+        {
+            Tag.CompleteTag t = new Tag.CompleteTag(data.Filename);
+            if (t.Hash.Equals(data.Key))
+            {
+                this.Tag = t;
+                this.Filepath = data.Filename;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         #endregion
     }
 }
