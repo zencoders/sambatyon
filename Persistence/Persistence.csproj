@@ -53,6 +53,7 @@
     <Compile Include="LightTag.cs" />
     <Compile Include="RavenRepository.cs" />
     <Compile Include="Repository.cs" />
+    <Compile Include="RepositoryConfiguration.cs" />
     <Compile Include="RepositoryResponse.cs" />
     <Compile Include="TrackModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -10,6 +10,7 @@ namespace Examples
         static void Main(string[] args)
         {
             TagExamples.RunExamples();
+            RepositoryExamples.RunExamples();
         }
     }
 }

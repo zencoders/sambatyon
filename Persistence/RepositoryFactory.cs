@@ -42,7 +42,7 @@ namespace Persistence
         /// richiesto risulti vuota</exception>
         /// <exception cref="System.ArgumentNullException">Eccezione sollevata nel caso in cui la stringa contenente il tipo di
         /// repository richiesto risulti essere nulla</exception>
-        public static Repository GetRepositoryInstance(String repType)
+        public static Repository GetRepositoryInstance(String repType,RepositoryConfiguration config)
         {
             if (repType != null)
             {
@@ -52,7 +52,9 @@ namespace Persistence
                     try
                     {
                         Type reflectedRepository = Type.GetType(className, true, true);
-                        object rep = reflectedRepository.GetConstructor(Type.EmptyTypes).Invoke(null);
+                        Type[] args = new Type[1] {config.GetType()};
+                        Object[] param = new Object[1] { config };
+                        object rep = reflectedRepository.GetConstructor(args).Invoke(param);
                         Repository inst=rep as Repository;
                         if (inst.RepositoryType.Equals(repType)) {                           
                             return inst;
