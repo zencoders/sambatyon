@@ -78,7 +78,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Kademlia\Kademlia.csproj">
       <Project>{07C0CD14-D301-44B4-8B1A-7FD5D68F03CB}</Project>
-      <Name>Daylight</Name>
+      <Name>Kademlia</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
