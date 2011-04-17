@@ -8,8 +8,8 @@
     <ProjectGuid>{7667D3D1-795F-48E1-B271-BE245159EE34}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClassLibrary1</RootNamespace>
-    <AssemblyName>ClassLibrary1</AssemblyName>
+    <RootNamespace>KademliaBinding</RootNamespace>
+    <AssemblyName>KademliaBinding</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
@@ -41,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KademliaChannelHelpers.cs" />
     <Compile Include="NetKademliaBinding.cs" />
     <Compile Include="KademliaBindingConfigurationElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

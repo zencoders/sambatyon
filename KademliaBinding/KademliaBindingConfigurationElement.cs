@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ServiceModel.Channels;
+using System.Configuration;
+using System.Collections;
+using System.Globalization;
+using System.ServiceModel;
 using System.ServiceModel.Configuration;
 
 namespace KademliaBinding
@@ -22,5 +24,20 @@ namespace KademliaBinding
         {
             get { return typeof(NetKademliaBinding); }
         }
+
+        protected override void OnApplyConfiguration(Binding binding)
+        {
+            if (binding == null)
+                throw new ArgumentNullException("binding");
+
+            if (binding.GetType() != typeof(NetKademliaBinding))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                    "Invalid type for binding. Expected type: {0}. Type passed in: {1}.",
+                    typeof(NetKademliaBinding).AssemblyQualifiedName,
+                    binding.GetType().AssemblyQualifiedName));
+            }
+        }
+
     }
 }
