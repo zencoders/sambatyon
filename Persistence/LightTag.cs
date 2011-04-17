@@ -225,5 +225,14 @@ namespace Tag {
                 return sizeArray;                
             }
         }
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < _rawData.Length; i++)
+            {
+                sb.Append(_rawData[i].ToString("x2"));
+            }
+            return sb.ToString();
+        }
     }
 }} // namespace Persistence.Tag

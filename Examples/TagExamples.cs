@@ -30,6 +30,7 @@ namespace Examples
             Console.WriteLine("Artist: " + miniTag.Artist);
             Console.WriteLine("Album: " + miniTag.Album);
             Console.WriteLine("Raw Byte Length: " + miniTag.RawData.Length);
+            Console.WriteLine("Raw Byte : " + miniTag.ToString());
         }
         private static void CompleteTagReadAndWrite()
         {
