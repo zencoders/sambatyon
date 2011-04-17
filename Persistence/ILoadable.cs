@@ -9,5 +9,6 @@ namespace Persistence
     {
         dynamic GetAsDatabaseType();
         bool LoadFromDatabaseType(dynamic data);
+        Type GetDatabaseType();
     }
 }

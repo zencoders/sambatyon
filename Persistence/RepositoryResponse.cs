@@ -24,6 +24,10 @@ namespace Persistence
         /// </summary>
         RepositoryConnectionError=-2,
         /// <summary>
+        /// Valore che identifica un errore che ha generato l'abort di una transazione
+        /// </summary>
+        RepositoryTransactionAbort=-3,
+        /// <summary>
         /// Valore che identifica l'esecuzione di un'operazione di aggiornamento.
         /// </summary>
         RepositoryUpdate=1,

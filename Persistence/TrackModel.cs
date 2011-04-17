@@ -196,8 +196,16 @@ namespace Persistence {
         }
         public TrackModel(string filename)
         {
-            this.Tag = new Tag.CompleteTag(filename);
-            this.Filepath = filename;
+            if (System.IO.File.Exists(filename))
+            {
+                FileInfo finfo = new FileInfo(filename);
+                this.Tag = new Tag.CompleteTag(finfo.FullName);
+                this.Filepath = finfo.FullName;
+            }
+            else
+            {
+                throw new FileNotFoundException();
+            }
         }
         public string Hash
         {
@@ -219,9 +227,9 @@ namespace Persistence {
 
         #region ILoadable
 
-        public class TrackDatabaseType
+        public class Track:IDocumentType
         {
-            public string Key
+            public string Id
             {
                 get;
                 set;
@@ -234,9 +242,9 @@ namespace Persistence {
         }
         public dynamic GetAsDatabaseType()
         {
-            return new TrackDatabaseType
+            return new Track
             {
-                Key = this.Hash,
+                Id = this.Hash,
                 Filename = this.Filepath
             };
         }
@@ -244,7 +252,7 @@ namespace Persistence {
         public bool LoadFromDatabaseType(dynamic data)
         {
             Tag.CompleteTag t = new Tag.CompleteTag(data.Filename);
-            if (t.Hash.Equals(data.Key))
+            if (t.Hash.Equals(data.Id))
             {
                 this.Tag = t;
                 this.Filepath = data.Filename;
@@ -256,6 +264,14 @@ namespace Persistence {
             }
         }
 
+        public Type GetDatabaseType()
+        {
+            return typeof(Track);
+        }
+
+
+
         #endregion
+        
     }
 }
