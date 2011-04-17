@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace Examples
 {
@@ -9,17 +10,12 @@ namespace Examples
     {
         public static void RunExamples()
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.WriteLine("Repository Examples (RepositoryExaples)");
-            Console.ResetColor();
+            ExampleHelper.ExampleSetPrint("Repository Examples", typeof(RepositoryExamples));
             LoadRavenExample();
         }
         public static void LoadRavenExample()
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Generate Raven Repository Instance (RepositoryExamples.LoadRavenExample");
-            Console.ResetColor();
+            ExampleHelper.ExampleMethodPrint("Generate Raven Repository Instance", MethodInfo.GetCurrentMethod());
             var prova = new { data_dir = "..\\..\\Resource\\Database" };            
             Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(prova);
             //conf.SetConfig("data-dir", "/home/losciamano/pippo");

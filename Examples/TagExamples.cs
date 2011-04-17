@@ -3,25 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Persistence.Tag;
+using System.Reflection;
 
 namespace Examples
 {
     public static class TagExamples
     {
         public static void RunExamples() {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.WriteLine("Tag Examples (TagExaples)");
-            Console.ResetColor();
+            ExampleHelper.ExampleSetPrint("Tag Examples",typeof(TagExamples));
             TagReadAndWrite();
             CompleteTagReadAndWrite();
             CompleteToLightTag();
         }
         private static void CompleteToLightTag()
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Generating Light Tag from Complete Tag and Read it (Examples.TagExamples.CompleteToLightTag)");
-            Console.ResetColor();
+
+            ExampleHelper.ExampleMethodPrint("Generating Light Tag from Complete Tag and Read it", MethodInfo.GetCurrentMethod());
             CompleteTag tag = new CompleteTag("..\\..\\Resource\\SevenMP3.mp3");
             Console.WriteLine("Read info from Complete Tag");
             Console.WriteLine("Title: " + tag.Title);
@@ -36,9 +33,7 @@ namespace Examples
         }
         private static void CompleteTagReadAndWrite()
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Generating Complete Tag From File and Read it (Examples.TagExamples.CompleteTagReadAndWrite)");
-            Console.ResetColor();
+            ExampleHelper.ExampleMethodPrint("Generating Complete Tag From File and Read it",MethodInfo.GetCurrentMethod());
             CompleteTag tag = new CompleteTag("..\\..\\Resource\\SevenMP3.mp3");
             Console.WriteLine("Hash: " + tag.Hash);
             Console.WriteLine("Title: " + tag.Title);
@@ -56,9 +51,7 @@ namespace Examples
         }
         private static void TagReadAndWrite()
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Tag Read and Write Example (Examples.TagExamples.TagReadAndWrite)");
-            Console.ResetColor();
+            ExampleHelper.ExampleMethodPrint("Tag Read and Write Example", MethodInfo.GetCurrentMethod());
             LightTag tag = new LightTag();
             int[] ret = tag.SetTagData(
                 "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",

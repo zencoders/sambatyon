@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Raven.Client.Client;
+using Raven.Storage;
 
 namespace Persistence
 {
@@ -14,12 +15,18 @@ namespace RepositoryImpl
         public RavenRepository(RepositoryConfiguration config)
         {
             this.RepositoryType = "Raven";
-            string c = config.GetConfig("data_dir");
-            if (c.Equals(""))
+            string dataDir = config.GetConfig("data_dir");
+            if (dataDir.Equals(""))
             {
                 throw new ArgumentException("Missing data_dir configuration!");
-            } else {
-
+            }
+            else
+            {
+                Console.Write("[Debug] Opening and initializing RavenDb ... ");
+                _doc = new EmbeddableDocumentStore { DataDirectory= dataDir};
+                _doc.Initialize();
+                Console.WriteLine("done");
+            }
         }
         public override RepositoryResponse Save(ILoadable data)
         {
