@@ -42,10 +42,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KademliaChannel.cs" />
+    <Compile Include="KademliaChannelListener.cs" />
+    <Compile Include="KademliaBindingElement.cs" />
     <Compile Include="KademliaChannelHelpers.cs" />
     <Compile Include="NetKademliaBinding.cs" />
     <Compile Include="KademliaBindingConfigurationElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Kademlia\Kademlia\Kademlia.csproj">
+      <Project>{07C0CD14-D301-44B4-8B1A-7FD5D68F03CB}</Project>
+      <Name>Kademlia</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

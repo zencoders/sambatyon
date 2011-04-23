@@ -24,9 +24,6 @@ namespace Kademlia
 	{
 		private const int MAX_SIZE = 8 * 1024; // 8K is big
         private const string DEFAULT_NODES_FILE = "nodes.xml";
-/*		private const string DEFAULT_OVERLAY_URL = "http://comsmart.org/Daylight/";
-		private const string LIST_FRAGMENT = "list.php";
-		private const string REGISTER_FRAGMENT = "ping.php?port="; // Append port number.*/
 		
 		private KademliaNode dhtNode;
 		
@@ -55,13 +52,7 @@ namespace Kademlia
 			int ourPort = dhtNode.GetPort();
 			Console.WriteLine("We are on UDP port " + ourPort.ToString());
 			
-			// Bootstrap with some nodes
-			//WebClient downloader = new WebClient();
-			//downloader.Proxy = null; // TODO: Let client specify proxy
 			Console.WriteLine("Getting bootstrap list...");
-			// TODO: Handle 404, etc.
-			//string list = downloader.DownloadString(overlayUrl + LIST_FRAGMENT); // Get master list
-			//string[] hosts = list.Split('\n');
 
             XDocument xmlDoc = XDocument.Load(nodesFile);
             

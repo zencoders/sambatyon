@@ -11,16 +11,25 @@ namespace KademliaBinding
 {
     public class NetKademliaBinding : Binding
     {
+        KademliaBindingElement _transport;
+        KademliaBindingElement _encoding;
+
         public NetKademliaBinding()
         {
-            Initialize();
+            this._transport = new KademliaBindingElement();
+            this._encoding = new KademliaBindingElement();
         }
-        void Initialize()
+
+        public override string Scheme { get { return KademliaConstants.Scheme; } }
+
+        public override BindingElementCollection CreateBindingElements()
         {
- /*           transport = new UdpTransportBindingElement();
-            session = new ReliableSessionBindingElement();
-            compositeDuplex = new CompositeDuplexBindingElement();
-            encoding = new TextMessageEncodingBindingElement();*/
+            BindingElementCollection bindingElements = new BindingElementCollection();
+
+            bindingElements.Add(this._encoding);
+            bindingElements.Add(this._transport);
+
+            return bindingElements.Clone();
         }
     }
 }
