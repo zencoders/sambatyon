@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Raven.Database.Json;
 using Raven.Database.Data;
 using Newtonsoft.Json.Linq;
+using Raven.Database.Indexing;
+using Raven.Client.Indexes;
 
 namespace Persistence
 {
@@ -20,8 +22,8 @@ namespace RepositoryImpl
     class RavenRepository : Repository
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(RavenRepository));
-        //private EmbeddableDocumentStore _doc;
-        private DocumentStore _store;        
+        //private EmbeddableDocumentStore _doc;        
+        private DocumentStore _store;          
         public RavenRepository(RepositoryConfiguration config)
         {
             this.RepositoryType = "Raven";
@@ -35,7 +37,7 @@ namespace RepositoryImpl
                 log.Debug("Start opening and initializing RavenDB");
                 //_doc = new EmbeddableDocumentStore { DataDirectory = dataDir};
                 _store = new DocumentStore { Url = "http://localhost:8080" };
-                _store.Initialize();
+                _store.Initialize();               
                 log.Info("RavenDB initialized at " + dataDir);
             }
         }        
@@ -93,6 +95,32 @@ namespace RepositoryImpl
                 }
             }
         }
+        public override RepositoryResponse BulkDelete<DBType>(string[] ids)
+        {
+            using (IDocumentSession _session = _store.OpenSession())
+            {
+                DBType[] ents = _session.Load<DBType>(ids);
+                try
+                {
+                    using (TransactionScope tx = new TransactionScope())
+                    {
+                        foreach (DBType entity in ents)
+                        {
+                            _session.Delete<DBType>(entity);
+                        }
+                        _session.SaveChanges();
+                        tx.Complete();
+                    }
+                    return RepositoryResponse.RepositoryDelete;
+                }
+                catch (TransactionAbortedException tae)
+                {
+                    log.Error("Transaction Aborted", tae);
+                    return RepositoryResponse.RepositoryGenericError;
+                }
+            }
+        }
+ 
 
         public override int Count<DBType>()
         {
@@ -128,6 +156,15 @@ namespace RepositoryImpl
             }
         }
 
+        public override RepositoryResponse GetAllByCondition<DBType>(Func<DBType, bool> cond,List<DBType> elems)
+        {            
+            using (IDocumentSession _session = _store.OpenSession())
+            {
+                var results = _session.Query<DBType>().AsParallel().Where(cond);
+                elems.AddRange(results);
+            }
+            return RepositoryResponse.RepositoryLoad;
+        }
         public override RepositoryResponse GetByKeySet<DBType>(string[] ids, List<DBType> elems)
         {
             if (elems != null)
@@ -144,7 +181,6 @@ namespace RepositoryImpl
                 return RepositoryResponse.RepositoryGenericError;
             }
         }
-
         public override RepositoryResponse GetAll<DBType>(ICollection<DBType> cont)
         {
             if (cont!=null) {
@@ -160,7 +196,20 @@ namespace RepositoryImpl
                 return RepositoryResponse.RepositoryGenericError;
             }
         }
-
+        public override RepositoryResponse CreateIndex(string indexName, string indexQuery)
+        {
+            IndexDefinition def = new IndexDefinition() { Map = indexQuery, Name = indexName };
+            log.Debug(_store.DatabaseCommands.PutIndex(indexName, def));
+            return RepositoryResponse.RepositorySuccess;
+        }
+        public override RepositoryResponse QueryOverIndex<DBType>(string indexName, string query,List<DBType> elems){
+            if (elems == null) return RepositoryResponse.RepositoryGenericError;
+            using (IDocumentSession _session = _store.OpenSession()) {
+                var results = _session.Advanced.LuceneQuery<DBType>(indexName).Where(query);                                
+                elems.AddRange(results);
+            }
+            return RepositoryResponse.RepositoryLoad;
+        }
         private bool patchDatabase(string key, string propertyName, object value, PatchCommandType type)
         {
             using (IDocumentSession _session = _store.OpenSession())
@@ -172,7 +221,7 @@ namespace RepositoryImpl
                             Patches = new [] {
                                 new PatchRequest {
                                     Type = type,
-                                    Name = propertyName,
+                                    Name = propertyName,                                    
                                     Value = JToken.FromObject(value)
                                 }
                             }
@@ -187,6 +236,12 @@ namespace RepositoryImpl
         {
             patchDatabase(key, property, element, PatchCommandType.Add);
             return RepositoryResponse.RepositoryPatchAdd;
+        }
+
+        public override RepositoryResponse ArrayRemoveElement(string key, string property, object value)
+        {
+            patchDatabase(key, property, value, PatchCommandType.Remove);
+            return RepositoryResponse.RepositoryPatchRemove;
         }
 
         public override RepositoryResponse SetPropertyValue(string key, string property, object newValue)
@@ -205,8 +260,6 @@ namespace RepositoryImpl
         }
 
         #endregion
-
-        
     }
 }
 }

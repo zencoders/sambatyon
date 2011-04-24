@@ -6,6 +6,16 @@ using log4net;
 using Persistence.Tag;
 using System.Threading.Tasks;
 using System.Threading;
+using Raven.Client.Indexes;
+using Raven.Database.Indexing;
+using Raven.Client.Document;
+
+
+/*
+ * from key in docs.KademliaKeywords
+ * from tag in key.Tags
+ * select new { Kid = key.Id , Tid = tag}
+ */
 
 namespace Persistence
 {
@@ -15,6 +25,10 @@ namespace Persistence
         private Repository _repository;
         public KademliaRepository(string repType,RepositoryConfiguration conf) {
             this._repository = RepositoryFactory.GetRepositoryInstance(repType, conf);
+            this._repository.CreateIndex("KademliaKeywords/KeysByTag",
+                                         "from key in docs.KademliaKeywords\nfrom tag in key.Tags\nselect new { Kid = key.Id , Tid = tag}");
+            this._repository.CreateIndex("KademliadKeywords/EmptyKeys",
+                                         "from key in docs.KademliaKeywords\nwhere key.Tags.Count() == 0\nselect new { key.Id }");
         }
         public bool StoreResource(CompleteTag tag, Uri peer)
         {
@@ -71,7 +85,51 @@ namespace Persistence
             }
             return true;
         }
-
+        public KademliaResource[] SearchFor(string query)
+        {
+            List<KademliaResource> resources = new List<KademliaResource>();
+            List<KademliaKeyword> keys = new List<KademliaKeyword>();
+            string[] queryParts = query.Split(' ');
+            _repository.GetAllByCondition(kw =>
+            {
+                string kid=kw.Id.Substring(17);
+                foreach (string p in queryParts) {
+                    if (kid.Contains(p.ToLower()))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }, keys);
+            List<string> tids = new List<string>();
+            foreach (KademliaKeyword kw in keys)
+            {
+                tids.AddRange(kw.Tags);
+            }
+            _repository.GetByKeySet(tids.ToArray(), resources);
+            return resources.ToArray();
+        }
+        public bool DeleteTag(string tid)
+        {
+            List<KademliaKeyword> results = new List<KademliaKeyword>();
+            this._repository.QueryOverIndex("KademliaKeywords/KeysByTag", "Tid:"+tid, results);
+            foreach (var t in results)
+            {
+                //t.Tags.FindIndex(x => x.Equals(tid))
+                this._repository.ArrayRemoveElement(t.Id,"Tags",tid);
+            }
+            this._repository.Delete<KademliaResource>(tid);
+            results.Clear();
+            this._repository.QueryOverIndex("KademliaKeywords/EmptyKeys", "",results);
+            string[] ids = new string[results.Count];
+            int index = 0;
+            foreach (var t in results)
+            {
+                ids[index++] = t.Id;
+            }
+            this._repository.BulkDelete<KademliaKeyword>(ids);
+            return true;
+        }
         private string discardSemanticlessWords(string str)
         {
             return str;
@@ -108,7 +166,7 @@ namespace Persistence
                 {
                     key = keywords[k].ToLower();
                 }
-                if (!pkList.Contains(key)) pkList.Add(@"kademliakeywords/"+key);
+                if (!pkList.Contains(key)) pkList.Add("kademliakeywords/"+key);
             }
             return pkList.ToArray();
         }

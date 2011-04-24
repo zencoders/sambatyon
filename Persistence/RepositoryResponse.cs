@@ -60,10 +60,11 @@ namespace Persistence
         /// <summary>
         /// Valore che identifica l'aggiunta di un elemento ad un array in fase di Patch sul repository
         /// </summary>
-        RepositoryPatchAdd= 11,
+        RepositoryPatchAdd = 11,
         /// <summary>
         /// Valore che identifica la modifica di una proprietà in fase di Patch del Repository
         /// </summary>
-        RepositoryPatchSet= 12
+        RepositoryPatchSet = 12,
+        RepositoryPatchRemove
     }
 }
