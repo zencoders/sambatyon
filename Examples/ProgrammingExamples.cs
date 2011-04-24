@@ -14,8 +14,19 @@ namespace Examples
         {
             //LOG4NET
             XmlConfigurator.Configure();
-            TagExamples.RunExamples();
-            RepositoryExamples.RunExamples();
+            int num_args = args.Length;
+            if (num_args == 0 || args.Contains("tag"))
+            {
+                TagExamples.RunExamples();
+            }
+            if (num_args == 0 || args.Contains("rep"))
+            {
+                RepositoryExamples.RunExamples();
+            }
+            if (num_args == 0 || args.Contains("kad_rep"))
+            {
+                KademliaRepositoryExamples.RunExamples();
+            }
         }
     }
 }

@@ -211,7 +211,7 @@ namespace Persistence {
         {
             get
             {
-                return Tag.Hash;
+                return Tag.FileHash;
             }
         }
         public string Filepath
@@ -252,7 +252,7 @@ namespace Persistence {
         public bool LoadFromDatabaseType(dynamic data)
         {
             Tag.CompleteTag t = new Tag.CompleteTag(data.Filename);
-            if (t.Hash.Equals(data.Id))
+            if (t.FileHash.Equals(data.Id))
             {
                 this.Tag = t;
                 this.Filepath = data.Filename;

@@ -19,7 +19,7 @@ namespace Examples
         {
 
             ExampleHelper.ExampleMethodPrint("Generating Light Tag from Complete Tag and Read it", MethodInfo.GetCurrentMethod());
-            CompleteTag tag = new CompleteTag("..\\..\\Resource\\SevenMP3.mp3");
+            CompleteTag tag = new CompleteTag(@"..\..\Resource\SevenMP3.mp3");
             Console.WriteLine("Read info from Complete Tag");
             Console.WriteLine("Title: " + tag.Title);
             Console.WriteLine("Artist: " + tag.Artist);
@@ -35,8 +35,8 @@ namespace Examples
         private static void CompleteTagReadAndWrite()
         {
             ExampleHelper.ExampleMethodPrint("Generating Complete Tag From File and Read it",MethodInfo.GetCurrentMethod());
-            CompleteTag tag = new CompleteTag("..\\..\\Resource\\SevenMP3.mp3");
-            Console.WriteLine("Hash: " + tag.Hash);
+            CompleteTag tag = new CompleteTag(@"..\..\Resource\SevenMP3.mp3");
+            Console.WriteLine("Hash: " + tag.FileHash);
             Console.WriteLine("Title: " + tag.Title);
             Console.WriteLine("Artist: " + tag.Artist);
             Console.WriteLine("Album: " + tag.Album);
@@ -48,7 +48,7 @@ namespace Examples
             Console.WriteLine("Channels: " + tag.Channels);
             Console.WriteLine("Bitrate: " + tag.Bitrate);
             Console.WriteLine("Sample Rate: " + tag.SampleRate);
-            Console.WriteLine("Specific Tag: " + tag.SpecificTag.GetType().FullName);            
+            //Console.WriteLine("Specific Tag: " + tag.SpecificTag.GetType().FullName);            
         }
         private static void TagReadAndWrite()
         {

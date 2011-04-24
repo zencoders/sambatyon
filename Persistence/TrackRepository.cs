@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Persistence
 {
-    class TrackRepository
+    public class TrackRepository: IDisposable
     {
-        private Repository<TrackModel.Track> _repository;
+        private Repository _repository;
         public TrackRepository(string repType,RepositoryConfiguration conf) {
-            this._repository = RepositoryFactory.GetRepositoryInstance<TrackModel.Track>(repType, conf);
+            this._repository = RepositoryFactory.GetRepositoryInstance(repType, conf);
         }
         public RepositoryResponse InsertTrack(string filename) {
             if (System.IO.File.Exists(filename)) {
@@ -41,14 +41,14 @@ namespace Persistence
             }
         }
         public RepositoryResponse Delete(string key) {
-            return this._repository.Delete(key);
+            return this._repository.Delete<TrackModel.Track>(key);
         }
         public RepositoryResponse Update(TrackModel mdl) {
             return this._repository.Save(mdl);
         }
         public TrackModel Get(string key) {
             TrackModel tk = new TrackModel();
-            if (this._repository.GetByKey(key, tk) >= 0)
+            if (this._repository.GetByKey<TrackModel.Track>(key, tk) >= 0)
             {
                 return tk;
             }
@@ -70,7 +70,16 @@ namespace Persistence
             return list;
         }
         public int Count() {
-            return this._repository.Count();
+            return this._repository.Count<TrackModel.Track>();
         }
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            this._repository.Dispose();
+        }
+
+        #endregion
     }
 }// namespace Persistence

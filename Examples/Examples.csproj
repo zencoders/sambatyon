@@ -39,6 +39,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\RavenEmbeddedClient\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="MissingBitsFromClientProfile">
+      <HintPath>..\lib\RavenClient\MissingBitsFromClientProfile.dll</HintPath>
+    </Reference>
     <Reference Include="Raven.Client.Embedded, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\RavenEmbeddedClient\Raven.Client.Embedded.dll</HintPath>
@@ -58,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExampleHelper.cs" />
+    <Compile Include="KademliaRepositoryExamples.cs" />
     <Compile Include="ProgrammingExamples.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryExamples.cs" />

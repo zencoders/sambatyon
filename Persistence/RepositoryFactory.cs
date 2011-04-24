@@ -21,7 +21,7 @@ namespace Persistence
         /// <param name="repType">Il tipo di repository</param>
         /// <returns>La stringa contenente il nome completo della classe implementante il repository del tipo richiesto.</returns>
         private static String _generateRepositoryClassName(String repType) {
-            return "Persistence.RepositoryImpl." + repType + "Repository`1";
+            return "Persistence.RepositoryImpl." + repType + "Repository";
             //[]
         }
         /// <summary>
@@ -43,8 +43,7 @@ namespace Persistence
         /// richiesto risulti vuota</exception>
         /// <exception cref="System.ArgumentNullException">Eccezione sollevata nel caso in cui la stringa contenente il tipo di
         /// repository richiesto risulti essere nulla</exception>
-        /// <typeparam name="DBType">Tipo di dato usato nel Repository</typeparam>
-        public static Repository<DBType> GetRepositoryInstance<DBType>(String repType,RepositoryConfiguration config) where DBType:IDocumentType
+        public static Repository GetRepositoryInstance(String repType,RepositoryConfiguration config)
         {
             if (repType != null)
             {
@@ -53,13 +52,11 @@ namespace Persistence
                     String className = _generateRepositoryClassName(repType);
                     try
                     {                        
-                        Type[] genPar= new Type[1] {typeof(DBType)};
                         Type reflectedRepository = Type.GetType(className, true, true);
-                        reflectedRepository=reflectedRepository.MakeGenericType(genPar);
                         Type[] args = new Type[1] {config.GetType()};
                         Object[] param = new Object[1] { config };
                         object rep = reflectedRepository.GetConstructor(args).Invoke(param);
-                        Repository<DBType> inst=rep as Repository<DBType>;
+                        Repository inst=rep as Repository;
                         if (inst.RepositoryType.Equals(repType)) {                           
                             return inst;
                         } else {

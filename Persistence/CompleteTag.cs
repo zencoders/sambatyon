@@ -16,18 +16,39 @@ namespace Tag
         public CompleteTag(string filename)
         {
             FileStream file = new FileStream(filename, FileMode.Open);
-            MD5 md5 = new MD5CryptoServiceProvider();
-            byte[] retVal = md5.ComputeHash(file);
+            SHA1 crypto = new SHA1CryptoServiceProvider();
+            byte[] retVal = crypto.ComputeHash(file);
             file.Close();
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < retVal.Length; i++)
             {
                 sb.Append(retVal[i].ToString("x2"));
             }
-            this.Hash= sb.ToString();
-            this.FillTag(filename);
+            this.FileHash= sb.ToString();
+            this.FillTag(filename);    
+            System.Text.UTF8Encoding enc= new UTF8Encoding();
+            byte[] tHashByte = crypto.ComputeHash(enc.GetBytes(this.contentString()));
+            crypto.ComputeHash(tHashByte);
+            sb.Clear();
+            for (int i = 0; i < tHashByte.Length; i++)
+            {
+                sb.Append(tHashByte[i].ToString("x2"));
+            }
+            this.TagHash = sb.ToString();
         }
 
+        private string contentString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(this.Title.ToLower());
+            sb.Append("#");
+            sb.Append(this.Artist.ToLower());
+            sb.Append("#");
+            sb.Append(this.Album.ToLower());
+            sb.Append("#");
+            sb.Append(this.Year);
+            return sb.ToString();
+        }
         private bool _fillTagMpeg(string filename)
         {
             using (AudioFile mpegFile = new AudioFile(filename))
@@ -50,7 +71,6 @@ namespace Tag
                 {
                     return false;
                 }
-                this.SpecificTag = fileTag;
                 AudioHeader header;
                 if (AudioHeader.Find(out header, mpegFile, 0))
                 {
@@ -141,12 +161,12 @@ namespace Tag
             get;
             set;
         }
-        public Object SpecificTag
+        public string FileHash
         {
             get;
             set;
         }
-        public string Hash
+        public string TagHash
         {
             get;
             set;

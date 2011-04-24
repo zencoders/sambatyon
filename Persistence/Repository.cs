@@ -11,9 +11,8 @@ namespace Persistence
     /// Per istanziare una classe derivata da Repository usare il metodo statico GetRepositoryInstance della classe 
     /// <see cref="Persistence.TrackRepositoryFactory"/>.
     /// </summary>
-    /// <typeparam name="DBType">Tipo di dato da inserire nel database</typeparam>
     /// 
-    public abstract class Repository<DBType>: IDisposable where DBType : IDocumentType {
+    public abstract class Repository: IDisposable  {
         /// <summary>
         /// Metodo che si occupa del salvataggio delle informazioni all'interno del repository.
         /// Se l'elemento non esiste viene inserito, altrimenti viene soltanto aggiornato.
@@ -29,12 +28,14 @@ namespace Persistence
         /// <param name="id">Chiave identificativa dell'elemento che si vuole eliminare</param>
         /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
         /// che identifica l'operazione eseguita.</returns>
-        public abstract RepositoryResponse Delete(string id);
+        /// <typeparam name="DBType">Tipo di dato usato nel database</typeparam>
+        public abstract RepositoryResponse Delete<DBType>(string id) where DBType : IDocumentType;
         /// <summary>
         /// Metodo che ritorna la dimensione del repository.
         /// </summary>
         /// <returns>La dimensione del repository.</returns>
-        public abstract int Count();
+        /// <typeparam name="DBType">Tipo di dato usato nel database</typeparam>
+        public abstract int Count<DBType>() where DBType : IDocumentType;
         /// <summary>
         /// Metodo che si occupa di ritornare un elemento del repository identificato da una chiave. Il risultato viene scritto
         /// nel parametro <c>elem</c> passato in ingresso
@@ -43,14 +44,45 @@ namespace Persistence
         /// <param name="elem">Parametro di riferimento in uscita che verrà valorizzato con i dati provenienti dal repository</param>
         /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
         /// che identifica l'operazione eseguita.</returns>
-        public abstract RepositoryResponse GetByKey(String id, ILoadable elem);
+        /// <typeparam name="DBType">Tipo di dato usato nel database</typeparam>
+        public abstract RepositoryResponse GetByKey<DBType>(string id, ILoadable elem) where DBType : IDocumentType;
+        /// <summary>
+        /// Metodo che si occupa di ritornare gli elementid del repository identificati dalle chiavi fornite.
+        /// </summary>
+        /// <typeparam name="DBType">Tipo di dato usato nel database</typeparam>
+        /// <param name="ids">Array contenente le chiavi identificative degli elementi che si voglioni ricercare</param>
+        /// <param name="elems">Parametro di riferimento in uscita che verrà valorizzato con i dati proveniente dal repository</param>
+        /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
+        /// che identifica l'operazione eseguita</returns>
+        public abstract RepositoryResponse GetByKeySet<DBType>(string[] ids, List<DBType> elems) where DBType: IDocumentType;
         /// <summary>
         /// Metodo che si occupa di ritornare tutti gli elementi del repository inserendoli in una collezione passata come parametro.
         /// </summary>
         /// <param name="cont">Collezione di ILoadable che verrà riempita con gli elementi estratti dal Repository</param>
         /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
         /// che identifica l'operazione eseguita.</returns>
-        public abstract RepositoryResponse GetAll(ICollection<DBType> cont);
+        /// <typeparam name="DBType">Tipo di dato usato nel database</typeparam>
+        public abstract RepositoryResponse GetAll<DBType>(ICollection<DBType> cont) where DBType : IDocumentType;
+        /// <summary>
+        /// Metodo che si occupa di aggiungere un elemento ad una proprietà di tipo array contenuta in un documento.
+        /// Questo metodo evita il processo di update dell'intero documento.
+        /// </summary>
+        /// <param name="key">Chiave del documento da modificare</param>
+        /// <param name="property">Proprietà da modificare</param>
+        /// <param name="element">Elemento da aggiungere all'array</param>
+        /// <returns>Il risultato dell'operazione sul repository. RItorna un valore negativo in caso di errori, altrimenti un valore
+        /// che identifica l'operazione eseguita</returns>
+        public abstract RepositoryResponse ArrayAddElement(string key, string property, object element);
+        /// <summary>
+        /// Metodo che si occupa di impostare il valore di una proprietà all'interno di un documento. 
+        /// Questo metodo evita il processo di update dell'intero documento.
+        /// </summary>
+        /// <param name="key">Chiave del documento da modificare</param>
+        /// <param name="property">Proprietà da modificare</param>
+        /// <param name="newValue">Nuovo valore della proprietà</param>
+        /// <returns>Il risultato dell'operazione sul repository. RItorna un valore negativo in caso di errori, altrimenti un valore
+        /// che identifica l'operazione eseguita</returns>
+        public abstract RepositoryResponse SetPropertyValue(string key, string property, object newValue);
 
         public String RepositoryType
         {
