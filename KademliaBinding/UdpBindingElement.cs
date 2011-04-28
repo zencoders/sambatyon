@@ -7,18 +7,18 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.Xml;
 
-namespace KademliaBinding
+namespace UdpBinding
 {
-    public class KademliaBindingElement : TransportBindingElement//, IPolicyExportExtension, IWsdlExportExtension
+    public class UdpBindingElement : TransportBindingElement//, IPolicyExportExtension, IWsdlExportExtension
     {
         EndpointAddress _address;
 
-        public KademliaBindingElement()
+        public UdpBindingElement()
         {
             _address = new EndpointAddress(KademliaConstants.Uri);
         }
 
-        protected KademliaBindingElement(KademliaBindingElement other)
+        protected UdpBindingElement(UdpBindingElement other)
             : base(other)
         {
         }
@@ -48,7 +48,7 @@ namespace KademliaBinding
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unsupported channel type: {0}.", typeof(TChannel).Name));
             }
-            return (IChannelListener<TChannel>)(object)new KademliaChannelListener(this, context);
+            return (IChannelListener<TChannel>)(object)new UdpChannelListener(this, context);
         }
 
         public override bool CanBuildChannelFactory<TChannel>(BindingContext context)
@@ -77,7 +77,7 @@ namespace KademliaBinding
 
         public override BindingElement Clone()
         {
-            return new KademliaBindingElement(this);
+            return new UdpBindingElement(this);
         }
 
         public override T GetProperty<T>(BindingContext context)

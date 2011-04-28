@@ -6,23 +6,23 @@ using System.Globalization;
 using System.ServiceModel;
 using System.ServiceModel.Configuration;
 
-namespace KademliaBinding
+namespace UdpBinding
 {
-    public class KademliaBindingConfigurationElement : StandardBindingElement
+    public class UdpBindingConfigurationElement : StandardBindingElement
     {
-        public KademliaBindingConfigurationElement(string configurationName)
+        public UdpBindingConfigurationElement(string configurationName)
             : base(configurationName)
         {
         }
 
-        public KademliaBindingConfigurationElement()
+        public UdpBindingConfigurationElement()
             : this(null)
         {
         }
 
         protected override Type BindingElementType
         {
-            get { return typeof(NetKademliaBinding); }
+            get { return typeof(NetUdpBinding); }
         }
 
         protected override void OnApplyConfiguration(Binding binding)
@@ -30,11 +30,11 @@ namespace KademliaBinding
             if (binding == null)
                 throw new ArgumentNullException("binding");
 
-            if (binding.GetType() != typeof(NetKademliaBinding))
+            if (binding.GetType() != typeof(NetUdpBinding))
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                     "Invalid type for binding. Expected type: {0}. Type passed in: {1}.",
-                    typeof(NetKademliaBinding).AssemblyQualifiedName,
+                    typeof(NetUdpBinding).AssemblyQualifiedName,
                     binding.GetType().AssemblyQualifiedName));
             }
         }

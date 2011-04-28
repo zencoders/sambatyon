@@ -4,13 +4,13 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading;
 
-namespace KademliaBinding
+namespace UdpBinding
 {
-    class KademliaChannel : ChannelBase, IInputChannel
+    class UdpChannel : ChannelBase, IInputChannel
     {
         protected EndpointAddress localAddress;
 
-        public KademliaChannel(KademliaChannelListener parent,EndpointAddress address)
+        public UdpChannel(UdpChannelListener parent,EndpointAddress address)
             : base(parent)
         {
             this.localAddress = address;
@@ -54,7 +54,7 @@ namespace KademliaBinding
 
         public bool WaitForMessage(TimeSpan timeout)
         {
-            return ((KademliaChannelListener)this.Manager).IsMessageReady();
+            return ((UdpChannelListener)this.Manager).IsMessageReady();
         }
 
         public IAsyncResult BeginReceive( TimeSpan timeout, AsyncCallback callback, object state)
@@ -75,7 +75,7 @@ namespace KademliaBinding
         public Message Receive ( TimeSpan timeout)
         {
             //Listener gets messages from below
-            return ((KademliaChannelListener)this.Manager).GetMessage();
+            return ((UdpChannelListener)this.Manager).GetMessage();
         }
 
         public Message Receive ()

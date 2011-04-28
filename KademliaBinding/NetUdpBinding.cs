@@ -7,17 +7,17 @@ using System.Configuration;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 
-namespace KademliaBinding
+namespace UdpBinding
 {
-    public class NetKademliaBinding : Binding
+    public class NetUdpBinding : Binding
     {
-        KademliaBindingElement _transport;
-        KademliaBindingElement _encoding;
+        UdpBindingElement _transport;
+        UdpBindingElement _encoding;
 
-        public NetKademliaBinding()
+        public NetUdpBinding()
         {
-            this._transport = new KademliaBindingElement();
-            this._encoding = new KademliaBindingElement();
+            this._transport = new UdpBindingElement();
+            this._encoding = new UdpBindingElement();
         }
 
         public override string Scheme { get { return KademliaConstants.Scheme; } }

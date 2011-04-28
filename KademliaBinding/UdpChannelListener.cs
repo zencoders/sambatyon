@@ -16,16 +16,16 @@ using System.ServiceModel.Description;
 using Kademlia;
 #endregion
 
-namespace KademliaBinding
+namespace UdpBinding
 {
-    class KademliaChannelListener : ChannelListenerBase<IInputChannel>
+    class UdpChannelListener : ChannelListenerBase<IInputChannel>
     {
         Uri _uri;
         MessageEncoderFactory messageEncoderFactory;
         private Kademlia.KademliaNode dhtNode;
         private EndpointAddress _localAddress;
 
-        public KademliaChannelListener(KademliaBindingElement transportElement, BindingContext context)
+        public UdpChannelListener(UdpBindingElement transportElement, BindingContext context)
             : base(context.Binding)
         {
 
@@ -71,7 +71,7 @@ namespace KademliaBinding
         {
             IInputChannel trans = null;
 
-            trans = new KademliaChannel(this, _localAddress);
+            trans = new UdpChannel(this, _localAddress);
 
             return trans;
         }

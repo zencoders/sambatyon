@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{34C89B4D-1684-45F6-BD17-6AC816D73CAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KademliaBinding", "KademliaBinding\KademliaBinding.csproj", "{7667D3D1-795F-48E1-B271-BE245159EE34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdpBinding", "KademliaBinding\UdpBinding.csproj", "{7667D3D1-795F-48E1-B271-BE245159EE34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

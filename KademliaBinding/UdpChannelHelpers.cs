@@ -5,7 +5,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Globalization;
 
-namespace KademliaBinding
+namespace UdpBinding
 {
     static class KademliaConstants
     {

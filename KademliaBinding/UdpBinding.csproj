@@ -8,7 +8,7 @@
     <ProjectGuid>{7667D3D1-795F-48E1-B271-BE245159EE34}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KademliaBinding</RootNamespace>
+    <RootNamespace>UdpBinding</RootNamespace>
     <AssemblyName>KademliaBinding</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -42,12 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KademliaChannel.cs" />
-    <Compile Include="KademliaChannelListener.cs" />
-    <Compile Include="KademliaBindingElement.cs" />
-    <Compile Include="KademliaChannelHelpers.cs" />
-    <Compile Include="NetKademliaBinding.cs" />
-    <Compile Include="KademliaBindingConfigurationElement.cs" />
+    <Compile Include="UdpChannel.cs" />
+    <Compile Include="UdpChannelListener.cs" />
+    <Compile Include="UdpBindingElement.cs" />
+    <Compile Include="UdpChannelHelpers.cs" />
+    <Compile Include="NetUdpBinding.cs" />
+    <Compile Include="UdpBindingConfigurationElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
