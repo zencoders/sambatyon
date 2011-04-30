@@ -1,12 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 7:13 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Net;
@@ -14,7 +6,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using System.ServiceModel;
 using Kademlia.Messages;
 
 namespace Kademlia
@@ -22,10 +14,11 @@ namespace Kademlia
 	/// <summary>
 	/// Functions as a peer in the overlay network.
 	/// </summary>
-	public class KademliaNode
+	public class KademliaNode : IKademliaNode
 	{
 		// Identity
 		private ID nodeID;
+        private EndpointAddress nodeEndpoint;
 		
 		// Network State
 		private BucketList contactCache;
@@ -33,6 +26,7 @@ namespace Kademlia
 		private const int CHECK_INTERVAL = 1;
 		private List<Contact> contactQueue; // Add contacts here to be considered for caching
 		private const int MAX_QUEUE_LENGTH = 10;
+        private const string DEFAULT_ENDPOINT = "soap.udp://localhost:8001/kademlia";
 		
 		// Response cache
 		// We want to be able to synchronously wait for responses, so we have other threads put them in this cache.
@@ -79,11 +73,12 @@ namespace Kademlia
 		private Thread maintainanceMinder;
 		
 		// Network IO
-		private UdpClient client;
-		private Thread clientMinder;
+		//private UdpClient client;
+		//private Thread clientMinder;
 		
 		// Events
 		// Messages are strongly typed. Hooray!
+        /*
 		public event MessageEventHandler<Message> GotMessage;
 		public event MessageEventHandler<Response> GotResponse;
 		
@@ -97,7 +92,7 @@ namespace Kademlia
 		public event MessageEventHandler<StoreQuery> GotStoreQuery;
 		public event MessageEventHandler<StoreResponse> GotStoreResponse;
 		public event MessageEventHandler<StoreData> GotStoreData;
-		
+		*/
 		private bool debug = false;
 		
 		#region Setup	
@@ -105,7 +100,7 @@ namespace Kademlia
 		/// <summary>
 		/// Make a node on a random available port, using an ID specific to this machine.
 		/// </summary>
-		public KademliaNode() : this(0, ID.HostID())
+		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID())
 		{
 			// Nothing to do!
 		}
@@ -114,7 +109,7 @@ namespace Kademlia
 		/// Make a node with a specified ID.
 		/// </summary>
 		/// <param name="id"></param>
-		public KademliaNode(ID id) : this(0, id)
+		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id)
 		{
 			// Nothing to do!
 		}
@@ -123,7 +118,7 @@ namespace Kademlia
 		/// Make a node on a specified port.
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(int port) : this(port, ID.HostID())
+		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID())
 		{
 			// Nothing to do!
 		}
@@ -132,9 +127,10 @@ namespace Kademlia
 		/// Make a node on a specific port, with a specified ID
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(int port, ID id)
+		public KademliaNode(EndpointAddress addr, ID id)
 		{
 			// Set up all our data
+            nodeEndpoint = addr;
 			nodeID = id;
 			contactCache = new BucketList(nodeID);
 			contactQueue = new List<Contact>();
@@ -155,7 +151,7 @@ namespace Kademlia
 			authMinder.Start();
 			
 			// Set all the event handlers
-			GotMessage += HandleMessage;
+			/*GotMessage += HandleMessage;
 			GotResponse += CacheResponse;
 			
 			GotPing += HandlePing;
@@ -163,13 +159,13 @@ namespace Kademlia
 			GotFindValue += HandleFindValue;
 			GotStoreQuery += HandleStoreQuery;
 			GotStoreResponse += HandleStoreResponse;
-			GotStoreData += HandleStoreData;
+			GotStoreData += HandleStoreData;*/
 			
 			// Connect
-			client = new UdpClient(port);
+/*			client = new UdpClient(port);
 			clientMinder = new Thread(new ThreadStart(MindClient));
 			clientMinder.IsBackground = true;
-			clientMinder.Start();
+			clientMinder.Start(); */
 			
 			// Start maintainance
 			maintainanceMinder = new Thread(new ThreadStart(MindMaintainance));
@@ -182,16 +178,16 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="loaclPort"></param>
 		/// <returns></returns>
-		public bool Bootstrap(int localPort)
+		public bool Bootstrap()
 		{
-			return Bootstrap(new IPEndPoint(IPAddress.Loopback, localPort));
+			return Bootstrap(nodeEndpoint);
 		}
 			
 		/// <summary>
 		/// Bootstrap the node by having it ping another node. Returns true if we get a response.
 		/// </summary>
 		/// <param name="other"></param>
-		public bool Bootstrap(IPEndPoint other)
+		public bool Bootstrap(EndpointAddress other)
 		{
 			// Send a blocking ping.
 			bool worked = SyncPing(other);
@@ -253,7 +249,7 @@ namespace Kademlia
 		/// <returns></returns>
 		public int GetPort()
 		{
-			return ((IPEndPoint) client.Client.LocalEndPoint).Port;
+            return nodeEndpoint.Uri.Port;
 		}
 		
 		/// <summary>
@@ -353,7 +349,7 @@ namespace Kademlia
 			Log("Storing at " + closest.Count + " nodes");
 			foreach(Contact c in closest) {
 				// Store a copy at each
-				SyncStore(c.GetEndPoint(), key, val, originalInsertion);
+				SyncStore(c, key, val, originalInsertion);
 			}
 		}
 		
@@ -403,7 +399,7 @@ namespace Kademlia
 			// TODO: Should actually pick from a certain bucket.
 			SortedList<ID, Contact> shortlist = new SortedList<ID, Contact>();
 			foreach(Contact c in contactCache.CloseContacts(PARALELLISM, target, null)) {
-				shortlist.Add(c.GetID(), c);
+				shortlist.Add(c.NodeID, c);
 			}
 			
 			int shortlistIndex = 0; // Everyone before this is up.
@@ -411,7 +407,8 @@ namespace Kademlia
 			// Make an initial guess for the closest node
 			Contact closest = null;
 			foreach(Contact toAsk in shortlist.Values) {
-				if(closest == null || (toAsk.GetID() ^ target) < (closest.GetID() ^ target)) {
+                if (closest == null || (toAsk.NodeID ^ target) < (closest.NodeID ^ target))
+                {
 					closest = toAsk;
 				}
 			}
@@ -424,7 +421,7 @@ namespace Kademlia
 					List<Contact> suggested;
 					if(getValue) { // Get list or value
 						IList<string> returnedValues = null;
-						suggested = SyncFindValue(shortlist.Values[i].GetEndPoint(), target, out returnedValues);
+						suggested = SyncFindValue(shortlist.Values[i], target, out returnedValues);
 						if(returnedValues != null) { // We found it! Pass it up!
 							vals = returnedValues;
 							// But first, we have to store it at the closest node that doesn't have it yet.
@@ -432,16 +429,18 @@ namespace Kademlia
 							return null;
 						}
 					} else { // Only get list
-						suggested = SyncFindNode(shortlist.Values[i].GetEndPoint(), target);
+						suggested = SyncFindNode(shortlist.Values[i], target);
 					}
 					
 					if(suggested != null) {
 						// Add suggestions to shortlist and check for closest
 						foreach(Contact suggestion in suggested) {
-							if(!shortlist.ContainsKey(suggestion.GetID())) { // Contacts aren't value types so we have to do this.
-								shortlist.Add(suggestion.GetID(), suggestion);
+                            if (!shortlist.ContainsKey(suggestion.NodeID))
+                            { // Contacts aren't value types so we have to do this.
+                                shortlist.Add(suggestion.NodeID, suggestion);
 							}
-							if((suggestion.GetID() ^ target) < (closest.GetID() ^ target)) {
+                            if ((suggestion.NodeID ^ target) < (closest.NodeID ^ target))
+                            {
 								closest = suggestion;
 								foundCloser = true;
 							}
@@ -475,10 +474,10 @@ namespace Kademlia
 		/// <param name="key"></param>
 		/// <param name="val"></param>
 		/// <param name="originalInsertion"></param>
-		private void SyncStore(IPEndPoint storeAt, ID key, string val, DateTime originalInsertion)
+		private void SyncStore(Contact storeAt, ID key, string val, DateTime originalInsertion)
 		{
 			// Make a message
-			Message storeIt = new StoreQuery(nodeID, key, ID.Hash(val), originalInsertion, val.Length);
+			StoreQuery storeIt = new StoreQuery(nodeID, key, ID.Hash(val), originalInsertion, val.Length, nodeEndpoint);
 			
 			// Record having sent it
 			OutstandingStoreRequest req = new OutstandingStoreRequest();
@@ -487,11 +486,15 @@ namespace Kademlia
 			req.sent = DateTime.Now;
 			req.publication = originalInsertion;
 			lock(sentStoreRequests) {
-				sentStoreRequests[storeIt.GetConversationID()] = req;
+				sentStoreRequests[storeIt.ConversationID] = req;
 			}
 			
 			// Send it
-			SendMessage(storeAt, storeIt);
+            IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                new NetTcpBinding(), storeAt.NodeEndPoint
+            );
+            svc.HandleStoreQuery(storeIt);
+			//SendMessage(storeAt, storeIt);
 		}
 		
 		/// <summary>
@@ -500,18 +503,21 @@ namespace Kademlia
 		/// <param name="ask"></param>
 		/// <param name="toFind"></param>
 		/// <returns></returns>
-		private List<Contact> SyncFindNode(IPEndPoint ask, ID toFind)
+		private List<Contact> SyncFindNode(Contact ask, ID toFind)
 		{
 			// Send message
 			DateTime called = DateTime.Now;
-			Message question = new FindNode(nodeID, toFind);
-			SendMessage(ask, question);
+			FindNode question = new FindNode(nodeID, toFind, nodeEndpoint);
+            IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                new NetTcpBinding(), ask.NodeEndPoint
+            );
+            svc.HandleFindNode(question);
 			
 			while(DateTime.Now < called.Add(MAX_SYNC_WAIT)) {
 				// If we got a response, send it up
-				FindNodeResponse resp = GetCachedResponse<FindNodeResponse>(question.GetConversationID());
+				FindNodeResponse resp = GetCachedResponse<FindNodeResponse>(question.ConversationID);
 				if(resp != null) {
-					return resp.GetContacts();
+					return resp.Contacts;
 				}
 				Thread.Sleep(CHECK_INTERVAL); // Otherwise wait for one
 			}
@@ -528,26 +534,29 @@ namespace Kademlia
 		/// <param name="toFind"></param>
 		/// <param name="val"></param>
 		/// <returns></returns>
-		private List<Contact> SyncFindValue(IPEndPoint ask, ID toFind, out IList<string> val)
+		private List<Contact> SyncFindValue(Contact ask, ID toFind, out IList<string> val)
 		{
 			// Send message
 			DateTime called = DateTime.Now;
-			Message question = new FindValue(nodeID, toFind);
-			SendMessage(ask, question);
+			FindValue question = new FindValue(nodeID, toFind, nodeEndpoint);
+            IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                new NetTcpBinding(), ask.NodeEndPoint
+            );
+            svc.HandleFindValue(question);
 			
 			while(DateTime.Now < called.Add(MAX_SYNC_WAIT)) {
 				// See if we got data!
-				FindValueDataResponse dataResp = GetCachedResponse<FindValueDataResponse>(question.GetConversationID());
+				FindValueDataResponse dataResp = GetCachedResponse<FindValueDataResponse>(question.ConversationID);
 				if(dataResp != null) {
 					// Send it out and return null!
-					val = dataResp.GetValues();
+					val = dataResp.Values;
 					return null;
 				}
 				// If we got a contact, send it up
-				FindValueContactResponse resp = GetCachedResponse<FindValueContactResponse>(question.GetConversationID());
+				FindValueContactResponse resp = GetCachedResponse<FindValueContactResponse>(question.ConversationID);
 				if(resp != null) {
 					val = null;
-					return resp.GetContacts();
+					return resp.Contacts;
 				}
 				Thread.Sleep(CHECK_INTERVAL); // Otherwise wait for one
 			}
@@ -561,16 +570,19 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="ping"></param>
 		/// <returns>true on a respinse, false otherwise</returns>
-		private bool SyncPing(IPEndPoint toPing)
+		private bool SyncPing(EndpointAddress toPing)
 		{
 			// Send message
 			DateTime called = DateTime.Now;
-			Message ping = new Ping(nodeID);
-			SendMessage(toPing, ping);
+			Ping ping = new Ping(nodeID, nodeEndpoint);
+            IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                new NetTcpBinding(), toPing
+            );
+            svc.HandlePing(ping);
 			
 			while(DateTime.Now < called.Add(MAX_SYNC_WAIT)) {
 				// If we got a response, send it up
-				Pong resp = GetCachedResponse<Pong>(ping.GetConversationID());
+				Pong resp = GetCachedResponse<Pong>(ping.ConversationID);
 				if(resp != null) {
 					return true; // They replied in time
 				}
@@ -587,10 +599,10 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="msg"></param>
-		private void HandleMessage(Contact sender, Message msg)
+		public void HandleMessage(Message msg)
 		{
-			Log(nodeID.ToString() + " got " + msg.GetName() + " from " + msg.GetSenderID().ToString());
-			SawContact(sender);
+			Log(nodeID.ToString() + " got " + msg.Name + " from " + msg.SenderID.ToString());
+			SawContact(new Contact(msg.SenderID,msg.NodeEndpoint));
 		}
 		
 		/// <summary>
@@ -598,15 +610,16 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="response"></param>
-		private void CacheResponse(Contact sender, Response response)
+		public void CacheResponse(Response response)
 		{
+            HandleMessage(response);
 			CachedResponse entry = new CachedResponse();
 			entry.arrived = DateTime.Now;
 			entry.response = response;
 			//Log("Caching " + response.GetName() + " under " + response.GetConversationID().ToString());
 			// Store in cache
 			lock(responseCache) {
-				responseCache[response.GetConversationID()] = entry;
+				responseCache[response.ConversationID] = entry;
 			}
 		}
 		
@@ -639,11 +652,20 @@ namespace Kademlia
 		/// Respond to a ping by sending a pong
 		/// </summary>
 		/// <param name="p"></param>
-		private void HandlePing(Contact sender, Ping ping)
+		public void HandlePing(Ping ping)
 		{
-			Message pong = new Pong(nodeID, ping);
-			SendMessage(sender.GetEndPoint(), pong);
+            HandleMessage(ping);
+			Pong pong = new Pong(nodeID, ping, nodeEndpoint);
+            IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                new NetTcpBinding(), ping.NodeEndpoint
+            );
+            svc.HandlePong(pong);
 		}
+
+        public void HandlePong(Pong pong)
+        {
+            CacheResponse(pong);
+        }
 		
 		/// <summary>
 		/// Send back the contacts for the K closest nodes to the desired ID, not including the requester.
@@ -651,28 +673,44 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="request"></param>
-		private void HandleFindNode(Contact sender, FindNode request)
+		public void HandleFindNode(FindNode request)
 		{
-			List<Contact> closeNodes = contactCache.CloseContacts(request.GetTarget(), sender.GetID());
-			Message response = new FindNodeResponse(nodeID, request, closeNodes);
-			SendMessage(sender.GetEndPoint(), response);
+            HandleMessage(request);
+            List<Contact> closeNodes = contactCache.CloseContacts(request.Target, request.SenderID);
+			FindNodeResponse response = new FindNodeResponse(nodeID, request, closeNodes, nodeEndpoint);
+            IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                new NetTcpBinding(), request.NodeEndpoint
+            );
+            svc.HandleFindNodeResponse(response);
 		}
+
+        public void HandleFindNodeResponse(FindNodeResponse response)
+        {
+            CacheResponse(response);
+        }
 		
 		/// <summary>
 		/// Give the value if we have it, or the closest nodes if we don't.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="request"></param>
-		private void HandleFindValue(Contact sender, FindValue request)
+		public void HandleFindValue(FindValue request)
 		{
-			if(datastore.ContainsKey(request.GetKey())) {
-				IList<string> vals = datastore.Get(request.GetKey());
-				Message response = new FindValueDataResponse(nodeID, request, vals);
-				SendMessage(sender.GetEndPoint(), response);
+            HandleMessage(request);
+			if(datastore.ContainsKey(request.Key)) {
+				IList<string> vals = datastore.Get(request.Key);
+				FindValueDataResponse response = new FindValueDataResponse(nodeID, request, vals, nodeEndpoint);
+                IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                    new NetTcpBinding(), request.NodeEndpoint
+                );
+                svc.HandleFindValueDataResponse(response);
 			} else {
-				List<Contact> closeNodes = contactCache.CloseContacts(request.GetKey(), sender.GetID());
-				Message response = new FindValueContactResponse(nodeID, request, closeNodes);
-				SendMessage(sender.GetEndPoint(), response);
+                List<Contact> closeNodes = contactCache.CloseContacts(request.Key, request.SenderID);
+				FindValueContactResponse response = new FindValueContactResponse(nodeID, request, closeNodes, nodeEndpoint);
+                IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                    new NetTcpBinding(), request.NodeEndpoint
+                );
+                svc.HandleFindValueContactResponse(response);
 			}
 		}
 		
@@ -681,19 +719,24 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="request"></param>
-		private void HandleStoreQuery(Contact sender, StoreQuery request)
+		public void HandleStoreQuery(StoreQuery request)
 		{
+            HandleMessage(request);
 			//TODO: check size and local storage policy
-			ID key = request.GetKey();
-			ID valHash = request.GetDataHash();
+			ID key = request.Key;
+			ID valHash = request.DataHash;
 			
 			if(!datastore.Contains(key, valHash)) {
-				acceptedStoreRequests[request.GetConversationID()] = DateTime.Now; // Record that we accepted it
-				SendMessage(sender.GetEndPoint(), new StoreResponse(nodeID, request, true));
-			} else if(request.GetPublicationTime() > datastore.GetPublicationTime(key, valHash)
-			          && request.GetPublicationTime() < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW)) {
+				acceptedStoreRequests[request.ConversationID] = DateTime.Now; // Record that we accepted it
+                StoreResponse response = new StoreResponse(nodeID, request, true, nodeEndpoint);
+                IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                    new NetTcpBinding(), request.NodeEndpoint
+                );
+                svc.HandleStoreResponse(response);
+			} else if(request.PublicationTime > datastore.GetPublicationTime(key, valHash)
+			          && request.PublicationTime < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW)) {
 				// Update our recorded publicaton time
-				datastore.Restamp(key, valHash, request.GetPublicationTime(), EXPIRE_TIME);
+				datastore.Restamp(key, valHash, request.PublicationTime, EXPIRE_TIME);
 			}
 		}
 		
@@ -702,20 +745,21 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="request"></param>
-		private void HandleStoreData(Contact sender, StoreData request)
+		public void HandleStoreData(StoreData request)
 		{
+            HandleMessage(request);
 			// If we asked for it, store it and clear the authorization.
 			lock(acceptedStoreRequests) {
-				if(acceptedStoreRequests.ContainsKey(request.GetConversationID())) {
-					acceptedStoreRequests.Remove(request.GetKey());
+				if(acceptedStoreRequests.ContainsKey(request.ConversationID)) {
+					acceptedStoreRequests.Remove(request.Key);
 					
 					// TODO: Calculate when we should expire this data according to Kademlia
 					// For now just keep it until it expires
 					
 					// Don't accept stuff published far in the future
-					if(request.GetPublicationTime() < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW)) { 
+					if(request.PublicationTime < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW)) { 
 						// We re-hash since we shouldn't trust their hash
-						datastore.Put(request.GetKey(), ID.Hash(request.GetData()), request.GetData(), request.GetPublicationTime(), EXPIRE_TIME);
+						datastore.Put(request.Key, ID.Hash(request.Data), request.Data, request.PublicationTime, EXPIRE_TIME);
 					}
 				}
 			}
@@ -726,21 +770,35 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="request"></param>
-		private void HandleStoreResponse(Contact sender, StoreResponse response)
+		public void HandleStoreResponse(StoreResponse response)
 		{
+            CacheResponse(response);
 			lock(sentStoreRequests) {
-				if(response.ShouldSendData() 
-				   && sentStoreRequests.ContainsKey(response.GetConversationID())) {
+				if(response.ShouldSendData 
+				   && sentStoreRequests.ContainsKey(response.ConversationID)) {
 					// We actually sent this
 					// Send along the data and remove it from the list
-					OutstandingStoreRequest toStore = sentStoreRequests[response.GetConversationID()];
-					SendMessage(sender.GetEndPoint(), 
-					            new StoreData(nodeID, response, toStore.key, ID.Hash(toStore.val), toStore.val, toStore.publication));
-					sentStoreRequests.Remove(response.GetConversationID());
+					OutstandingStoreRequest toStore = sentStoreRequests[response.ConversationID];
+                    StoreData r = new StoreData(nodeID, response, toStore.key, ID.Hash(toStore.val), toStore.val, toStore.publication, nodeEndpoint);
+                    IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
+                        new NetTcpBinding(), response.NodeEndpoint
+                    );
+                    svc.HandleStoreData(r);
+					sentStoreRequests.Remove(response.ConversationID);
 				}
 			}
 		}
 		
+        public void HandleFindValueContactResponse(FindValueContactResponse response)
+        {
+            CacheResponse(response);
+        }
+
+        public void HandleFindValueDataResponse(FindValueDataResponse response)
+        {
+            CacheResponse(response);
+        }
+
 		/// <summary>
 		/// Expire entries in the accepted/sent store request caches and the response cache.
 		/// </summary>
@@ -788,7 +846,7 @@ namespace Kademlia
 		/// <summary>
 		/// Handle incoming packets
 		/// </summary>
-		private void MindClient() {
+/*		private void MindClient() {
 			while(true) {
 				try {
 					// Get a datagram
@@ -815,8 +873,8 @@ namespace Kademlia
 					Log("Error recieving data: " + ex.ToString());
 				}
 			}
-		}
-		
+		}*/
+		/*
 		/// <summary>
 		/// Sends out message events for the given message.
 		/// ADD NEW MESSAGE TYPES HERE
@@ -825,7 +883,7 @@ namespace Kademlia
 		private void DispatchMessageEvents(IPEndPoint recievedFrom, Message msg) 
 		{
 			// Make a contact for the person who sent it.
-			Contact sender = new Contact(msg.GetSenderID(), recievedFrom);
+			Contact sender = new Contact(msg.SenderID, recievedFrom);
 			
 			// Every message gets this one
 			if(GotMessage != null)
@@ -869,13 +927,13 @@ namespace Kademlia
 					GotStoreData(sender, (StoreData) msg);
 			}
 		}
-		
+		*/
 		/// <summary>
 		/// Send a mesaage to someone.
 		/// </summary>
 		/// <param name="msg"></param>
 		/// <param name="to"></param>
-		private void SendMessage(IPEndPoint destination, Message msg)
+		/*private void SendMessage(IPEndPoint destination, Message msg)
 		{
 			// Encode the message
 			MemoryStream ms = new MemoryStream();
@@ -883,11 +941,11 @@ namespace Kademlia
 			encoder.Serialize(ms, msg);
 			byte[] messageData = ms.GetBuffer();
 			
-			Log(nodeID.ToString() + " sending " + msg.GetName() + " to " + destination.ToString());
+			Log(nodeID.ToString() + " sending " + msg.Name + " to " + destination.ToString());
 			
 			// Send it
 			client.Send(messageData, messageData.Length, destination);
-		}
+		}*/
 		
 		/// <summary>
 		/// Call this whenever we see a contact.
@@ -896,7 +954,8 @@ namespace Kademlia
 		/// <param name="seen"></param>
 		private void SawContact(Contact seen)
 		{
-			if(seen.GetID() == nodeID) {
+            if (seen.NodeID == nodeID)
+            {
 				return; // NEVER insert ourselves!
 			}
 			
@@ -926,27 +985,30 @@ namespace Kademlia
 					//Log("Processing contact for " + applicant.GetID().ToString());
 					
 					// If we already know about them
-					if(contactCache.Contains(applicant.GetID())) {
+                    if (contactCache.Contains(applicant.NodeID))
+                    {
 						// If they have a new address, record that
-						if(contactCache.Get(applicant.GetID()).GetEndPoint()
-						   != applicant.GetEndPoint()) {
+                        if (contactCache.Get(applicant.NodeID).NodeEndPoint != applicant.NodeEndPoint) 
+                        {
 							// Replace old one
-							contactCache.Remove(applicant.GetID());
+                            contactCache.Remove(applicant.NodeID);
 							contactCache.Put(applicant);
-						} else { // Just promote them
-							contactCache.Promote(applicant.GetID());
+						}
+                        else // Just promote them
+                        { 
+                            contactCache.Promote(applicant.NodeID);
 						}
 						continue;
 					}
 					
 					// If we can fit them, do so
-					Contact blocker = contactCache.Blocker(applicant.GetID());
+					Contact blocker = contactCache.Blocker(applicant.NodeID);
 					if(blocker == null) {
 						contactCache.Put(applicant);
 					} else {
 						// We can't fit them. We have to choose between blocker and applicant
-						if(!SyncPing(blocker.GetEndPoint())) { // If the blocker doesn't respond, pick the applicant.
-							contactCache.Remove(blocker.GetID());
+						if(!SyncPing(blocker.NodeEndPoint)) { // If the blocker doesn't respond, pick the applicant.
+                            contactCache.Remove(blocker.NodeID);
 							contactCache.Put(applicant);
 							Log("Chose applicant");
 						} else {

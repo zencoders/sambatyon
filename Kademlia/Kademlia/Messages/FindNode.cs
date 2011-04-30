@@ -1,19 +1,16 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 10:33 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
 	/// <summary>
 	/// A message used to search for a node.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class FindNode : Message
 	{
 		private ID target;
@@ -23,7 +20,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <param name="nodeID"></param>
 		/// <param name="toFind"></param>
-		public FindNode(ID nodeID, ID toFind) : base(nodeID)
+		public FindNode(ID nodeID, ID toFind, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			target = toFind;
 		}
@@ -32,14 +29,16 @@ namespace Kademlia.Messages
 		/// Get the target of this message.
 		/// </summary>
 		/// <returns></returns>
-		public ID GetTarget()
+        [DataMember]
+		public ID Target
 		{
-			return target;
+            get { return target; }
 		}
 		
-		public override string GetName() 
+        [DataMember]
+		public override string Name
 		{
-			return "FIND_NODE";
+            get { return "FIND_NODE"; }
 		}
 	}
 }

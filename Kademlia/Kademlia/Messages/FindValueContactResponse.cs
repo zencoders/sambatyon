@@ -1,20 +1,16 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 11:21 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Description of FindKeyContactResponse.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class FindValueContactResponse : Response
 	{
 		private List<Contact> contacts;
@@ -25,7 +21,7 @@ namespace Kademlia.Messages
 		/// <param name="nodeID"></param>
 		/// <param name="request"></param>
 		/// <param name="close"></param>
-		public FindValueContactResponse(ID nodeID, FindValue request, List<Contact> close) : base(nodeID, request)
+		public FindValueContactResponse(ID nodeID, FindValue request, List<Contact> close, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			contacts = close;
 		}
@@ -34,14 +30,16 @@ namespace Kademlia.Messages
 		/// Return the list of contacts sent.
 		/// </summary>
 		/// <returns></returns>
-		public List<Contact> GetContacts()
+        [DataMember]
+		public List<Contact> Contacts
 		{
-			return contacts;
+            get { return contacts; }
 		}
 		
-		public override string GetName()
+        [DataMember]
+		public override string Name
 		{
-			return "FIND_VALUE_RESPONSE_CONTACTS";
+            get { return "FIND_VALUE_RESPONSE_CONTACTS"; }
 		}
 	}
 }

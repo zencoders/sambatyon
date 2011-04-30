@@ -1,12 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 8:20 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Kademlia
@@ -80,7 +72,7 @@ namespace Kademlia
 				return; // Don't be silly.
 			}
 			
-			int bucket = BucketFor(toAdd.GetID());
+			int bucket = BucketFor(toAdd.NodeID);
 			buckets[bucket].Add(toAdd); // No lock: people can read while we do this.
 			lock(accessTimes) {
 				accessTimes[bucket] = DateTime.Now;
@@ -108,7 +100,7 @@ namespace Kademlia
 			int bucket = BucketFor(toGet);
 			lock(buckets[bucket]) { // Nobody can move it while we're getting it
 				for(int i = 0; i < buckets[bucket].Count; i++) {
-					if(buckets[bucket][i].GetID() == toGet) {
+					if(buckets[bucket][i].NodeID == toGet) {
 						return buckets[bucket][i];
 					}
 				}
@@ -160,7 +152,7 @@ namespace Kademlia
 			int bucket = BucketFor(toRemove);
 			lock(buckets[bucket]) { // Nobody can move it while we're removing it
 				for(int i = 0; i < buckets[bucket].Count; i++) {
-					if(buckets[bucket][i].GetID() == toRemove) {
+					if(buckets[bucket][i].NodeID == toRemove) {
 						buckets[bucket].RemoveAt(i);
 						return;
 					}
@@ -202,12 +194,12 @@ namespace Kademlia
 						Contact applicant = buckets[i][j];
 						
 						// Exclude excluded contact
-						if(applicant.GetID() == excluded) {
+						if(applicant.NodeID == excluded) {
 							continue;
 						}
 						
 						// Add the applicant at the right place
-						ID distance = applicant.GetID() ^ target;
+						ID distance = applicant.NodeID ^ target;
 						int addIndex = 0;
 						while(addIndex < distances.Count && distances[addIndex] < distance) {
 							addIndex++;
@@ -247,7 +239,7 @@ namespace Kademlia
 			int inActualBucket = 0;
 			lock(buckets[j]) {
 				foreach(Contact c in buckets[j]) {
-					if((c.GetID() ^ ourID) < (key ^ ourID)) { // Closer to us than key
+					if((c.NodeID ^ ourID) < (key ^ ourID)) { // Closer to us than key
 						inActualBucket++;
 					}
 				}
@@ -292,7 +284,7 @@ namespace Kademlia
 						toReturn += "\nBucket " + i.ToString() + ":";
 					}
 					foreach(Contact c in bucket) {
-						toReturn += "\n" + c.GetID().ToString() + "@" + c.GetEndPoint().ToString();
+						toReturn += "\n" + c.NodeID.ToString() + "@" + c.NodeEndPoint.ToString();
 					}
 				}
 			}

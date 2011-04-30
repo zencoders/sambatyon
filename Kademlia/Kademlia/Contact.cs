@@ -1,13 +1,6 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 7:18 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Net;
+using System.ServiceModel;
 
 namespace Kademlia
 {
@@ -18,14 +11,14 @@ namespace Kademlia
 	public class Contact
 	{
 		private ID nodeID;
-		private IPEndPoint nodeEndpoint;
+        private EndpointAddress nodeEndpoint;
 		
 		/// <summary>
 		/// Make a contact for a node with the given ID at the given location.
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="endpoint"></param>
-		public Contact(ID id, IPEndPoint endpoint)
+		public Contact(ID id, EndpointAddress endpoint)
 		{
 			nodeID = id;
 			nodeEndpoint = endpoint;
@@ -35,21 +28,21 @@ namespace Kademlia
 		/// Get the node's ID.
 		/// </summary>
 		/// <returns></returns>
-		public ID GetID() {
-			return nodeID;
+		public ID NodeID {
+            get { return nodeID; }
 		}
 		
 		/// <summary>
 		/// Get the node's endpoint.
 		/// </summary>
 		/// <returns></returns>
-		public IPEndPoint GetEndPoint() {
-			return nodeEndpoint;
+		public EndpointAddress NodeEndPoint {
+            get { return nodeEndpoint; }
 		}
 		
 		public override string ToString()
 		{
-			return GetID().ToString() + "@" + GetEndPoint().ToString();
+			return NodeID.ToString() + "@" + NodeEndPoint.ToString();
 		}
 	}
 }

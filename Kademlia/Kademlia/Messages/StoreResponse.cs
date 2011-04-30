@@ -1,12 +1,9 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/23/2010
- * Time: 6:53 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
@@ -14,12 +11,12 @@ namespace Kademlia.Messages
 	/// A reply to a store query.
 	/// Say if we're willing to store the data, and if we already have it.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class StoreResponse : Response
 	{
-		bool sendData;
+		private bool sendData;
 		
-		public StoreResponse(ID nodeID, StoreQuery query, bool accept) : base(nodeID, query)
+		public StoreResponse(ID nodeID, StoreQuery query, bool accept, EndpointAddress nodeEndpoint) : base(nodeID, query, nodeEndpoint)
 		{
 			sendData = accept;
 		}
@@ -28,14 +25,16 @@ namespace Kademlia.Messages
 		/// Returns true if we should send them the data.
 		/// </summary>
 		/// <returns></returns>
-		public bool ShouldSendData()
+        [DataMember]
+		public bool ShouldSendData
 		{
-			return sendData;
+            get { return sendData; }
 		}
 		
-		public override string GetName()
+        [DataMember]
+		public override string Name
 		{
-			return "STORE_RESPONSE";
+            get { return "STORE_RESPONSE"; }
 		}
 	}
 }

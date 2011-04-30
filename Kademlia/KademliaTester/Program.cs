@@ -10,6 +10,7 @@ using System;
 using Kademlia;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.ServiceModel;
 
 namespace KademliaTester
 {
@@ -40,9 +41,11 @@ namespace KademliaTester
 			Console.WriteLine("Test complete");
 			
 			Console.WriteLine("Testing KademilaNode");
-			KademliaNode node1 = new KademliaNode(Convert.ToInt32(Console.ReadLine()));
+            KademliaNode node1 = new KademliaNode(new EndpointAddress("soap.udp://localhost:8002/kademlia"));
+            ServiceHost host1 = new ServiceHost(node1, new Uri("soap.udp://localhost:8002/kademlia"));
 			KademliaNode node2 = new KademliaNode();
-			node1.Bootstrap(node2.GetPort());
+            ServiceHost host2 = new ServiceHost(node2, new Uri("soap.udp://localhost:8001/kademlia"));
+			node1.Bootstrap();
 			System.Threading.Thread.Sleep(50); // Wait for the other node to process its bucket queue
 			node1.JoinNetwork();
 			node2.JoinNetwork();
@@ -52,7 +55,7 @@ namespace KademliaTester
 			KademliaNode lastNode = node1;
 			for(int i = 0; i < 10; i++) {
 				KademliaNode node = new KademliaNode();
-				node.Bootstrap(lastNode.GetPort());
+				node.Bootstrap();
 				lastNode = node;
 				System.Threading.Thread.Sleep(50); // Wait for the other node to process its bucket queue
 				node.JoinNetwork();

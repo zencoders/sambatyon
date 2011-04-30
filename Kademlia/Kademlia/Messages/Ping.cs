@@ -1,28 +1,26 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 9:44 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Represents a ping message, used to see if a remote node is up.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class Ping : Message
 	{
-		public Ping(ID senderID) : base(senderID)
+		public Ping(ID senderID, EndpointAddress nodeEndpoint) : base(senderID, nodeEndpoint)
 		{
 		}
 		
-		public override string GetName()
+        [DataMember]
+		public override string Name
 		{
-			return "PING";
+            get { return "PING"; }
 		}
 	}
 }

@@ -1,13 +1,9 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 10:56 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
@@ -15,12 +11,12 @@ namespace Kademlia.Messages
 	/// A response to a FindNode message.
 	/// Contains a list of Contacts.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class FindNodeResponse : Response
 	{
 		private List<Contact> contacts;
 		
-		public FindNodeResponse(ID nodeID, FindNode request, List<Contact> recommended) : base(nodeID, request)
+		public FindNodeResponse(ID nodeID, FindNode request, List<Contact> recommended, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			contacts = recommended;
 		}
@@ -29,14 +25,16 @@ namespace Kademlia.Messages
 		/// Gets the list of recommended contacts.
 		/// </summary>
 		/// <returns></returns>
-		public List<Contact> GetContacts()
+        [DataMember]
+		public List<Contact> Contacts
 		{
-			return contacts;
+            get {return contacts;}
 		}
 		
-		public override string GetName()
+        [DataMember]
+		public override string Name
 		{
-			return "FIND_NODE_RESPONSE";
+            get { return "FIND_NODE_RESPONSE"; }
 		}
 	}
 }

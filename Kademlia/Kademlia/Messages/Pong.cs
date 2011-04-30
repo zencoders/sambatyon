@@ -1,28 +1,26 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 9:46 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Represents a ping reply.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class Pong : Response
 	{
-		public Pong(ID senderID, Ping ping) : base(senderID, ping)
+		public Pong(ID senderID, Ping ping, EndpointAddress nodeEndpoint) : base(senderID, ping, nodeEndpoint)
 		{
 		}
 		
-		public override string GetName()
+        [DataMember]
+		public override string Name
 		{
-			return "PONG";
+            get { return "PONG"; }
 		}
 	}
 }

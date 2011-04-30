@@ -11,6 +11,7 @@ using System.Net;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Linq;
+using System.ServiceModel;
 
 namespace Kademlia
 {
@@ -67,7 +68,7 @@ namespace Kademlia
 			foreach(var node in nodes) {
 				// Each line is <ip> <port>
 				try {
-					IPEndPoint bootstrapNode = new IPEndPoint(IPAddress.Parse(node.Host), int.Parse(node.Port));
+					EndpointAddress bootstrapNode = new EndpointAddress(node.Host+":"+node.Port);
 					Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
 					if(dhtNode.Bootstrap(bootstrapNode)) {
 						Console.WriteLine("OK!");

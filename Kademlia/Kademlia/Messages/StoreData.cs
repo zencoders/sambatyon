@@ -1,19 +1,16 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/23/2010
- * Time: 7:27 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Send along the data in response to an affirmative StoreResponse.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class StoreData : Response
 	{
 		private ID key;
@@ -30,7 +27,7 @@ namespace Kademlia.Messages
 		/// <param name="theDataHash"></param>
 		/// <param name="theData"></param>
 		/// <param name="originalPublication"></param>
-		public StoreData(ID nodeID, StoreResponse request, ID theKey, ID theDataHash, string theData, DateTime originalPublication) : base(nodeID, request)
+		public StoreData(ID nodeID, StoreResponse request, ID theKey, ID theDataHash, string theData, DateTime originalPublication, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			key = theKey;
 			data = theData;
@@ -42,41 +39,46 @@ namespace Kademlia.Messages
 		/// Return the key we want to store at.
 		/// </summary>
 		/// <returns></returns>
-		public ID GetKey()
+        [DataMember]
+		public ID Key
 		{
-			return key;
+            get { return key; }
 		}
 		
 		/// <summary>
 		/// Get the data to store.
 		/// </summary>
 		/// <returns></returns>
-		public string GetData()
+        [DataMember]
+		public string Data
 		{
-			return data;
+            get { return data; }
 		}
 		
 		/// <summary>
 		/// Gets the data value hash.
 		/// </summary>
 		/// <returns></returns>
-		public ID GetDataHash()
+        [DataMember]
+		public ID DataHash
 		{
-			return dataHash;
+            get { return dataHash; }
 		}
 		
 		/// <summary>
 		/// Get when the data was originally published, in UTC.
 		/// </summary>
 		/// <returns></returns>
-		public DateTime GetPublicationTime()
+        [DataMember]
+		public DateTime PublicationTime
 		{
-			return publication.ToUniversalTime();
+            get { return publication.ToUniversalTime(); }
 		}
 		
-		public override string GetName()
+        [DataMember]
+		public override string Name
 		{
-			return "STORE_DATA";
+            get { return "STORE_DATA"; }
 		}
 	}
 }

@@ -1,12 +1,9 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 11:07 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace Kademlia.Messages
 {
@@ -14,7 +11,7 @@ namespace Kademlia.Messages
 	/// Represents a request to get a value.
 	/// Reciever should either send key or a node list.
 	/// </summary>
-	[Serializable]
+	[DataContract]
 	public class FindValue : Message
 	{
 		private ID key;
@@ -24,7 +21,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <param name="nodeID"></param>
 		/// <param name="wantedKey"></param>
-		public FindValue(ID nodeID, ID wantedKey) : base(nodeID)
+		public FindValue(ID nodeID, ID wantedKey, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			this.key = wantedKey;
 		}
@@ -33,13 +30,15 @@ namespace Kademlia.Messages
 		/// Return the key this message wants.
 		/// </summary>
 		/// <returns></returns>
-		public ID GetKey() {
-			return key;
+        [DataMember]
+		public ID Key {
+            get { return key; }
 		}
 		
-		public override string GetName()
+        [DataMember]
+		public override string Name
 		{
-			return "FIND_VALUE";
+            get { return "FIND_VALUE"; }
 		}
 	}
 }
