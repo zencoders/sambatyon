@@ -34,7 +34,9 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,13 +44,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UdpChannel.cs" />
+    <Compile Include="AsyncResult.cs" />
+    <Compile Include="SynchronizedQueue.cs" />
+    <Compile Include="UdpBindingCollectionElement.cs" />
+    <Compile Include="UdpBindingElementImporter.cs" />
+    <Compile Include="UdpChannelFactory.cs" />
+    <Compile Include="UdpInputChannel.cs" />
     <Compile Include="UdpChannelListener.cs" />
-    <Compile Include="UdpBindingElement.cs" />
     <Compile Include="UdpChannelHelpers.cs" />
     <Compile Include="NetUdpBinding.cs" />
     <Compile Include="UdpBindingConfigurationElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UdpOutputChannel.cs" />
+    <Compile Include="UdpTransportBindingElement.cs" />
+    <Compile Include="UdpTransportElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Kademlia\Kademlia\Kademlia.csproj">
