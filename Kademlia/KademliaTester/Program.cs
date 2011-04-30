@@ -41,10 +41,10 @@ namespace KademliaTester
 			Console.WriteLine("Test complete");
 			
 			Console.WriteLine("Testing KademilaNode");
-            KademliaNode node1 = new KademliaNode(new EndpointAddress("soap.udp://localhost:8002/kademlia"));
-            ServiceHost host1 = new ServiceHost(node1, new Uri("soap.udp://localhost:8002/kademlia"));
-			KademliaNode node2 = new KademliaNode();
-            ServiceHost host2 = new ServiceHost(node2, new Uri("soap.udp://localhost:8001/kademlia"));
+            KademliaNode node1 = new KademliaNode(new EndpointAddress("net.tcp://localhost:8002/kademlia"));
+            ServiceHost host1 = new ServiceHost(node1, new Uri("net.tcp://localhost:8002/kademlia"));
+            KademliaNode node2 = new KademliaNode(new EndpointAddress("net.tcp://localhost:8001/kademlia"));
+            ServiceHost host2 = new ServiceHost(node2, new Uri("net.tcp://localhost:8001/kademlia"));
 			node1.Bootstrap();
 			System.Threading.Thread.Sleep(50); // Wait for the other node to process its bucket queue
 			node1.JoinNetwork();

@@ -47,6 +47,7 @@ namespace Kademlia.Messages
         public abstract string Name
         {
             get;
+            set;
         }
 		
 		/// <summary>
@@ -57,6 +58,7 @@ namespace Kademlia.Messages
 		public ID SenderID
         {
             get { return senderID; }
+            set { this.senderID = value; }
 		}
 		
 		/// <summary>
@@ -67,12 +69,14 @@ namespace Kademlia.Messages
 		public ID ConversationID
         {
             get { return conversationID; }
+            set { this.conversationID = value; }
 		}
 
         [DataMember]
         public EndpointAddress NodeEndpoint
         {
             get { return nodeEndpoint; }
+            set { this.nodeEndpoint = value; }
         }
 	}
 }

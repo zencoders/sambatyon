@@ -43,6 +43,7 @@ namespace Kademlia.Messages
 		public ID Key
 		{
             get { return key; }
+            set { this.key = value; }
 		}
 		
 		/// <summary>
@@ -53,6 +54,7 @@ namespace Kademlia.Messages
 		public string Data
 		{
             get { return data; }
+            set { this.data = value; }
 		}
 		
 		/// <summary>
@@ -63,6 +65,7 @@ namespace Kademlia.Messages
 		public ID DataHash
 		{
             get { return dataHash; }
+            set { this.dataHash = value; }
 		}
 		
 		/// <summary>
@@ -73,12 +76,14 @@ namespace Kademlia.Messages
 		public DateTime PublicationTime
 		{
             get { return publication.ToUniversalTime(); }
+            set { }
 		}
 		
         [DataMember]
 		public override string Name
 		{
             get { return "STORE_DATA"; }
+            set { }
 		}
 	}
 }

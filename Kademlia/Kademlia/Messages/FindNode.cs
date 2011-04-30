@@ -33,12 +33,14 @@ namespace Kademlia.Messages
 		public ID Target
 		{
             get { return target; }
+            set { this.target = value; }
 		}
 		
         [DataMember]
 		public override string Name
 		{
             get { return "FIND_NODE"; }
+            set { }
 		}
 	}
 }

@@ -34,12 +34,14 @@ namespace Kademlia.Messages
 		public List<Contact> Contacts
 		{
             get { return contacts; }
+            set { this.contacts = value; }
 		}
 		
         [DataMember]
 		public override string Name
 		{
             get { return "FIND_VALUE_RESPONSE_CONTACTS"; }
+            set { }
 		}
 	}
 }

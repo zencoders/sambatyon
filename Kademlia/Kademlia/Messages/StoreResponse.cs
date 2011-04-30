@@ -29,12 +29,14 @@ namespace Kademlia.Messages
 		public bool ShouldSendData
 		{
             get { return sendData; }
+            set { this.sendData = value; }
 		}
 		
         [DataMember]
 		public override string Name
 		{
             get { return "STORE_RESPONSE"; }
+            set { }
 		}
 	}
 }

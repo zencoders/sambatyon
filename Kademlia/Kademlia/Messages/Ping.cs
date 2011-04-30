@@ -21,6 +21,7 @@ namespace Kademlia.Messages
 		public override string Name
 		{
             get { return "PING"; }
+            set { }
 		}
 	}
 }
