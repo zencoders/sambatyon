@@ -9,6 +9,7 @@ using System.Threading;
 using Raven.Client.Indexes;
 using Raven.Database.Indexing;
 using Raven.Client.Document;
+using System.Text.RegularExpressions;
 
 
 /*
@@ -21,9 +22,30 @@ namespace Persistence
 {
     public class KademliaRepository:IDisposable
     {
+        public const string DefaultSemanticFilterRegexString=@"\b("+
+                                                              "the|a|an|"+//English Articles
+                                                              "for|and|nor|but|or|yet|so|of|to|" + //English Coordinating conjunction
+                                                              "both|either|neither|rather|whetever|" + //English Correlative Conjunction (not all)
+                                                              "as|although|for|if|so|than|unless|until|till|while|" +//English Subordinate Conjunctions (not all)
+                                                              "lo|il|la|i|gli|le|l'|"+//Italian Articles
+                                                              "di|a|da|in|con|su|per|fra|tra|"+//Italian Prepositions
+                                                              "e|anche|pure|inoltre|ancora|perfino|neanche|neppure|nemmeno|"+ //Italian Conjunctions
+                                                              "oppure|altrimenti|ovvero|ossia|dunque|quindi|pertanto|allora|infatti|difatti|invero|"+ //Italian Conjunctions (Continue)
+                                                              "che|mentre|se|"+//Italian Conjunctions (Continue)
+                                                              "un|une|des|de|"+ //French articles
+                                                              "et|ou|ni|mais|donc"+ //French Conjunction (car omitted to avoid clash with english terms)
+                                                              @")\b";
         private static readonly ILog log = LogManager.GetLogger(typeof(KademliaRepository));
         private Repository _repository;
-        public KademliaRepository(string repType,RepositoryConfiguration conf) {
+        private Regex _semanticRegex;
+        private Regex _whiteSpaceRegex;
+        public KademliaRepository(string repType="Raven",
+                                  RepositoryConfiguration conf=null,
+                                  string semanticFilter=KademliaRepository.DefaultSemanticFilterRegexString) 
+        {
+            log.Debug("Semantic Filter Regex used is "+DefaultSemanticFilterRegexString);
+            this._semanticRegex = new Regex(DefaultSemanticFilterRegexString, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            this._whiteSpaceRegex = new Regex(@"[ ]{2,}", RegexOptions.Compiled);
             this._repository = RepositoryFactory.GetRepositoryInstance(repType, conf);
             this._repository.CreateIndex("KademliaKeywords/KeysByTag",
                                          "from key in docs.KademliaKeywords\nfrom tag in key.Tags\nselect new { Kid = key.Id , Tid = tag}");
@@ -130,9 +152,9 @@ namespace Persistence
             this._repository.BulkDelete<KademliaKeyword>(ids);
             return true;
         }
-        private string discardSemanticlessWords(string str)
+        public string DiscardSemanticlessWords(string str)
         {
-            return str;
+            return _whiteSpaceRegex.Replace(_semanticRegex.Replace(str,"")," ").Trim();
         }
         private string[] generatePrimaryKey(CompleteTag tag)
         {
@@ -143,7 +165,7 @@ namespace Persistence
             sb.Append(tag.Artist);
             sb.Append(" ");
             sb.Append(tag.Album);
-            string[] keywords = discardSemanticlessWords(sb.ToString()).Split(' ');
+            string[] keywords = DiscardSemanticlessWords(sb.ToString()).Split(' ');
             UTF8Encoding enc = new UTF8Encoding();
             //Questo è solo un esercizio di stile !
             /*Parallel.ForEach<string,List<string> >(keywords, 

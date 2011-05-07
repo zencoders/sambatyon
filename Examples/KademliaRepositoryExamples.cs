@@ -16,9 +16,16 @@ namespace Examples
             ExampleHelper.ExampleSetPrint("Kademlia Repository Examples", typeof(KademliaRepositoryExamples));
             RepositoryConfiguration conf=new RepositoryConfiguration(new {data_dir = @"..\..\Resource\Database"});
             _repository = new KademliaRepository("Raven", conf);
+            CleanTagExample();
             StoreExample();
             SearchExample();
             DeleteExample();
+        }
+        public static void CleanTagExample()
+        {
+            ExampleHelper.ExampleMethodPrint("Clean a string from semanticless words", MethodInfo.GetCurrentMethod());
+            string example1 = "The wind of change";
+            Console.WriteLine("\""+example1+ "\" => \""+_repository.DiscardSemanticlessWords(example1)+"\"");
         }
         public static void StoreExample()
         {

@@ -24,22 +24,20 @@ namespace RepositoryImpl
         private static readonly ILog log = LogManager.GetLogger(typeof(RavenRepository));
         //private EmbeddableDocumentStore _doc;        
         private DocumentStore _store;          
-        public RavenRepository(RepositoryConfiguration config)
+        public RavenRepository(RepositoryConfiguration config=null)
         {
             this.RepositoryType = "Raven";
-            string dataDir = config.GetConfig("data_dir");
-            if (dataDir.Equals(""))
+            string dataDir = System.IO.Path.GetTempPath()+"/p2p-player-db";
+            if (config != null)
             {
-                throw new ArgumentException("Missing data_dir configuration!");
+                string tdd = config.GetConfig("data_dir");
+                if (!tdd.Equals("")) dataDir = tdd;
             }
-            else
-            {
-                log.Debug("Start opening and initializing RavenDB");
-                //_doc = new EmbeddableDocumentStore { DataDirectory = dataDir};
-                _store = new DocumentStore { Url = "http://localhost:8080" };
-                _store.Initialize();               
-                log.Info("RavenDB initialized at " + dataDir);
-            }
+            log.Debug("Start opening and initializing RavenDB");
+            //_doc = new EmbeddableDocumentStore { DataDirectory = dataDir};
+            _store = new DocumentStore { Url = "http://localhost:8080" };
+            _store.Initialize();               
+            log.Info("RavenDB initialized at " + dataDir);
         }        
         public override RepositoryResponse Save(ILoadable data)
         {
