@@ -65,6 +65,7 @@ namespace Persistence
         /// Valore che identifica la modifica di una proprietà in fase di Patch del Repository
         /// </summary>
         RepositoryPatchSet = 12,
-        RepositoryPatchRemove
+        RepositoryPatchRemove = 13,
+        RepositoryMissingIndex=-11
     }
 }

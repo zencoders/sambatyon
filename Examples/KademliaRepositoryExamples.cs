@@ -49,7 +49,7 @@ namespace Examples
         {
             ExampleHelper.ExampleMethodPrint("Delete a previously loaded tag", MethodInfo.GetCurrentMethod());
             CompleteTag tag = new CompleteTag(@"..\..\Resource\Garden.mp3");
-            _repository.DeleteTag(tag.TagHash);
+            Console.WriteLine("Delete Result: "+_repository.DeleteTag(tag.TagHash));
         }
     }
 }

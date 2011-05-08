@@ -49,7 +49,7 @@ namespace Persistence
             this._repository = RepositoryFactory.GetRepositoryInstance(repType, conf);
             this._repository.CreateIndex("KademliaKeywords/KeysByTag",
                                          "from key in docs.KademliaKeywords\nfrom tag in key.Tags\nselect new { Kid = key.Id , Tid = tag}");
-            this._repository.CreateIndex("KademliadKeywords/EmptyKeys",
+            this._repository.CreateIndex("KademliaKeywords/EmptyKeys",
                                          "from key in docs.KademliaKeywords\nwhere key.Tags.Count() == 0\nselect new { key.Id }");
         }
         public bool StoreResource(CompleteTag tag, Uri peer)
@@ -142,7 +142,10 @@ namespace Persistence
             }
             this._repository.Delete<KademliaResource>(tid);
             results.Clear();
-            this._repository.QueryOverIndex("KademliaKeywords/EmptyKeys", "",results);
+            if (this._repository.QueryOverIndex("KademliaKeywords/EmptyKeys", "", results) != RepositoryResponse.RepositoryLoad)
+            {
+                return false;
+            }
             string[] ids = new string[results.Count];
             int index = 0;
             foreach (var t in results)

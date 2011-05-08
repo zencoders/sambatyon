@@ -22,8 +22,8 @@ namespace RepositoryImpl
     class RavenRepository : Repository
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(RavenRepository));
-        //private EmbeddableDocumentStore _doc;        
-        private DocumentStore _store;          
+        private EmbeddableDocumentStore _store;        
+        //private DocumentStore _store;          
         public RavenRepository(RepositoryConfiguration config=null)
         {
             this.RepositoryType = "Raven";
@@ -34,8 +34,8 @@ namespace RepositoryImpl
                 if (!tdd.Equals("")) dataDir = tdd;
             }
             log.Debug("Start opening and initializing RavenDB");
-            //_doc = new EmbeddableDocumentStore { DataDirectory = dataDir};
-            _store = new DocumentStore { Url = "http://localhost:8080" };
+            _store = new EmbeddableDocumentStore { DataDirectory = dataDir};
+            //_store = new DocumentStore { Url = "http://localhost:8080" };
             _store.Initialize();               
             log.Info("RavenDB initialized at " + dataDir);
         }        
@@ -197,11 +197,16 @@ namespace RepositoryImpl
         public override RepositoryResponse CreateIndex(string indexName, string indexQuery)
         {
             IndexDefinition def = new IndexDefinition() { Map = indexQuery, Name = indexName };
-            log.Debug(_store.DatabaseCommands.PutIndex(indexName, def));
+            //_store.
+            if (_store.DatabaseCommands.GetIndex(indexName) == null)
+            {
+                log.Debug(_store.DatabaseCommands.PutIndex(indexName, def));
+            }
             return RepositoryResponse.RepositorySuccess;
         }
         public override RepositoryResponse QueryOverIndex<DBType>(string indexName, string query,List<DBType> elems){
             if (elems == null) return RepositoryResponse.RepositoryGenericError;
+            if (this._store.DatabaseCommands.GetIndex(indexName) == null) return RepositoryResponse.RepositoryMissingIndex;
             using (IDocumentSession _session = _store.OpenSession()) {
                 var results = _session.Advanced.LuceneQuery<DBType>(indexName).Where(query);                                
                 elems.AddRange(results);
