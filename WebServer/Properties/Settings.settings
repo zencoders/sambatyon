@@ -8,5 +8,8 @@
     <Setting Name="httpPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">9998</Value>
     </Setting>
+    <Setting Name="udpPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)">9997</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

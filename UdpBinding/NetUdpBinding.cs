@@ -5,7 +5,7 @@ using System.Configuration;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// Binding for Udp. This is our "sample profile" for Udp, which uses Text+Soap 1.2 
@@ -94,7 +94,7 @@ namespace UdpBinding
 
         void ApplyConfiguration(string configurationName)
         {
-            SampleProfileUdpBindingCollectionElement section = (SampleProfileUdpBindingCollectionElement)ConfigurationManager.GetSection(UdpConstants.UdpBindingSectionName);
+            UdpBindingCollectionElement section = (UdpBindingCollectionElement)ConfigurationManager.GetSection(UdpConstants.UdpBindingSectionName);
             UdpBindingConfigurationElement element = section.Bindings[configurationName];
             if (element == null)
             {

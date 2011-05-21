@@ -14,14 +14,14 @@ namespace Kademlia.Messages
 	[DataContract]
 	public class FindValue : Message
 	{
-		private ID key;
+		private string key;
 		
 		/// <summary>
 		/// Make a new FindValue message.
 		/// </summary>
 		/// <param name="nodeID"></param>
 		/// <param name="wantedKey"></param>
-		public FindValue(ID nodeID, ID wantedKey, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
+		public FindValue(ID nodeID, string wantedKey, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			this.key = wantedKey;
 		}
@@ -31,7 +31,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <returns></returns>
         [DataMember]
-		public ID Key {
+		public string Key {
             get { return key; }
             set { this.Key = value; }
 		}

@@ -8,7 +8,7 @@ using System.ServiceModel.Description;
 using System.Xml;
 using WsdlNS = System.Web.Services.Description;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// Udp Binding Element.  

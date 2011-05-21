@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using Persistence.Tag;
 
 namespace Kademlia.Messages
 {
@@ -13,9 +14,7 @@ namespace Kademlia.Messages
 	[DataContract]
 	public class StoreData : Response
 	{
-		private ID key;
-		private ID dataHash; // Distinguish multiple values for a given key
-		private string data;
+		private CompleteTag data;
 		private DateTime publication;
 		
 		/// <summary>
@@ -27,23 +26,10 @@ namespace Kademlia.Messages
 		/// <param name="theDataHash"></param>
 		/// <param name="theData"></param>
 		/// <param name="originalPublication"></param>
-		public StoreData(ID nodeID, StoreResponse request, ID theKey, ID theDataHash, string theData, DateTime originalPublication, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
+		public StoreData(ID nodeID, StoreResponse request, CompleteTag theData, DateTime originalPublication, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
-			key = theKey;
 			data = theData;
-			dataHash = theDataHash;
 			publication = originalPublication;
-		}
-		
-		/// <summary>
-		/// Return the key we want to store at.
-		/// </summary>
-		/// <returns></returns>
-        [DataMember]
-		public ID Key
-		{
-            get { return key; }
-            set { this.key = value; }
 		}
 		
 		/// <summary>
@@ -51,21 +37,10 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <returns></returns>
         [DataMember]
-		public string Data
+		public CompleteTag Data
 		{
             get { return data; }
             set { this.data = value; }
-		}
-		
-		/// <summary>
-		/// Gets the data value hash.
-		/// </summary>
-		/// <returns></returns>
-        [DataMember]
-		public ID DataHash
-		{
-            get { return dataHash; }
-            set { this.dataHash = value; }
 		}
 		
 		/// <summary>

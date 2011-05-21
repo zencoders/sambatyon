@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Linq;
 using System.ServiceModel;
+using Persistence;
 
 namespace Kademlia
 {
@@ -100,9 +101,9 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="key">The key of the value to retrieve.</param>
 		/// <returns>an arbitrary value stored for the key, or null if no values are found</returns>
-		public string Get(string key)
+		public KademliaResource Get(string key)
 		{
-			IList<string> found = dhtNode.Get(ID.Hash(key));
+			IList<KademliaResource> found = dhtNode.Get(key);
 			if(found.Count > 0) {
 				return found[0]; // An arbitrary value
 			} else {
@@ -115,9 +116,9 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		public IList<string> GetAll(string key)
+		public IList<KademliaResource> GetAll(string key)
 		{
-			return dhtNode.Get(ID.Hash(key));
+			return dhtNode.Get(key);
 		}
 		
 		/// <summary>
@@ -125,9 +126,9 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="key">Can be any length, is hashed internally.</param>
 		/// <param name="val">Can be up to and including MaxSize() UTF-8 characters.</param>
-		public void Put(string key, string val)
+		public void Put(string filename)
 		{
-			dhtNode.Put(ID.Hash(key), val);
+			dhtNode.Put(filename);
 		}
 		
 		/// <summary>

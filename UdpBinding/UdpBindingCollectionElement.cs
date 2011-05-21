@@ -1,12 +1,12 @@
 ﻿using System.ServiceModel.Configuration;
 using System.ServiceModel.Channels;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// Binding Section for Udp. Implements configuration for SampleProfileUdpBinding.
     /// </summary>
-    public class SampleProfileUdpBindingCollectionElement : StandardBindingCollectionElement<NetUdpBinding, UdpBindingConfigurationElement>
+    public class UdpBindingCollectionElement : StandardBindingCollectionElement<NetUdpBinding, UdpBindingConfigurationElement>
     {
     }
 }

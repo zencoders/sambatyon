@@ -6,7 +6,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Configuration;
 #endregion
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// Configuration section for Udp. 

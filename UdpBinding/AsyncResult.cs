@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// A generic base class for IAsyncResult implementations

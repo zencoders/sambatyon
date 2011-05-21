@@ -77,6 +77,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\UdpBinding\UdpBinding.csproj">
+      <Project>{7667D3D1-795F-48E1-B271-BE245159EE34}</Project>
+      <Name>UdpBinding</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Kademlia\Kademlia.csproj">
       <Project>{07C0CD14-D301-44B4-8B1A-7FD5D68F03CB}</Project>
       <Name>Kademlia</Name>

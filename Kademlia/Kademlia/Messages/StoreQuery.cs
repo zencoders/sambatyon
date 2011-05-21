@@ -15,10 +15,8 @@ namespace Kademlia.Messages
 	[DataContract]
 	public class StoreQuery : Message
 	{
-		private ID key;
-		private ID dataHash;
+		private ID tagHash;
 		private DateTime publication;
-		private int valueSize;
 		
 		/// <summary>
 		/// Make a new STORE_QUERY message.
@@ -28,23 +26,10 @@ namespace Kademlia.Messages
 		/// <param name="hash">A hash of the data value</param>
 		/// <param name="originalPublication"></param>
 		/// <param name="dataSize"></param>
-		public StoreQuery(ID nodeID, ID toStore, ID hash, DateTime originalPublication, int dataSize, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
+		public StoreQuery(ID nodeID, ID hash, DateTime originalPublication, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
-			key = toStore;
-			dataHash = hash;
+			tagHash = hash;
 			publication = originalPublication;
-			valueSize = dataSize;
-		}
-		
-		/// <summary>
-		/// Returns the key that we want stored.
-		/// </summary>
-		/// <returns></returns>
-        [DataMember]
-		public ID Key
-		{
-            get { return key; }
-            set { this.key = value; }
 		}
 		
 		/// <summary>
@@ -52,23 +37,12 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <returns></returns>
         [DataMember]
-		public ID DataHash
+		public ID TagHash
 		{
-            get { return dataHash; }
-            set { this.dataHash = value; }
+            get { return tagHash; }
+            set { this.tagHash = value; }
 		}
-		
-		/// <summary>
-		/// Returns the size of the value we're storing, in bytes
-		/// </summary>
-		/// <returns></returns>
-        [DataMember]
-		public int ValueSize
-		{
-            get { return valueSize; }
-            set { this.valueSize = value; }
-		}
-		
+
 		/// <summary>
 		/// Get when the data was originally published, in UTC.
 		/// </summary>

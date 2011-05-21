@@ -45,7 +45,7 @@ namespace KademliaTester
             ServiceHost host1 = new ServiceHost(node1, new Uri("net.tcp://localhost:8002/kademlia"));
             KademliaNode node2 = new KademliaNode(new EndpointAddress("net.tcp://localhost:8001/kademlia"));
             ServiceHost host2 = new ServiceHost(node2, new Uri("net.tcp://localhost:8001/kademlia"));
-			node1.Bootstrap();
+//			node1.Bootstrap();
 			System.Threading.Thread.Sleep(50); // Wait for the other node to process its bucket queue
 			node1.JoinNetwork();
 			node2.JoinNetwork();
@@ -62,7 +62,7 @@ namespace KademliaTester
 				nl.Add(node);
 			}
 			Console.WriteLine("Connectivity tests complete");
-			
+/*			
 			// Do a store test
 			ID babiesID = ID.RandomID();
 			node1.Put(babiesID, "=====I eat babies=====");
@@ -94,7 +94,7 @@ namespace KademliaTester
 			Console.WriteLine("Animal entry count " + node2.Get(ID.Hash("Animal")).Count);
 			Console.WriteLine("Arbitrary animal = " + dht.Get("Animal"));
 			          
-			
+*/			
 			Console.WriteLine("Testing complete! Press any key to exit the program.");
             Console.ReadLine();
 		}

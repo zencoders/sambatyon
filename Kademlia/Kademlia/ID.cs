@@ -13,6 +13,8 @@ using System.Net.NetworkInformation;
 using System.Web;
 using System.Threading;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace Kademlia
 {
@@ -33,20 +35,39 @@ namespace Kademlia
 		// We need to have a mutex to control access to the hash-based host ID.
 		// Once one process on the machine under the current user gets it, no others can.
 		private static Mutex mutex;
-		
+
 		/// <summary>
 		/// Make a new ID from a byte array.
 		/// </summary>
 		/// <param name="data">An array of exactly 20 bytes.</param>
 		public ID(byte[] data)
 		{
-			if(data.Length == ID_LENGTH) {
-				this.data = new byte[ID_LENGTH];
-				data.CopyTo(this.data, 0); // Copy the array into us.
-			} else {
-				throw new Exception("An ID must be exactly " + ID_LENGTH + " bytes.");
-			}
+            IDInit(data);
 		}
+
+        public ID(string new_id)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            byte[] data;
+            MemoryStream ms = new MemoryStream();
+            bf.Serialize(ms, new_id);
+            ms.Seek(0, 0);
+            data = ms.ToArray();
+            IDInit(data);
+        }
+
+        private void IDInit(byte[] data)
+        {
+            if (data.Length == ID_LENGTH)
+            {
+                this.data = new byte[ID_LENGTH];
+                data.CopyTo(this.data, 0); // Copy the array into us.
+            }
+            else
+            {
+                throw new Exception("An ID must be exactly " + ID_LENGTH + " bytes.");
+            }
+        }
 		
 		/// <summary>
 		/// Hash a string to produce an ID

@@ -11,7 +11,8 @@
     <RootNamespace>WCFServiceHost</RootNamespace>
     <AssemblyName>WCFServiceHost</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -53,8 +54,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -69,11 +72,16 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TransportService\TransportService.csproj">
       <Project>{8C128D0C-5E16-4709-8EE8-BE8EBF79E9CA}</Project>
       <Name>TransportService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UdpBinding\UdpBinding.csproj">
+      <Project>{7667D3D1-795F-48E1-B271-BE245159EE34}</Project>
+      <Name>UdpBinding</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

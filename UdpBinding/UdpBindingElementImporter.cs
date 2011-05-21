@@ -7,7 +7,7 @@ using System.ServiceModel.Channels;
 using WsdlNS = System.Web.Services.Description;
 using System.Xml;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// Policy import/export for Udp

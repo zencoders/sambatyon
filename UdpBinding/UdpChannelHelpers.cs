@@ -5,7 +5,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Globalization;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     static class UdpConstants
     {

@@ -6,7 +6,7 @@ using System.Globalization;
 using System.ServiceModel;
 using System.ServiceModel.Configuration;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     public class UdpBindingConfigurationElement : StandardBindingElement
     {

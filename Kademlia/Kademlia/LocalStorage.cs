@@ -13,9 +13,19 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
 using System.IO;
+using Persistence.Tag;
+using Persistence;
 
 namespace Kademlia
 {
+
+    public class DhtElement
+    {
+        public Uri url;
+        public DateTime publication;
+        TimeSpan validity;
+    }
+
 	/// <summary>
 	/// Stores key/value pairs assigned to our node.
 	/// Automatically handles persistence to disk.
@@ -99,7 +109,7 @@ namespace Kademlia
 			SaveIndex(); // Make sure our index getw written when we shut down properly.
 			mutex.Close(); // Release our hold on the mutex.
 		}
-		
+	
 		/// <summary>
 		/// Create all folders in a path, if missing.
 		/// </summary>
@@ -160,7 +170,48 @@ namespace Kademlia
 				Console.WriteLine("Save error: " + ex.ToString());
 			}
 		}
-		
+
+        public KademliaResource[] SearchFor(string query)
+        {
+            return new KademliaResource[10];
+        }
+
+        public void RefreshResource(ID tag_id, Uri uri, DateTime timestamp)
+        {
+        }
+
+        public void StoreResource(CompleteTag tag, Uri uri, DateTime publicationTime)
+        {
+        }
+
+        public void Put(ID tag_id, Uri uri, DateTime publicationTime)
+        {
+        }
+
+        public bool ContainsTag(ID tag_id)
+        {
+            return false;
+        }
+
+        public bool ContainsUrl(ID tag_id, Uri uri)
+        {
+            return false;
+        }
+        /*
+        IList<Uri> Get(ID tag_id)
+        {
+            return new List<Uri>();
+        }
+        */
+        public DateTime GetPublicationTime(ID tag_id, Uri uri)
+        {
+            return new DateTime();
+        }
+
+        public IList<KademliaResource> GetAllElements()
+        {
+            return new List<KademliaResource>();
+        }
 		/// <summary>
 		/// Store a key/value pair published originally at the given UTC timestamp. Value is kept until keepTime past timestamp.
 		/// </summary>

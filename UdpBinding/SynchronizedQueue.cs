@@ -1,4 +1,4 @@
-﻿namespace UdpBinding
+﻿namespace UdpTransportBinding
 {
     using System;
     using System.Collections.Generic;

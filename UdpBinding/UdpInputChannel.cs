@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     class UdpInputChannel : ChannelBase, IInputChannel
     {

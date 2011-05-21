@@ -7,7 +7,7 @@ using System.ServiceModel.Channels;
 using System.Globalization;
 #endregion
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// IChannelFactory implementation for Udp.

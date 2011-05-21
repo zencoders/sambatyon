@@ -10,7 +10,7 @@ using System.ServiceModel.Channels;
 using System.Text;
 using System.Xml;
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
     /// <summary>
     /// IOutputChannel implementation for Udp.

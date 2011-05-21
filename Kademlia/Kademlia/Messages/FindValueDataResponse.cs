@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using Persistence;
 
 namespace Kademlia.Messages
 {
@@ -13,7 +14,7 @@ namespace Kademlia.Messages
 	[DataContract]
 	public class FindValueDataResponse : Response
 	{
-		private IList<string> vals;
+		private IList<KademliaResource> vals;
 		
 		/// <summary>
 		/// Make a new response.
@@ -21,7 +22,7 @@ namespace Kademlia.Messages
 		/// <param name="nodeID"></param>
 		/// <param name="request"></param>
 		/// <param name="data"></param>
-		public FindValueDataResponse(ID nodeID, FindValue request, IList<string> data, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
+		public FindValueDataResponse(ID nodeID, FindValue request, IList<KademliaResource> data, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			vals = data;
 		}
@@ -31,7 +32,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <returns></returns>
         [DataMember]
-		public IList<string> Values
+		public IList<KademliaResource> Values
 		{
             get { return vals; }
             set { this.vals = value; }

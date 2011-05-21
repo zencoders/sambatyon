@@ -15,7 +15,7 @@ using System.Threading;
 using System.ServiceModel.Description;
 #endregion
 
-namespace UdpBinding
+namespace UdpTransportBinding
 {
 
     /// <summary>
