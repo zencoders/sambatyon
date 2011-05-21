@@ -66,6 +66,7 @@ namespace Persistence
         /// </summary>
         RepositoryPatchSet = 12,
         RepositoryPatchRemove = 13,
-        RepositoryMissingIndex=-11
+        RepositoryMissingIndex = -11,
+        RepositoryPatchModify = 14
     }
 }

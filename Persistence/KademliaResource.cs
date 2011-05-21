@@ -11,17 +11,17 @@ namespace Persistence
         public KademliaResource()
         {
             this.Tag = null;
-            this.Urls = new List<Uri>();
+            this.Urls = new List<DhtElement>();
 
         }
-        public KademliaResource(string filename, params Uri[] urls) :this() {
+        public KademliaResource(string filename, params DhtElement[] urls) :this() {
             this.Tag = new CompleteTag(filename);
             if (urls.Length != 0)
             {
                 this.Urls.AddRange(urls);
             }
         }
-        public KademliaResource(CompleteTag tag, params Uri[] urls) : this()
+        public KademliaResource(CompleteTag tag, params DhtElement[] urls) : this()
         {
             this.Tag = tag;
             if (urls.Length != 0)
@@ -54,7 +54,7 @@ namespace Persistence
             get;
             set;
         }
-        public List<Uri> Urls
+        public List<DhtElement> Urls
         {
             get;
             set;

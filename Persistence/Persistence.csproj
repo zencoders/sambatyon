@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompleteTag.cs" />
+    <Compile Include="DhtElement.cs" />
     <Compile Include="ILoadable.cs" />
     <Compile Include="IDocumentType.cs" />
     <Compile Include="KademliaKeyword.cs" />

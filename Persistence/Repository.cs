@@ -103,7 +103,7 @@ namespace Persistence
         /// <param name="key">Chiave del documento da modificare</param>
         /// <param name="property">Proprietà da modificare</param>
         /// <param name="element">Elemento da aggiungere all'array</param>
-        /// <returns>Il risultato dell'operazione sul repository. RItorna un valore negativo in caso di errori, altrimenti un valore
+        /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
         /// che identifica l'operazione eseguita</returns>
         public abstract RepositoryResponse ArrayAddElement(string key, string property, object element);
         /// <summary>
@@ -113,7 +113,7 @@ namespace Persistence
         /// <param name="key">Chiave del documento da modificare</param>
         /// <param name="property">Proprietà da modificare</param>
         /// <param name="index">Indice dell'elemento da rimuovere</param>
-        /// <returns>Il risultato dell'operazione sul repository. RItorna un valore negativo in caso di errori, altrimenti un valore
+        /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
         /// che identifica l'operazione eseguita</returns>
         public abstract RepositoryResponse ArrayRemoveElement(string key, string property, object value);
         /// <summary>
@@ -123,10 +123,21 @@ namespace Persistence
         /// <param name="key">Chiave del documento da modificare</param>
         /// <param name="property">Proprietà da modificare</param>
         /// <param name="newValue">Nuovo valore della proprietà</param>
-        /// <returns>Il risultato dell'operazione sul repository. RItorna un valore negativo in caso di errori, altrimenti un valore
+        /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
         /// che identifica l'operazione eseguita</returns>
         public abstract RepositoryResponse SetPropertyValue(string key, string property, object newValue);
-
+        /// <summary>
+        /// Metodo che si occupa di impostare il valore all'interno di un array contenuto in una proprietà
+        /// Questo metodo evita l'eliminazione ed il reinserimento di un elemento nell'array
+        /// </summary>
+        /// <param name="key">Chiave del documento da modifica</param>
+        /// <param name="property">Proprietà da modificare (deve essere un array)</param>
+        /// <param name="index">Indice dell'elemento da modificare</param>
+        /// <param name="obj_prop">Nome della proprietà da modificare dell'oggetto contenuto nell'array</param>
+        /// <param name="value">Valore da impostare all'oggetto</param>
+        /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
+        /// che identifica l'operazione eseguita</returns>
+        public abstract RepositoryResponse ArraySetElement(string key, string property, int index, string obj_prop, object value);
         public String RepositoryType
         {
             get;

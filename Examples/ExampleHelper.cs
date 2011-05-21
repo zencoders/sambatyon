@@ -22,15 +22,33 @@ namespace Examples
             Console.WriteLine(message + "(" + method.Name + ")");
             Console.ResetColor();
         }
-        public static void DumpObjectProperties(Object obj)
+        private static string dumpObjectOnString(Object obj)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            StringBuilder outputBuilder=new StringBuilder();
             Type tp = obj.GetType();
             PropertyInfo[] infos = tp.GetProperties();
             foreach (PropertyInfo prop in infos)
             {
-                Console.WriteLine(prop.Name + " : " + prop.GetValue(obj, null).ToString());
+                object propValue = prop.GetValue(obj, null);                
+                outputBuilder.AppendLine(prop.Name + " : " + propValue.ToString());
+                if (propValue is System.Collections.ICollection)
+                {
+                    System.Collections.ICollection col = propValue as System.Collections.ICollection;
+                    int k=0;
+                    foreach (object colObj in col)
+                    {                        
+                        outputBuilder.Append(k++).Append(") ");
+                        outputBuilder.Append(dumpObjectOnString(colObj));
+                    }
+                    outputBuilder.AppendLine("#EndCollection "+prop.Name);
+                } 
             }
+            return outputBuilder.ToString();
+        }
+        public static void DumpObjectProperties(Object obj)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write(dumpObjectOnString(obj));
             Console.ResetColor();
         }
     }

@@ -12,12 +12,6 @@ using Raven.Client.Document;
 using System.Text.RegularExpressions;
 
 
-/*
- * from key in docs.KademliaKeywords
- * from tag in key.Tags
- * select new { Kid = key.Id , Tid = tag}
- */
-
 namespace Persistence
 {
     public class KademliaRepository:IDisposable
@@ -39,11 +33,17 @@ namespace Persistence
         private Repository _repository;
         private Regex _semanticRegex;
         private Regex _whiteSpaceRegex;
+        private TimeSpan _elementValidity;
         public KademliaRepository(string repType="Raven",
                                   RepositoryConfiguration conf=null,
+                                  string elementValidity = "24",
                                   string semanticFilter=KademliaRepository.DefaultSemanticFilterRegexString) 
         {
             log.Debug("Semantic Filter Regex used is "+DefaultSemanticFilterRegexString);
+            if (!(TimeSpan.TryParse(elementValidity, out this._elementValidity)))
+            {
+                this._elementValidity = new TimeSpan(24, 0, 0);
+            }
             this._semanticRegex = new Regex(DefaultSemanticFilterRegexString, RegexOptions.Compiled | RegexOptions.IgnoreCase);
             this._whiteSpaceRegex = new Regex(@"[ ]{2,}", RegexOptions.Compiled);
             this._repository = RepositoryFactory.GetRepositoryInstance(repType, conf);
@@ -52,21 +52,22 @@ namespace Persistence
             this._repository.CreateIndex("KademliaKeywords/EmptyKeys",
                                          "from key in docs.KademliaKeywords\nwhere key.Tags.Count() == 0\nselect new { key.Id }");
         }
-        public bool StoreResource(CompleteTag tag, Uri peer)
+        public bool StoreResource(CompleteTag tag, Uri peer,DateTime pubtime)
         {
             KademliaResource rs = new KademliaResource();
+            DhtElement dhtElem = new DhtElement(peer, pubtime, this._elementValidity);
             RepositoryResponse resp = _repository.GetByKey<KademliaResource>(tag.TagHash, rs);
             if ( resp == RepositoryResponse.RepositoryLoad)
             {
-                if (!rs.Urls.Contains(peer)) {
-                    _repository.ArrayAddElement(rs.Id, "Urls", peer);
+                if (!rs.Urls.Contains(dhtElem)) {
+                    _repository.ArrayAddElement(rs.Id, "Urls", dhtElem);
                 } else {
                     log.Debug("Urls "+peer.ToString()+" already known");
                 }
             }
             else if (resp == RepositoryResponse.RepositoryMissingKey)
             {
-                rs = new KademliaResource(tag, peer);
+                rs = new KademliaResource(tag, dhtElem);
                 if (_repository.Save(rs) == RepositoryResponse.RepositorySuccess)
                 {
                     List<string> pks = new List<string>(generatePrimaryKey(tag));
@@ -195,8 +196,114 @@ namespace Persistence
             }
             return pkList.ToArray();
         }
+        public bool RefreshResource(string tagid, Uri url,DateTime pubtime)
+        {
+            KademliaResource rs = new KademliaResource();
+            RepositoryResponse resp = _repository.GetByKey<KademliaResource>(tagid, rs);
+            if (resp == RepositoryResponse.RepositoryLoad)
+            {
+                int eindex = rs.Urls.FindIndex(elem =>
+                {
+                    return elem.Url.Equals(url);
+                });
+                if (eindex != -1)
+                {
+                    _repository.ArraySetElement(tagid, "Urls", eindex, "Publication", pubtime);
+                    return true;
+                }
+            }
+            return false;
+        }
+        public KademliaResource Get(string tagid)
+        {
+            KademliaResource rs = new KademliaResource();
+            if (_repository.GetByKey<KademliaResource>(tagid, rs) == RepositoryResponse.RepositoryLoad)
+            {
+                return rs;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public LinkedList<KademliaResource> GetAllElements()
+        {
+            LinkedList<KademliaResource> coll=new LinkedList<KademliaResource>();
+            if (_repository.GetAll<KademliaResource>(coll) == RepositoryResponse.RepositoryLoad)
+            {
+                return coll;
+            }
+            else
+            {
+                return null;
+            }
 
-
+        }
+        public bool Put(string tagid, Uri url, DateTime pubtime)
+        {
+            KademliaResource rs = new KademliaResource();
+            DhtElement dhtElem = new DhtElement(url, pubtime, this._elementValidity);
+            RepositoryResponse resp = _repository.GetByKey<KademliaResource>(tagid, rs);
+            if (resp == RepositoryResponse.RepositoryLoad)
+            {
+                if (!rs.Urls.Contains(dhtElem))
+                {
+                    _repository.ArrayAddElement(rs.Id, "Urls", dhtElem);
+                    return true;
+                }
+                else
+                {
+                    log.Debug("Urls " + url.ToString() + " already known");
+                }                
+            }
+            return false;
+        }
+        public bool ContainsTag(string tagid)
+        {
+            KademliaResource rs = Get(tagid);
+            if (rs != null)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool ContainsUrl(string tagid, Uri url)
+        {
+            KademliaResource rs = Get(tagid);
+            DhtElement fakeElem=new DhtElement() 
+            {
+                Url = url
+            };
+            if (rs != null)
+            {
+                if (rs.Urls.Contains(fakeElem))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+        public DateTime GetPublicationTime(string tagid, Uri url)
+        {
+            KademliaResource rs = Get(tagid);            
+            if (rs!=null)
+            {
+                DhtElement elem = rs.Urls.Find(de =>
+                    {
+                        return de.Url.Equals(url);
+                    }
+                );
+                if (elem != null)
+                {
+                    return elem.Publication;
+                }
+            }
+            return DateTime.MinValue;
+        }
         #region IDisposable
 
         public void Dispose()

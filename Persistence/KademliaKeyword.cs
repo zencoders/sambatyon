@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Persistence
 {
-    class KademliaKeyword: IDocumentType, ILoadable
+    public class KademliaKeyword: IDocumentType, ILoadable
     {
         public List<string> Tags
         {

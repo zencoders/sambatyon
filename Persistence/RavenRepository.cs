@@ -22,8 +22,8 @@ namespace RepositoryImpl
     class RavenRepository : Repository
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(RavenRepository));
-        private EmbeddableDocumentStore _store;        
-        //private DocumentStore _store;          
+        //private EmbeddableDocumentStore _store;        
+        private DocumentStore _store;          
         public RavenRepository(RepositoryConfiguration config=null)
         {
             this.RepositoryType = "Raven";
@@ -34,8 +34,8 @@ namespace RepositoryImpl
                 if (!tdd.Equals("")) dataDir = tdd;
             }
             log.Debug("Start opening and initializing RavenDB");
-            _store = new EmbeddableDocumentStore { DataDirectory = dataDir};
-            //_store = new DocumentStore { Url = "http://localhost:8080" };
+            //_store = new EmbeddableDocumentStore { DataDirectory = dataDir};
+            _store = new DocumentStore { Url = "http://localhost:8080" };
             _store.Initialize();               
             log.Info("RavenDB initialized at " + dataDir);
         }        
@@ -124,7 +124,7 @@ namespace RepositoryImpl
         {
             using (IDocumentSession _session = _store.OpenSession())
             {
-                return _session.Query<DBType>().Count();
+                return _session.Query<DBType>().Customize(x => { x.WaitForNonStaleResults(); }).Count();
             }
         }
 
@@ -158,7 +158,7 @@ namespace RepositoryImpl
         {            
             using (IDocumentSession _session = _store.OpenSession())
             {
-                var results = _session.Query<DBType>().AsParallel().Where(cond);
+                var results = _session.Query<DBType>().Customize(x=> {x.WaitForNonStaleResults();}).AsParallel().Where(cond);
                 elems.AddRange(results);
             }
             return RepositoryResponse.RepositoryLoad;
@@ -184,7 +184,7 @@ namespace RepositoryImpl
             if (cont!=null) {
                 using (IDocumentSession _session = _store.OpenSession())
                 {
-                    Parallel.ForEach(_session.Query<DBType>(), t =>
+                    Parallel.ForEach(_session.Query<DBType>().Customize(x => { x.WaitForNonStaleResults(); }), t =>
                     {
                         cont.Add(t);
                     });
@@ -208,7 +208,7 @@ namespace RepositoryImpl
             if (elems == null) return RepositoryResponse.RepositoryGenericError;
             if (this._store.DatabaseCommands.GetIndex(indexName) == null) return RepositoryResponse.RepositoryMissingIndex;
             using (IDocumentSession _session = _store.OpenSession()) {
-                var results = _session.Advanced.LuceneQuery<DBType>(indexName).Where(query);                                
+                var results = _session.Advanced.LuceneQuery<DBType>(indexName).WaitForNonStaleResults().Where(query);                                
                 elems.AddRange(results);
             }
             return RepositoryResponse.RepositoryLoad;
@@ -222,10 +222,41 @@ namespace RepositoryImpl
                         new PatchCommandData {
                             Key = key,                        
                             Patches = new [] {
-                                new PatchRequest {
-                                    Type = type,
-                                    Name = propertyName,                                    
-                                    Value = JToken.FromObject(value)
+                                generatePatchRequest(propertyName,value,type)
+                            }
+                        }
+                    }
+                );
+            }
+            return true;
+        }
+        private PatchRequest generatePatchRequest(string propertyName, object value, PatchCommandType type)
+        {
+            return new PatchRequest {
+                Type = type,
+                Name = propertyName,
+                Value = JToken.FromObject(value)
+            };
+        }
+
+        private bool nestedPatchDatabase(string key,string propertyName, int index, params PatchRequest[] reqs)
+        {
+            using (IDocumentSession _session = _store.OpenSession())
+            {
+                Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
+                    new [] 
+                    {
+                        new PatchCommandData 
+                        {
+                            Key = key,
+                            Patches = new [] 
+                            {
+                                new PatchRequest 
+                                {
+                                    Type = PatchCommandType.Modify,
+                                    Name = propertyName,
+                                    Position = index,
+                                    Nested = reqs
                                 }
                             }
                         }
@@ -247,6 +278,13 @@ namespace RepositoryImpl
             return RepositoryResponse.RepositoryPatchRemove;
         }
 
+        public override RepositoryResponse ArraySetElement(string key, string property, int index, string obj_prop, object value)
+        {
+            PatchRequest req = generatePatchRequest(obj_prop, value, PatchCommandType.Set);
+            nestedPatchDatabase(key, property, index, req);
+            return RepositoryResponse.RepositoryPatchModify;
+        }
+               
         public override RepositoryResponse SetPropertyValue(string key, string property, object newValue)
         {
             patchDatabase(key, property, newValue, PatchCommandType.Set);
