@@ -36,7 +36,7 @@ namespace Persistence
         private TimeSpan _elementValidity;
         public KademliaRepository(string repType="Raven",
                                   RepositoryConfiguration conf=null,
-                                  string elementValidity = "24",
+                                  string elementValidity = "1",
                                   string semanticFilter=KademliaRepository.DefaultSemanticFilterRegexString) 
         {
             log.Debug("Semantic Filter Regex used is "+DefaultSemanticFilterRegexString);
@@ -260,7 +260,7 @@ namespace Persistence
         }
         public bool ContainsTag(string tagid)
         {
-            KademliaResource rs = Get(tagid);
+            KademliaResource rs = Get(tagid); 
             if (rs != null)
             {
                 return true;
@@ -304,6 +304,77 @@ namespace Persistence
             }
             return DateTime.MinValue;
         }
+        public void Expire()
+        {
+            List<KademliaResource> lr=new List<KademliaResource>();
+            LinkedList<ExpireIteratorDesc> cleanList = new LinkedList<ExpireIteratorDesc>();
+            _repository.GetAll<KademliaResource>(lr);
+            Parallel.ForEach<KademliaResource,ExpireIteratorDesc >(lr, 
+                                                    () => new ExpireIteratorDesc(),                                    
+                                                    (key,loop,iter_index,iter_desc)  =>
+                                                    {
+                                                        if (iter_desc.TagId == null)
+                                                        {
+                                                            iter_desc.TagId = key.Id;
+                                                        }
+                                                        for (int k=0;k<key.Urls.Count;k++)
+                                                        {
+                                                            DhtElement delem = key.Urls[k];
+                                                            if (DateTime.Compare(delem.Publication.Add(delem.Validity),DateTime.Now) <= 0)
+                                                            {
+                                                                iter_desc.Expired.Add(delem);
+                                                            }
+                                                        }
+                                                        if (iter_desc.Expired.Count == key.Urls.Count)
+                                                        {
+                                                            iter_desc.ToBeDeleted= true;
+                                                        }
+                                                        else
+                                                        {
+                                                            iter_desc.ToBeDeleted = false;
+                                                        }
+                                                        return iter_desc;
+                                                    },
+                                                    (finalResult) => cleanList.AddLast(finalResult)
+            );
+            Parallel.ForEach<ExpireIteratorDesc>(cleanList,
+                (iter_desc) =>
+                {
+                    if (iter_desc.ToBeDeleted)
+                    {
+                        DeleteTag(iter_desc.TagId);
+                    }
+                    else
+                    {
+                        _repository.ArrayRemoveByPosition(iter_desc.TagId, "Urls", iter_desc.Expired.ToArray<DhtElement>());
+                    }
+                }
+            );
+        }
+        private class ExpireIteratorDesc
+        {
+            public string TagId
+            {
+                get;
+                set;
+            }
+            public bool ToBeDeleted
+            {
+                get;
+                set;
+            }
+            public List<DhtElement> Expired
+            {
+                get;
+                set;
+            }
+            public ExpireIteratorDesc()
+            {
+                TagId = null;
+                ToBeDeleted = false;
+                Expired = new List<DhtElement>();
+            }
+        }
         #region IDisposable
 
         public void Dispose()
@@ -312,5 +383,5 @@ namespace Persistence
         }
 
         #endregion
-    }
+    }    
 }

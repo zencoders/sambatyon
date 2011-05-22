@@ -24,8 +24,15 @@ namespace Examples
             MiscGetAndContainsExample();
             SearchExample();
             RefreshExample();
+            ExpireExample();
 
             //DeleteExample();
+        }
+
+        private static void ExpireExample()
+        {
+            ExampleHelper.ExampleMethodPrint("Clean Expire Entity", MethodInfo.GetCurrentMethod());
+            _repository.Expire();
         }
 
         private static void MiscGetAndContainsExample()

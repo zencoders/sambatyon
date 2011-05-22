@@ -22,8 +22,8 @@ namespace RepositoryImpl
     class RavenRepository : Repository
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(RavenRepository));
-        //private EmbeddableDocumentStore _store;        
-        private DocumentStore _store;          
+        private EmbeddableDocumentStore _store;        
+        //private DocumentStore _store;          
         public RavenRepository(RepositoryConfiguration config=null)
         {
             this.RepositoryType = "Raven";
@@ -34,8 +34,8 @@ namespace RepositoryImpl
                 if (!tdd.Equals("")) dataDir = tdd;
             }
             log.Debug("Start opening and initializing RavenDB");
-            //_store = new EmbeddableDocumentStore { DataDirectory = dataDir};
-            _store = new DocumentStore { Url = "http://localhost:8080" };
+            _store = new EmbeddableDocumentStore { DataDirectory = dataDir};
+            //_store = new DocumentStore { Url = "http://localhost:8080" };
             _store.Initialize();               
             log.Info("RavenDB initialized at " + dataDir);
         }        
@@ -238,7 +238,32 @@ namespace RepositoryImpl
                 Value = JToken.FromObject(value)
             };
         }
-
+        private PatchRequest generatePatchRequest(string propertyName, int pos, PatchCommandType type)
+        {
+            return new PatchRequest {
+                Type = type,
+                Name = propertyName,
+                Position = pos,
+                Value = null
+            };
+        }
+        private bool mupliplePatchDatabase(string key,params PatchRequest[] reqs)
+        {
+            using (IDocumentSession _session = _store.OpenSession())
+            {
+                Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
+                    new [] 
+                    {
+                        new PatchCommandData 
+                        {
+                            Key = key,
+                            Patches = reqs
+                        }
+                    }
+                );
+            }
+            return true;
+        }
         private bool nestedPatchDatabase(string key,string propertyName, int index, params PatchRequest[] reqs)
         {
             using (IDocumentSession _session = _store.OpenSession())
@@ -275,6 +300,17 @@ namespace RepositoryImpl
         public override RepositoryResponse ArrayRemoveElement(string key, string property, object value)
         {
             patchDatabase(key, property, value, PatchCommandType.Remove);
+            return RepositoryResponse.RepositoryPatchRemove;
+        }
+
+        public override RepositoryResponse ArrayRemoveByPosition(string key,string property,params object[] values)
+        {
+            PatchRequest[] reqs = new PatchRequest[values.Length];
+            for (int k = 0; k < values.Length; k++)
+            {
+                reqs[k] = generatePatchRequest(property, values[k], PatchCommandType.Remove);
+            }
+            mupliplePatchDatabase(key, reqs);
             return RepositoryResponse.RepositoryPatchRemove;
         }
 

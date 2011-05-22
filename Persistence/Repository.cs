@@ -117,6 +117,16 @@ namespace Persistence
         /// che identifica l'operazione eseguita</returns>
         public abstract RepositoryResponse ArrayRemoveElement(string key, string property, object value);
         /// <summary>
+        /// Metodo che si occupa di rimuovere degli elementi da una proprietà di tipo array contenuta in un documento.
+        /// Questo metodo evita il processo di update dell'intero documento e permette di utilizzare le posizioni all'interno dell'array
+        /// per identificare gli elementi da modificare
+        /// </summary>
+        /// <param name="key">Chiave del documento da modificare</param>
+        /// <param name="property">Proprietà damodificare</param>
+        /// <param name="positions">Indici degli delementi da rimuovere</param>
+        /// <returns></returns>
+        public abstract RepositoryResponse ArrayRemoveByPosition(string key,string property,params object[] values);
+        /// <summary>
         /// Metodo che si occupa di impostare il valore di una proprietà all'interno di un documento. 
         /// Questo metodo evita il processo di update dell'intero documento.
         /// </summary>
