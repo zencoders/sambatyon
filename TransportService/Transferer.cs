@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Collections;
@@ -14,32 +14,6 @@ using System.Threading.Tasks;
 
 namespace TransportService
 {
-
-    public delegate void NextArrivedHandler(object o, NextArrivedEventArgs e);
-
-    public class NextArrivedEventArgs
-    {
-        private int cID;
-        private byte[] payload;
-
-        public int CID
-        {
-            get { return this.cID; }
-            set { this.cID = value; }
-        }
-
-        public byte[] Payload
-        {
-            get { return this.payload; }
-            set { this.payload = value; } 
-        }
-
-        public NextArrivedEventArgs(int cID, byte[] payload)
-        {
-            this.cID = cID;
-            this.payload = payload;
-        }
-    }
 
     public class Transferer
     {
@@ -237,3 +211,4 @@ namespace TransportService
         }
     }
 }
+*/

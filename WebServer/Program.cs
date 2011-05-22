@@ -18,10 +18,10 @@ namespace ConsoleHost
                 string httpPort = WCFServiceHost.Properties.Settings.Default.httpPort;
                 string tcpPort = WCFServiceHost.Properties.Settings.Default.tcpPort;
                 string udpPort = WCFServiceHost.Properties.Settings.Default.udpPort;
-                Uri[] addresses = new Uri[2];
+                Uri[] addresses = new Uri[1];
           //      addresses[0] = new Uri("http://localhost:" + httpPort + "/TransportProtocol/");
-                addresses[0] = new Uri("net.tcp://localhost:" + tcpPort + "/TransportProtocol/");
-                addresses[1] = new Uri("soap.udp://localhost:" + udpPort + "/TransportProtocol/");
+          //      addresses[0] = new Uri("net.tcp://localhost:" + tcpPort + "/TransportProtocol/");
+                addresses[0] = new Uri("soap.udp://localhost:" + udpPort + "/TransportProtocol/");
                 Type serviceType = typeof(TransportProtocol);
                 ServiceHost host = new ServiceHost(serviceType, addresses);
                 try
@@ -52,7 +52,7 @@ namespace ConsoleHost
             //Example CODE
             if(args.Length >= 1 && args[0] != "configuration") {
 //                ChunkRequest chkrq = new ChunkRequest(System.Convert.ToInt32(args[0]), args[1], System.Convert.ToInt32(args[2]));
-                Transferer tsf = new Transferer();
+/*                Transferer tsf = new Transferer();
                 Dictionary<string, float> p2p = new Dictionary<string,float>();
                 p2p["net.tcp://localhost:9999/TransportProtocol"] = (float)0.50;
                 System.Console.WriteLine("AAAAAAAAAAAAA");
@@ -67,7 +67,7 @@ namespace ConsoleHost
                         Console.Write("AAA" + (char)sr.Read());
                     }
                 }
-//                Console.WriteLine("Remote Serving Buffer is: {0}", result.ServingBuffer);
+//                Console.WriteLine("Remote Serving Buffer is: {0}", result.ServingBuffer);*/
             }
             else if (args.Length >= 1 && args[0] == "configuration")
             {

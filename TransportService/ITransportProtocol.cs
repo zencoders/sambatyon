@@ -10,7 +10,10 @@ namespace TransportService
     [ServiceContract]
     public interface ITransportProtocol
     {
-        [OperationContract]
-        ChunkResponse GetChunk(ChunkRequest chkrq);
+        [OperationContract(IsOneWay=true)]
+        void GetChunk(ChunkRequest chkrq);
+
+        [OperationContract(IsOneWay = true)]
+        void ReturnChunk(ChunkResponse chkrs);
     }
 }
