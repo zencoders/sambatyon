@@ -16,7 +16,7 @@ namespace Kademlia.Messages
 	{
 		private bool sendData;
 		
-		public StoreResponse(ID nodeID, StoreQuery query, bool accept, EndpointAddress nodeEndpoint) : base(nodeID, query, nodeEndpoint)
+		public StoreResponse(ID nodeID, StoreQuery query, bool accept, Uri nodeEndpoint) : base(nodeID, query, nodeEndpoint)
 		{
 			sendData = accept;
 		}

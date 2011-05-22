@@ -22,7 +22,7 @@ namespace Kademlia.Messages
 		/// <param name="nodeID"></param>
 		/// <param name="request"></param>
 		/// <param name="data"></param>
-		public FindValueDataResponse(ID nodeID, FindValue request, IList<KademliaResource> data, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
+		public FindValueDataResponse(ID nodeID, FindValue request, IList<KademliaResource> data, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			vals = data;
 		}

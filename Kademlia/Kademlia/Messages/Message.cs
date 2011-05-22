@@ -15,14 +15,14 @@ namespace Kademlia.Messages
 	{
 		// All messages include sender id
 		private ID senderID;
-        private EndpointAddress nodeEndpoint;
+        private Uri nodeEndpoint;
 		private ID conversationID;
 		
 		/// <summary>
 		/// Make a new message, recording the sender's ID.
 		/// </summary>
 		/// <param name="senderID"></param>
-		public Message(ID senderID, EndpointAddress nodeEndpoint) {
+		public Message(ID senderID, Uri nodeEndpoint) {
 			this.senderID = senderID;
 			conversationID = ID.RandomID();
             this.nodeEndpoint = nodeEndpoint;
@@ -33,7 +33,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <param name="senderID"></param>
 		/// <param name="conversationID"></param>
-		public Message(ID senderID, ID conversationID, EndpointAddress nodeEndpoint) {
+		public Message(ID senderID, ID conversationID, Uri nodeEndpoint) {
 			this.senderID = senderID;
 			this.conversationID = conversationID;
             this.nodeEndpoint = nodeEndpoint;
@@ -73,7 +73,7 @@ namespace Kademlia.Messages
 		}
 
         [DataMember]
-        public EndpointAddress NodeEndpoint
+        public Uri NodeEndpoint
         {
             get { return nodeEndpoint; }
             set { this.nodeEndpoint = value; }

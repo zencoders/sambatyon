@@ -26,7 +26,7 @@ namespace Kademlia.Messages
 		/// <param name="theDataHash"></param>
 		/// <param name="theData"></param>
 		/// <param name="originalPublication"></param>
-		public StoreData(ID nodeID, StoreResponse request, CompleteTag theData, DateTime originalPublication, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
+		public StoreData(ID nodeID, StoreResponse request, CompleteTag theData, DateTime originalPublication, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			data = theData;
 			publication = originalPublication;

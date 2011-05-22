@@ -21,7 +21,7 @@ namespace Kademlia.Messages
 		/// <param name="nodeID"></param>
 		/// <param name="request"></param>
 		/// <param name="close"></param>
-		public FindValueContactResponse(ID nodeID, FindValue request, List<Contact> close, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
+		public FindValueContactResponse(ID nodeID, FindValue request, List<Contact> close, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			contacts = close;
 		}

@@ -13,7 +13,7 @@ namespace Kademlia.Messages
 	[DataContract]
 	public class Pong : Response
 	{
-		public Pong(ID senderID, Ping ping, EndpointAddress nodeEndpoint) : base(senderID, ping, nodeEndpoint)
+		public Pong(ID senderID, Ping ping, Uri nodeEndpoint) : base(senderID, ping, nodeEndpoint)
 		{
 		}
 		

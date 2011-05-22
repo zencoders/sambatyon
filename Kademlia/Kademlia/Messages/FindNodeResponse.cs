@@ -16,7 +16,7 @@ namespace Kademlia.Messages
 	{
 		private List<Contact> contacts;
 		
-		public FindNodeResponse(ID nodeID, FindNode request, List<Contact> recommended, EndpointAddress nodeEndpoint) : base(nodeID, request, nodeEndpoint)
+		public FindNodeResponse(ID nodeID, FindNode request, List<Contact> recommended, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			contacts = recommended;
 		}

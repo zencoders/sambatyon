@@ -20,7 +20,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <param name="nodeID"></param>
 		/// <param name="toFind"></param>
-		public FindNode(ID nodeID, ID toFind, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
+		public FindNode(ID nodeID, ID toFind, Uri nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			target = toFind;
 		}

@@ -21,7 +21,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <param name="nodeID"></param>
 		/// <param name="wantedKey"></param>
-		public FindValue(ID nodeID, string wantedKey, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
+		public FindValue(ID nodeID, string wantedKey, Uri nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			this.key = wantedKey;
 		}

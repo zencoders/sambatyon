@@ -13,7 +13,7 @@ namespace Kademlia.Messages
 	[DataContract]
 	public class Ping : Message
 	{
-		public Ping(ID senderID, EndpointAddress nodeEndpoint) : base(senderID, nodeEndpoint)
+		public Ping(ID senderID, Uri nodeEndpoint) : base(senderID, nodeEndpoint)
 		{
 		}
 		

@@ -18,10 +18,10 @@ namespace ConsoleHost
                 string httpPort = WCFServiceHost.Properties.Settings.Default.httpPort;
                 string tcpPort = WCFServiceHost.Properties.Settings.Default.tcpPort;
                 string udpPort = WCFServiceHost.Properties.Settings.Default.udpPort;
-                Uri[] addresses = new Uri[3];
-                addresses[0] = new Uri("http://localhost:" + httpPort + "/TransportProtocol/");
-                addresses[1] = new Uri("net.tcp://localhost:" + tcpPort + "/TransportProtocol/");
-                addresses[2] = new Uri("soap.udp://localhost:" + udpPort + "/TransportProtocol/");
+                Uri[] addresses = new Uri[2];
+          //      addresses[0] = new Uri("http://localhost:" + httpPort + "/TransportProtocol/");
+                addresses[0] = new Uri("net.tcp://localhost:" + tcpPort + "/TransportProtocol/");
+                addresses[1] = new Uri("soap.udp://localhost:" + udpPort + "/TransportProtocol/");
                 Type serviceType = typeof(TransportProtocol);
                 ServiceHost host = new ServiceHost(serviceType, addresses);
                 try
@@ -46,7 +46,7 @@ namespace ConsoleHost
                 }
                 catch (AddressAlreadyInUseException)
                 {
-                    Console.WriteLine("Unable to Connect like a Server because there is already one on this machine");
+                    Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
                 }
             }
             //Example CODE

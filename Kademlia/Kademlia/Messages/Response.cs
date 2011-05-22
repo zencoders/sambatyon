@@ -18,7 +18,7 @@ namespace Kademlia.Messages
 		/// </summary>
 		/// <param name="nodeID"></param>
 		/// <param name="respondingTo"></param>
-		public Response(ID nodeID, Message respondingTo, EndpointAddress nodeEndpoint) : base(nodeID, respondingTo.ConversationID, nodeEndpoint)
+		public Response(ID nodeID, Message respondingTo, Uri nodeEndpoint) : base(nodeID, respondingTo.ConversationID, nodeEndpoint)
 		{
 		}
 	}

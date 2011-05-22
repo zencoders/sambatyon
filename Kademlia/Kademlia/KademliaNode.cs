@@ -547,7 +547,7 @@ namespace Kademlia
 		{
 			// Make a message
             ID tagID = new ID(tag.TagHash);
-			StoreQuery storeIt = new StoreQuery(nodeID, tagID, originalInsertion, endpoint);
+			StoreQuery storeIt = new StoreQuery(nodeID, tagID, originalInsertion, endpoint.Uri);
 			
 			// Record having sent it
 			OutstandingStoreRequest req = new OutstandingStoreRequest();
@@ -577,7 +577,7 @@ namespace Kademlia
 		{
 			// Send message
 			DateTime called = DateTime.Now;
-			FindNode question = new FindNode(nodeID, toFind, nodeEndpoint);
+			FindNode question = new FindNode(nodeID, toFind, nodeEndpoint.Uri);
             IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
                 new NetUdpBinding(), ask.NodeEndPoint
             );
@@ -608,7 +608,7 @@ namespace Kademlia
 		{
 			// Send message
 			DateTime called = DateTime.Now;
-			FindValue question = new FindValue(nodeID, toFind, nodeEndpoint);
+			FindValue question = new FindValue(nodeID, toFind, nodeEndpoint.Uri);
             IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
                 new NetUdpBinding(), ask.NodeEndPoint
             );
@@ -644,7 +644,7 @@ namespace Kademlia
 		{
 			// Send message
 			DateTime called = DateTime.Now;
-			Ping ping = new Ping(nodeID, nodeEndpoint);
+			Ping ping = new Ping(nodeID, nodeEndpoint.Uri);
             IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
                 new NetUdpBinding(), toPing
             );
@@ -672,7 +672,7 @@ namespace Kademlia
 		public void HandleMessage(Message msg)
 		{
 			Log(nodeID.ToString() + " got " + msg.Name + " from " + msg.SenderID.ToString());
-			SawContact(new Contact(msg.SenderID,msg.NodeEndpoint));
+			SawContact(new Contact(msg.SenderID,new EndpointAddress(msg.NodeEndpoint)));
 		}
 		
 		/// <summary>
@@ -725,9 +725,9 @@ namespace Kademlia
 		public void HandlePing(Ping ping)
 		{
             HandleMessage(ping);
-			Pong pong = new Pong(nodeID, ping, nodeEndpoint);
+			Pong pong = new Pong(nodeID, ping, nodeEndpoint.Uri);
             IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
-                new NetUdpBinding(), ping.NodeEndpoint
+                new NetUdpBinding(), new EndpointAddress(ping.NodeEndpoint)
             );
             svc.HandlePong(pong);
 		}
@@ -747,9 +747,9 @@ namespace Kademlia
 		{
             HandleMessage(request);
             List<Contact> closeNodes = contactCache.CloseContacts(request.Target, request.SenderID);
-			FindNodeResponse response = new FindNodeResponse(nodeID, request, closeNodes, nodeEndpoint);
+			FindNodeResponse response = new FindNodeResponse(nodeID, request, closeNodes, nodeEndpoint.Uri);
             IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
-                new NetUdpBinding(), request.NodeEndpoint
+                new NetUdpBinding(), new EndpointAddress(request.NodeEndpoint)
             );
             svc.HandleFindNodeResponse(response);
 		}
@@ -769,16 +769,16 @@ namespace Kademlia
             HandleMessage(request);
             KademliaResource[] results = datastore.SearchFor(request.Key);
 			if(results.Length > 0) {
-				FindValueDataResponse response = new FindValueDataResponse(nodeID, request, results, nodeEndpoint);
+				FindValueDataResponse response = new FindValueDataResponse(nodeID, request, results, nodeEndpoint.Uri);
                 IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
-                    new NetUdpBinding(), request.NodeEndpoint
+                    new NetUdpBinding(), new EndpointAddress(request.NodeEndpoint)
                 );
                 svc.HandleFindValueDataResponse(response);
 			} else {
                 List<Contact> closeNodes = contactCache.CloseContacts(ID.Hash(request.Key), request.SenderID);
-				FindValueContactResponse response = new FindValueContactResponse(nodeID, request, closeNodes, nodeEndpoint);
+				FindValueContactResponse response = new FindValueContactResponse(nodeID, request, closeNodes, nodeEndpoint.Uri);
                 IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
-                    new NetUdpBinding(), request.NodeEndpoint
+                    new NetUdpBinding(), new EndpointAddress(request.NodeEndpoint)
                 );
                 svc.HandleFindValueContactResponse(response);
 			}
@@ -793,16 +793,16 @@ namespace Kademlia
 		{
             HandleMessage(request);
 			
-			if(!datastore.ContainsUrl(request.TagHash, request.NodeEndpoint.Uri)) {
+			if(!datastore.ContainsUrl(request.TagHash, request.NodeEndpoint)) {
 				acceptedStoreRequests[request.ConversationID] = DateTime.Now; // Record that we accepted it
-                StoreResponse response = new StoreResponse(nodeID, request, true, nodeEndpoint);
+                StoreResponse response = new StoreResponse(nodeID, request, true, nodeEndpoint.Uri);
                 IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
-                    new NetUdpBinding(), request.NodeEndpoint
+                    new NetUdpBinding(), new EndpointAddress(request.NodeEndpoint)
                 );
                 svc.HandleStoreResponse(response);
-			} else if(request.PublicationTime > datastore.GetPublicationTime(request.TagHash, request.NodeEndpoint.Uri)
+			} else if(request.PublicationTime > datastore.GetPublicationTime(request.TagHash, request.NodeEndpoint)
 			          && request.PublicationTime < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW)) {
-                datastore.RefreshResource(request.TagHash, request.NodeEndpoint.Uri, request.PublicationTime);
+                datastore.RefreshResource(request.TagHash, request.NodeEndpoint, request.PublicationTime);
 			}
 		}
 		
@@ -847,9 +847,9 @@ namespace Kademlia
 					// We actually sent this
 					// Send along the data and remove it from the list
 					OutstandingStoreRequest toStore = sentStoreRequests[response.ConversationID];
-                    StoreData r = new StoreData(nodeID, response, toStore.val, toStore.publication, nodeEndpoint);
+                    StoreData r = new StoreData(nodeID, response, toStore.val, toStore.publication, nodeEndpoint.Uri);
                     IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
-                        new NetUdpBinding(), response.NodeEndpoint
+                        new NetUdpBinding(), new EndpointAddress(response.NodeEndpoint)
                     );
                     svc.HandleStoreData(r);
 					sentStoreRequests.Remove(response.ConversationID);

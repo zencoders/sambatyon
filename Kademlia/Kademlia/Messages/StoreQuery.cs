@@ -26,7 +26,7 @@ namespace Kademlia.Messages
 		/// <param name="hash">A hash of the data value</param>
 		/// <param name="originalPublication"></param>
 		/// <param name="dataSize"></param>
-		public StoreQuery(ID nodeID, ID hash, DateTime originalPublication, EndpointAddress nodeEndpoint) : base(nodeID, nodeEndpoint)
+		public StoreQuery(ID nodeID, ID hash, DateTime originalPublication, Uri nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			tagHash = hash;
 			publication = originalPublication;
