@@ -1,0 +1,80 @@
+﻿<?xml version="1.0"?>
+<configuration>
+  <configSections>
+    <sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <section name="WCFServiceHost.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+    </sectionGroup>
+  </configSections>
+  <appSettings>
+    <add key="ThreadPoolSize" value="10" />
+    <add key="ChunkLength" value="60" />
+  </appSettings>
+  <system.web>
+    <compilation debug="true">
+      <assemblies>
+        <add assembly="UdpBinding" />
+      </assemblies>
+    </compilation>
+  </system.web>
+  <system.serviceModel>
+    <services>
+      <service name="TransportService.TransportProtocol" behaviorConfiguration="MyBehavior">
+        <endpoint name="NetTcpEndPoint" address="" binding="netTcpBinding" contract="TransportService.ITransportProtocol">
+        </endpoint>
+        <endpoint name="BasicHttpBinding" address="" binding="basicHttpBinding" contract="TransportService.ITransportProtocol">
+        </endpoint>
+        <endpoint name="NetUdpEndpoint" address="" binding="netUdpBinding" contract="TransportService.ITransportProtocol">
+        </endpoint>
+      </service>
+    </services>
+    <behaviors>
+      <serviceBehaviors>
+        <behavior name="MyBehavior">
+          <serviceMetadata httpGetEnabled="True" />
+          <serviceDebug includeExceptionDetailInFaults="True" />
+        </behavior>
+      </serviceBehaviors>
+    </behaviors>
+    <bindings>
+      <customBinding>
+        <binding name="CustomBinding_IDatagramContract">
+          <binaryMessageEncoding maxReadPoolSize="64" maxWritePoolSize="16" maxSessionSize="2048">
+            <readerQuotas maxDepth="32" maxStringContentLength="8192" maxArrayLength="16384" maxBytesPerRead="4096" maxNameTableCharCount="16384" />
+          </binaryMessageEncoding>
+          <UpdTransportElement maxBufferPoolSize="524288" maxMessageSize="65536" multicast="false" />
+        </binding>
+      </customBinding>
+      <NetUdpBinding>
+        <binding name="netUdpBinding" closeTimeout="00:01:00" openTimeout="00:01:00" receiveTimeout="00:10:00" sendTimeout="00:01:00" />
+      </NetUdpBinding>
+    </bindings>
+    <client>
+      <endpoint address="soap.udp://localhost:8001/" binding="netUdpBinding" bindingConfiguration="SampleProfileUdpBinding_ICalculatorContract" contract="ICalculatorContract" name="SampleProfileUdpBinding_ICalculatorContract" />
+      <endpoint address="soap.udp://localhost:8002/datagram" binding="customBinding" bindingConfiguration="CustomBinding_IDatagramContract" contract="IDatagramContract" name="CustomBinding_IDatagramContract" />
+    </client>
+    <extensions>
+      <bindingElementExtensions>
+        <add name="UpdTransportElement" type="UdpTransportBinding.UdpTransportElement, UdpBinding" />
+      </bindingElementExtensions>
+      <bindingExtensions>
+        <add name="NetUdpBinding" type="UdpTransportBinding.UdpBindingCollectionElement, UdpBinding" />
+      </bindingExtensions>
+    </extensions>
+  </system.serviceModel>
+  <userSettings>
+    <WCFServiceHost.Properties.Settings>
+      <setting name="tcpPort" serializeAs="String">
+        <value>9999</value>
+      </setting>
+      <setting name="httpPort" serializeAs="String">
+        <value>9998</value>
+      </setting>
+      <setting name="udpPort" serializeAs="String">
+        <value>9997</value>
+      </setting>
+    </WCFServiceHost.Properties.Settings>
+  </userSettings>
+  <startup>
+    <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0" />
+  </startup>
+</configuration>

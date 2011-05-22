@@ -1,0 +1,15 @@
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.exe.config
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.exe
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.pdb
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\TransportService.dll
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\TransportService.pdb
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WCFServiceHost.exe
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WCFServiceHost.pdb
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\UdpBinding.dll
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\UdpBinding.pdb
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.exe.manifest
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\bin\Debug\WCFServiceHost.application
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WCFServiceHost.TrustInfo.xml
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WCFServiceHost.exe.manifest
+C:\Users\seby\Documents\progetto_malgeri\p2p-player\WebServer\obj\x86\Debug\WCFServiceHost.application
