@@ -47,40 +47,80 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="overlayUrl"></param>
 		/// <param name="register"></param>
-		public Dht(string nodesFile)
+		public Dht(string nodesFile, KademliaNode dhtNode = null, bool alreadyBootstrapped = false, string btpNode = "")
 		{
 			// Make a new node and get port
-			dhtNode = new KademliaNode();
-			int ourPort = dhtNode.GetPort();
-			Console.WriteLine("We are on UDP port " + ourPort.ToString());
-			
-			Console.WriteLine("Getting bootstrap list...");
+            if (dhtNode != null)
+            {
+                this.dhtNode = dhtNode;
+            }
+            else
+            {
+                dhtNode = new KademliaNode();
+            }
+            if (!alreadyBootstrapped)
+            {
+                if (btpNode != "")
+                {
+                    int ourPort = dhtNode.GetPort();
+                    Console.WriteLine("We are on UDP port " + ourPort.ToString());
 
-            XDocument xmlDoc = XDocument.Load(nodesFile);
-            
-            var nodes = from node in xmlDoc.Descendants("Node")
-                            select new
+                    Console.WriteLine("Getting bootstrap list...");
+
+                    XDocument xmlDoc = XDocument.Load(nodesFile);
+
+                    var nodes = from node in xmlDoc.Descendants("Node")
+                                select new
+                                {
+                                    Host = node.Element("Host").Value,
+                                    Port = node.Element("Port").Value,
+                                };
+
+
+                    foreach (var node in nodes)
+                    {
+                        // Each line is <ip> <port>
+                        try
+                        {
+                            EndpointAddress bootstrapNode = new EndpointAddress(node.Host + ":" + node.Port);
+                            Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
+                            if (dhtNode.Bootstrap(bootstrapNode))
                             {
-                                Host = node.Element("Host").Value,
-                                Port = node.Element("Port").Value,
-                            };
-
-			
-			foreach(var node in nodes) {
-				// Each line is <ip> <port>
-				try {
-					EndpointAddress bootstrapNode = new EndpointAddress(node.Host+":"+node.Port);
-					Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
-					if(dhtNode.Bootstrap(bootstrapNode)) {
-						Console.WriteLine("OK!");
-					} else {
-						Console.WriteLine("Failed.");
-					}
-				} catch (Exception ex) {
-					Console.WriteLine("Bad entry!");
-				}
-			}
-			
+                                Console.WriteLine("OK!");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Failed.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Bad entry!");
+                        }
+                    }
+                }
+                else
+                {
+                    // Each line is <ip> <port>
+                    try
+                    {
+                        EndpointAddress bootstrapNode = new EndpointAddress(btpNode);
+                        Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
+                        if (dhtNode.Bootstrap(bootstrapNode))
+                        {
+                            Console.WriteLine("OK!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Failed.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Bad entry!");
+                    }
+                }
+            }
 			// Join the network officially
 			Console.WriteLine("Joining network...");
 			if(dhtNode.JoinNetwork()) {

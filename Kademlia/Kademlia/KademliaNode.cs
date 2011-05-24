@@ -30,6 +30,7 @@ namespace Kademlia
 		private List<Contact> contactQueue; // Add contacts here to be considered for caching
 		private const int MAX_QUEUE_LENGTH = 10;
         private const string DEFAULT_ENDPOINT = "soap.udp://localhost:8001/kademlia";
+        private const string DEFAULT_REPOSITORY = @"..\..\Resource\Database";
 		
 		// Response cache
 		// We want to be able to synchronously wait for responses, so we have other threads put them in this cache.
@@ -42,7 +43,7 @@ namespace Kademlia
 		private TimeSpan MAX_SYNC_WAIT = new TimeSpan(5000000); // 500 ms in ticks
 		
 		// Application (datastore)
-		private LocalStorage datastore; // Keep our key/value pairs
+        private KademliaRepository datastore; 
 		private SortedList<ID, DateTime> acceptedStoreRequests; // Store a list of what put requests we actually accepted while waiting for data.
 		// The list of put requests we sent is more complex
 		// We need to keep the data and timestamp, but don't want to insert it in our storage.
@@ -103,7 +104,7 @@ namespace Kademlia
 		/// <summary>
 		/// Make a node on a random available port, using an ID specific to this machine.
 		/// </summary>
-		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID())
+		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID(), DEFAULT_REPOSITORY)
 		{
 			// Nothing to do!
 		}
@@ -112,7 +113,7 @@ namespace Kademlia
 		/// Make a node with a specified ID.
 		/// </summary>
 		/// <param name="id"></param>
-		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id)
+		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id, DEFAULT_REPOSITORY)
 		{
 			// Nothing to do!
 		}
@@ -121,7 +122,7 @@ namespace Kademlia
 		/// Make a node on a specified port.
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID())
+		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID(), DEFAULT_REPOSITORY)
 		{
 			// Nothing to do!
 		}
@@ -130,14 +131,15 @@ namespace Kademlia
 		/// Make a node on a specific port, with a specified ID
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(EndpointAddress addr, ID id)
+		public KademliaNode(EndpointAddress addr, ID id, string repository)
 		{
 			// Set up all our data
             nodeEndpoint = addr;
 			nodeID = id;
 			contactCache = new BucketList(nodeID);
 			contactQueue = new List<Contact>();
-			datastore = new LocalStorage();
+            RepositoryConfiguration conf = new RepositoryConfiguration(new { data_dir = repository });
+            datastore = new KademliaRepository("Raven", conf);
 			acceptedStoreRequests = new SortedList<ID, DateTime>();
 			sentStoreRequests = new SortedList<ID, KademliaNode.OutstandingStoreRequest>();
 			responseCache = new SortedList<ID, KademliaNode.CachedResponse>();
@@ -170,6 +172,8 @@ namespace Kademlia
 			clientMinder.IsBackground = true;
 			clientMinder.Start(); */
 			
+
+
 			// Start maintainance
 			maintainanceMinder = new Thread(new ThreadStart(MindMaintainance));
 			maintainanceMinder.IsBackground = true;
@@ -793,16 +797,16 @@ namespace Kademlia
 		{
             HandleMessage(request);
 			
-			if(!datastore.ContainsUrl(request.TagHash, request.NodeEndpoint)) {
+			if(!datastore.ContainsUrl(request.TagHash.ToString(), request.NodeEndpoint)) {
 				acceptedStoreRequests[request.ConversationID] = DateTime.Now; // Record that we accepted it
                 StoreResponse response = new StoreResponse(nodeID, request, true, nodeEndpoint.Uri);
                 IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
                     new NetUdpBinding(), new EndpointAddress(request.NodeEndpoint)
                 );
                 svc.HandleStoreResponse(response);
-			} else if(request.PublicationTime > datastore.GetPublicationTime(request.TagHash, request.NodeEndpoint)
+			} else if(request.PublicationTime > datastore.GetPublicationTime(request.TagHash.ToString(), request.NodeEndpoint)
 			          && request.PublicationTime < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW)) {
-                datastore.RefreshResource(request.TagHash, request.NodeEndpoint, request.PublicationTime);
+                datastore.RefreshResource(request.TagHash.ToString(), request.NodeEndpoint, request.PublicationTime);
 			}
 		}
 		
