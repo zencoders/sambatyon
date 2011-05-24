@@ -58,5 +58,41 @@ namespace WCFServiceHost.Properties {
                 this["udpPort"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
+        public string kademliaPort {
+            get {
+                return ((string)(this["kademliaPort"]));
+            }
+            set {
+                this["kademliaPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\Resource\\Database")]
+        public string dbFile {
+            get {
+                return ((string)(this["dbFile"]));
+            }
+            set {
+                this["dbFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("nodes.xml")]
+        public string nodes {
+            get {
+                return ((string)(this["nodes"]));
+            }
+            set {
+                this["nodes"] = value;
+            }
+        }
     }
 }

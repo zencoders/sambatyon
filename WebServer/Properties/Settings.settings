@@ -11,5 +11,14 @@
     <Setting Name="udpPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">9997</Value>
     </Setting>
+    <Setting Name="kademliaPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)">10000</Value>
+    </Setting>
+    <Setting Name="dbFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">..\..\Resource\Database</Value>
+    </Setting>
+    <Setting Name="nodes" Type="System.String" Scope="User">
+      <Value Profile="(Default)">nodes.xml</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
