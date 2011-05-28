@@ -11,6 +11,8 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Contexts;
 using System.Threading.Tasks;
+using Persistence;
+using UdpTransportBinding;
 
 namespace TransportService
 {
@@ -56,9 +58,12 @@ namespace TransportService
         private int nextThread;
         private StreamWriter writer;
         private int nextChunkToWrite;
+        private int chunkLength;
         private AutoResetEvent peerQueueNotEmpty = new AutoResetEvent(true);
+        private Repository trackRepository;
+        private Uri myAddress;
 
-        public TransportProtocol()
+        public TransportProtocol(Uri uri)
         {
             this.asr = new AppSettingsReader();
             this.poolSize = (int)asr.GetValue("ThreadPoolSize", typeof(int));
@@ -70,6 +75,10 @@ namespace TransportService
             this.worker = new Thread(() => DoWork());
             this.nextThread = 0;
             this.NextArrived += new NextArrivedHandler(this.WriteOnStream);
+            this.chunkLength = ((int)asr.GetValue("ChunkLength", typeof(int)));
+            this.myAddress = uri;
+            Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(new { data_dir = "..\\..\\Resource\\Database" });
+            trackRepository = Persistence.RepositoryFactory.GetRepositoryInstance("Raven", conf);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -124,7 +133,7 @@ namespace TransportService
             try
             {
                 this.buffer[nextChunk].ActualCondition = BufferChunk.condition.DIRTY;
-                this.GetRemoteChunk(new ChunkRequest(this.RID, nextChunk), address);
+                this.GetRemoteChunk(new ChunkRequest(this.RID, nextChunk, myAddress), address);
             }
             catch (Exception e)
             {
@@ -142,7 +151,7 @@ namespace TransportService
         private void GetRemoteChunk(ChunkRequest chkrq, string address)
         {
             ITransportProtocol svc = ChannelFactory<ITransportProtocol>.CreateChannel(
-                new NetTcpBinding(), new EndpointAddress(address)
+                new NetUdpBinding(), new EndpointAddress(address)
             );
             svc.GetChunk(chkrq);
         }
@@ -231,7 +240,7 @@ namespace TransportService
             Console.WriteLine("start");
             Console.WriteLine(this.peerQueue.Count());
             this.maxNumber = System.Convert.ToInt32(
-                Math.Ceiling((double)(length / ((int)asr.GetValue("ChunkLength", typeof(int)))))
+                Math.Ceiling((double)(length / this.chunkLength))
             );
             this.maxNumber -= begin;
             this.writer = new StreamWriter(s);
@@ -252,17 +261,27 @@ namespace TransportService
 
         public void GetChunk(ChunkRequest chkrq)
         {
-            //byte[] a = BitConverter.GetBytes(3678);
-            //System.Console.Write("Called");
-            //return new ChunkResponse(10, chkrq.RID, chkrq.CID, a);
-            //TODO: Implement the method searching in lower persistence level
+            TrackModel track = new TrackModel();
+            RepositoryResponse resp = trackRepository.GetByKey<TrackModel.Track>(chkrq.RID, track);
+            if (resp >= 0)
+            {
+                FileStream fs = new FileStream(track.Filepath, FileMode.Open, FileAccess.Read);
+                int limit = (System.Convert.ToInt32(fs.Length) > (chunkLength * (chkrq.CID + 1))) ?  chunkLength * (chkrq.CID + 1) : (System.Convert.ToInt32(fs.Length));
+                byte[] data = new byte[limit - (chkrq.CID*chunkLength)];
+                fs.Read(data,(chkrq.CID * chunkLength),limit);
+                fs.Close();
+//                byte[] wantedData = data.Take(chunkLength*chkrq.CID).Skip(chunkLength*(chkrq.CID - 1)).ToArray();
+                ChunkResponse chkrs = new ChunkResponse(0, chkrq.RID, chkrq.CID, data, myAddress); //SERVING BUFFER SEMPRE 0 PERCHE' NON STIAMO VALUTANDO I PEER
+                ITransportProtocol svc = ChannelFactory<ITransportProtocol>.CreateChannel(
+                    new NetUdpBinding(), new EndpointAddress(chkrq.SenderAddress)
+                );
+                svc.ReturnChunk(chkrs);
+            }
         }
 
         public void ReturnChunk(ChunkResponse chkrs)
         {
             this.SaveOnBuffer(chkrs.CID, chkrs.Payload);
         }
-
-
     }
 }

@@ -18,12 +18,10 @@ namespace WCFServiceHost
         private void runTransportLayer()
         {
             string udpPort = WCFServiceHost.Properties.Settings.Default.udpPort;
-            TransportProtocol tsp = new TransportProtocol();
-
-            this.transportLayer = tsp;
-
             Uri[] addresses = new Uri[1];
             addresses[0] = new Uri("soap.udp://localhost:" + udpPort + "/TransportProtocol/");
+            TransportProtocol tsp = new TransportProtocol(addresses[0]);
+            this.transportLayer = tsp;
             //      addresses[0] = new Uri("http://localhost:" + httpPort + "/TransportProtocol/");
             //      addresses[0] = new Uri("net.tcp://localhost:" + tcpPort + "/TransportProtocol/");
             ServiceHost host = new ServiceHost(tsp, addresses);
@@ -96,6 +94,11 @@ namespace WCFServiceHost
         public void getFlow(string RID, int begin, int length, Dictionary<string, float> nodes, MemoryStream s)
         {
             this.transportLayer.start(RID, begin, length, nodes, s);
+        }
+
+        public void stopFlow()
+        {
+            this.transportLayer.stop();
         }
 
         static void Main(string[] args)

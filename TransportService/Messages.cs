@@ -12,6 +12,7 @@ namespace TransportService
         protected string messageType;
         protected string rID;
         protected int cID;
+        protected Uri senderAddress;
 
         [DataMember]
         public abstract string MessageType
@@ -33,6 +34,13 @@ namespace TransportService
             get;
             set;
         }
+
+        [DataMember]
+        public abstract Uri SenderAddress
+        {
+            get;
+            set;
+        }
     }
 
     [DataContract]
@@ -43,12 +51,13 @@ namespace TransportService
 
         public ChunkRequest() { }
 
-        public ChunkRequest(/*int activeBuffer, */string RID, int CID)
+        public ChunkRequest(/*int activeBuffer, */string RID, int CID, Uri SenderAddress)
         {
             this.messageType = "CHKRQ";
             //            this.activeBuffer = activeBuffer;
             this.CID = CID;
             this.RID = RID;
+            this.SenderAddress = SenderAddress;
         }
 
         [DataMember]
@@ -72,6 +81,13 @@ namespace TransportService
             set { cID = value; }
         }
 
+        [DataMember]
+        public override Uri SenderAddress
+        {
+            get { return senderAddress; }
+            set { senderAddress = value; }
+        }
+
         /*      [DataMember]
               public int ActiveBuffer
               {
@@ -89,12 +105,13 @@ namespace TransportService
 
         public ChunkResponse() { }
 
-        public ChunkResponse(int servingBuffer, string RID, int CID, byte[] payload)
+        public ChunkResponse(int servingBuffer, string RID, int CID, byte[] payload, Uri SenderAddress)
         {
             this.messageType = "CHKRQ";
             this.servingBuffer = servingBuffer;
             this.RID = RID;
             this.CID = CID;
+            this.SenderAddress = SenderAddress;
         }
 
         [DataMember]
@@ -130,6 +147,13 @@ namespace TransportService
         {
             get { return payload; }
             set { payload = value; }
+        }
+
+        [DataMember]
+        public override Uri SenderAddress
+        {
+            get { return senderAddress; }
+            set { senderAddress = value; }
         }
     }
 }

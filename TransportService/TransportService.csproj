@@ -50,6 +50,16 @@
     <Compile Include="TransportProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Persistence\Persistence.csproj">
+      <Project>{DF93835A-ED54-41C5-A878-6DB1411104E5}</Project>
+      <Name>Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UdpBinding\UdpBinding.csproj">
+      <Project>{7667D3D1-795F-48E1-B271-BE245159EE34}</Project>
+      <Name>UdpBinding</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
