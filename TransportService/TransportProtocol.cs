@@ -13,6 +13,7 @@ using System.Runtime.Remoting.Contexts;
 using System.Threading.Tasks;
 using Persistence;
 using UdpTransportBinding;
+using TransportService.Messages;
 
 namespace TransportService
 {
@@ -44,7 +45,6 @@ namespace TransportService
 
     public class TransportProtocol : ITransportProtocol
     {
-
         private Dictionary<int, BufferChunk> buffer;
         private event NextArrivedHandler NextArrived;
         private AppSettingsReader asr;
@@ -59,6 +59,7 @@ namespace TransportService
         private StreamWriter writer;
         private int nextChunkToWrite;
         private int chunkLength;
+        private int servingBuffer = 0;
         private AutoResetEvent peerQueueNotEmpty = new AutoResetEvent(true);
         private Repository trackRepository;
         private Uri myAddress;
@@ -128,7 +129,8 @@ namespace TransportService
 
         private void GetNextChunk()
         {
-            string address = this.GetBestPeer();
+            float peerValue = 0;
+            string address = this.GetBestPeer(out peerValue);
             int nextChunk = this.NextChunkToGet();
             try
             {
@@ -142,9 +144,7 @@ namespace TransportService
             //    this.peerQueue.Remove(address);
                 return;
             }
-            //RICALCOLA IL PUNTEGGIO DEL PEER E AGGIORNALO
-            //SIMULO IL RICALCOLO
-            this.peerQueue.Add(address, 10);
+            this.peerQueue.Add(address, peerValue);
             this.peerQueueNotEmpty.Set();
         }
 
@@ -164,11 +164,11 @@ namespace TransportService
                 ThreadPoolObject chunkGetter = this.GetNextThreadInPool();
                 chunkGetter.assignAndStart(new ThreadStart(() => GetNextChunk()));
             }
-            Console.WriteLine("FINISHED!");
+/*            Console.WriteLine("FINISHED!");
             for (int i = this.maxNumber - this.buffer.Count(); i < this.maxNumber; i++)
             {
                 Console.WriteLine(this.buffer[i].Payload);
-            }
+            }*/
         }
 
         private ThreadPoolObject GetNextThreadInPool()
@@ -201,7 +201,7 @@ namespace TransportService
             return best;
         }
 
-        private string GetBestPeer()
+        private string GetBestPeer(out float v)
         {
             if (this.peerQueue.Count() <= 0)
             {
@@ -211,6 +211,7 @@ namespace TransportService
             Console.WriteLine("getbestpeer");
             Console.WriteLine(this.peerQueue.Count());
             string best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+            v = this.peerQueue[best];
             this.peerQueue.Remove(best);
             if (this.peerQueue.Count > 0)
             {
@@ -261,6 +262,7 @@ namespace TransportService
 
         public void GetChunk(ChunkRequest chkrq)
         {
+            servingBuffer++;
             TrackModel track = new TrackModel();
             RepositoryResponse resp = trackRepository.GetByKey<TrackModel.Track>(chkrq.RID, track);
             if (resp >= 0)
@@ -271,17 +273,19 @@ namespace TransportService
                 fs.Read(data,(chkrq.CID * chunkLength),limit);
                 fs.Close();
 //                byte[] wantedData = data.Take(chunkLength*chkrq.CID).Skip(chunkLength*(chkrq.CID - 1)).ToArray();
-                ChunkResponse chkrs = new ChunkResponse(0, chkrq.RID, chkrq.CID, data, myAddress); //SERVING BUFFER SEMPRE 0 PERCHE' NON STIAMO VALUTANDO I PEER
+                ChunkResponse chkrs = new ChunkResponse(servingBuffer, chkrq.RID, chkrq.CID, data, myAddress); //SERVING BUFFER SEMPRE 0 PERCHE' NON STIAMO VALUTANDO I PEER
                 ITransportProtocol svc = ChannelFactory<ITransportProtocol>.CreateChannel(
                     new NetUdpBinding(), new EndpointAddress(chkrq.SenderAddress)
                 );
                 svc.ReturnChunk(chkrs);
             }
+            servingBuffer--;
         }
 
         public void ReturnChunk(ChunkResponse chkrs)
         {
             this.SaveOnBuffer(chkrs.CID, chkrs.Payload);
+            this.peerQueue[chkrs.SenderAddress.AbsoluteUri] = chkrs.ServingBuffer;
         }
     }
 }
