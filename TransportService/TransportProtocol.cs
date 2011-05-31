@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Configuration;
 using System.Collections.Generic;
-using System.Collections;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
 using System.IO;
 using System.Threading;
 using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Contexts;
-using System.Threading.Tasks;
 using Persistence;
 using UdpTransportBinding;
 using TransportService.Messages;
@@ -48,14 +43,12 @@ namespace TransportService
         private Dictionary<int, BufferChunk> buffer;
         private event NextArrivedHandler NextArrived;
         private AppSettingsReader asr;
-        private int poolSize;
-        private ThreadPoolObject[] threadPool;
+        private ThreadPool threadPool;
         private Thread worker;
         private string RID;
         private Dictionary<string, float> peerQueue;
         private bool shouldStop;
         private int maxNumber;
-        private int nextThread;
         private StreamWriter writer;
         private int nextChunkToWrite;
         private int chunkLength;
@@ -67,14 +60,9 @@ namespace TransportService
         public TransportProtocol(Uri uri)
         {
             this.asr = new AppSettingsReader();
-            this.poolSize = (int)asr.GetValue("ThreadPoolSize", typeof(int));
-            this.threadPool = new ThreadPoolObject[poolSize];
-            for (int i = 0; i < poolSize; i++)
-            {
-                this.threadPool[i] = new ThreadPoolObject();
-            }
+            int poolSize = (int)asr.GetValue("ThreadPoolSize", typeof(int));
+            this.threadPool = new ThreadPool(poolSize);
             this.worker = new Thread(() => DoWork());
-            this.nextThread = 0;
             this.NextArrived += new NextArrivedHandler(this.WriteOnStream);
             this.chunkLength = ((int)asr.GetValue("ChunkLength", typeof(int)));
             this.myAddress = uri;
@@ -161,7 +149,7 @@ namespace TransportService
             while ( (!this.FullyDownloaded()) && (!this.shouldStop))
             {
             //    Thread.Sleep(1000);
-                ThreadPoolObject chunkGetter = this.GetNextThreadInPool();
+                ThreadPoolObject chunkGetter = this.threadPool.GetNextThreadInPool();
                 chunkGetter.assignAndStart(new ThreadStart(() => GetNextChunk()));
             }
 /*            Console.WriteLine("FINISHED!");
@@ -169,13 +157,6 @@ namespace TransportService
             {
                 Console.WriteLine(this.buffer[i].Payload);
             }*/
-        }
-
-        private ThreadPoolObject GetNextThreadInPool()
-        {
-            int prevThread = this.nextThread;
-            this.nextThread++;
-            return this.threadPool[prevThread % this.poolSize];
         }
 
         private int NextChunkToGet()
