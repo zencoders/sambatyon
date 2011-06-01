@@ -40,22 +40,21 @@ namespace TransportService
 
     public class TransportProtocol : ITransportProtocol
     {
+        private string RID;
+        private bool shouldStop;
+        private int maxNumber;
+        private int nextChunkToWrite;
+        private int chunkLength;
+        private int servingBuffer = 0;
         private Dictionary<int, BufferChunk> buffer;
         private event NextArrivedHandler NextArrived;
         private AppSettingsReader asr;
         private ThreadPool threadPool;
         private Thread worker;
-        private string RID;
-        private Dictionary<string, float> peerQueue;
-        private bool shouldStop;
-        private int maxNumber;
         private StreamWriter writer;
-        private int nextChunkToWrite;
-        private int chunkLength;
-        private int servingBuffer = 0;
-        private AutoResetEvent peerQueueNotEmpty = new AutoResetEvent(true);
         private Repository trackRepository;
         private Uri myAddress;
+        private PeerQueue peerQueue;
 
         public TransportProtocol(Uri uri)
         {
@@ -117,8 +116,7 @@ namespace TransportService
 
         private void GetNextChunk()
         {
-            float peerValue = 0;
-            string address = this.GetBestPeer(out peerValue);
+            string address = peerQueue.GetBestPeer();
             int nextChunk = this.NextChunkToGet();
             try
             {
@@ -132,8 +130,6 @@ namespace TransportService
             //    this.peerQueue.Remove(address);
                 return;
             }
-            this.peerQueue.Add(address, peerValue);
-            this.peerQueueNotEmpty.Set();
         }
 
         private void GetRemoteChunk(ChunkRequest chkrq, string address)
@@ -182,25 +178,6 @@ namespace TransportService
             return best;
         }
 
-        private string GetBestPeer(out float v)
-        {
-            if (this.peerQueue.Count() <= 0)
-            {
-                this.peerQueueNotEmpty.WaitOne();
-            }
-            this.peerQueueNotEmpty.Reset();
-            Console.WriteLine("getbestpeer");
-            Console.WriteLine(this.peerQueue.Count());
-            string best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
-            v = this.peerQueue[best];
-            this.peerQueue.Remove(best);
-            if (this.peerQueue.Count > 0)
-            {
-                this.peerQueueNotEmpty.Set();
-            }
-            return best;
-        }
-
         private bool FullyDownloaded()
         {
             int downloaded = this.buffer.AsParallel().Where(Elem => Elem.Value.ActualCondition == BufferChunk.condition.DOWNLOADED
@@ -218,9 +195,8 @@ namespace TransportService
         public void start(string RID, int begin, int length, Dictionary<string, float> peerQueue, Stream s)
         {
             this.RID = RID;
-            this.peerQueue = peerQueue;
+            this.peerQueue = new PeerQueue(peerQueue);
             Console.WriteLine("start");
-            Console.WriteLine(this.peerQueue.Count());
             this.maxNumber = System.Convert.ToInt32(
                 Math.Ceiling((double)(length / this.chunkLength))
             );
@@ -266,7 +242,7 @@ namespace TransportService
         public void ReturnChunk(ChunkResponse chkrs)
         {
             this.SaveOnBuffer(chkrs.CID, chkrs.Payload);
-            this.peerQueue[chkrs.SenderAddress.AbsoluteUri] = chkrs.ServingBuffer;
+            this.peerQueue.resetPeer(chkrs.SenderAddress.AbsoluteUri);
         }
     }
 }

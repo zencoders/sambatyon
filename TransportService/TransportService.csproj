@@ -62,6 +62,8 @@
     <Compile Include="Messages\ChunkRequest.cs" />
     <Compile Include="Messages\ChunkResponse.cs" />
     <Compile Include="Messages\GenericMessage.cs" />
+    <Compile Include="PeerQueue.cs" />
+    <Compile Include="PeerQueueElement.cs" />
     <Compile Include="ThreadPool.cs" />
     <Compile Include="ThreadPoolObject.cs" />
     <Compile Include="Transferer.cs" />
