@@ -242,7 +242,7 @@ namespace TransportService
         public void ReturnChunk(ChunkResponse chkrs)
         {
             this.SaveOnBuffer(chkrs.CID, chkrs.Payload);
-            this.peerQueue.resetPeer(chkrs.SenderAddress.AbsoluteUri);
+            this.peerQueue.resetPeer(chkrs.SenderAddress.AbsoluteUri, chkrs.ServingBuffer);
         }
     }
 }

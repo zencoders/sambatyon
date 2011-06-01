@@ -43,8 +43,9 @@ namespace TransportService
             return best.PeerAddress;
         }
 
-        public void resetPeer(string key)
+        public void resetPeer(string key, int newScore)
         {
+            this.peerQueue[key].PeerScore = newScore;
             this.peerQueue[key].reset();
         }
     }
