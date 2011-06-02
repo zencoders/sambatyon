@@ -102,7 +102,7 @@ namespace Tag
             }
             else
             {
-                throw new System.IO.FileNotFoundException("File existence check failed.", filename);
+                throw new System.IO.FileNotFoundException("File "+filename+" existence check failed.");
             }            
         }
         #region "Properties"
