@@ -28,7 +28,8 @@ namespace Metrics
 		#region Properties
 		public double coefficient {
 			get {
-				return ((0.4*this.pqComponent)+(0.4*this.fqComponent.coefficient)+(0.2*this.affComponent));
+//				return ((0.4*this.pqComponent)+(0.4*this.fqComponent.coefficient)+(0.2*this.affComponent));
+                return ((0.6 * this.fqComponent.coefficient) + (0.4 * this.affComponent));
 			}
 		}
 		public double peerQuality {

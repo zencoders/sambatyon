@@ -38,6 +38,7 @@ namespace TransportService
         }
     }
 
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class TransportProtocol : ITransportProtocol
     {
         private string RID;
