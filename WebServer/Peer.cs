@@ -7,6 +7,7 @@ using System.Text;
 using System.IO;
 using System.Configuration;
 using Kademlia;
+using System.ServiceModel.Description;
 
 namespace PeerPlayer
 {
@@ -21,7 +22,7 @@ namespace PeerPlayer
         private ServiceHost RunInterfaceLayer()
         {
             Console.WriteLine("Running Interface Layer.....");
-            ServiceHost host = new ServiceHost(this);
+            ServiceHost host = new ServiceHost(this);            
             host.Open();
             foreach (Uri uri in host.BaseAddresses)
             {
@@ -75,7 +76,7 @@ namespace PeerPlayer
         {
             this.localStream = new MemoryStream();
          //   svcHosts[0] = this.RunKademliaLayer(single, btpNode);
-            svcHosts[2] = this.RunTransportLayer();
+         //   svcHosts[2] = this.RunTransportLayer();
             svcHosts[1] = this.RunInterfaceLayer();
         }
 
