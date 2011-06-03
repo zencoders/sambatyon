@@ -16,11 +16,11 @@
 	<Grid x:Name="LayoutRoot" DataContext="{Binding Source={StaticResource MainViewModelDataSource}}" d:DataContext="{d:DesignData /SampleData/MainViewModelSampleData.xaml}">
 		<TextBlock Text="{Binding ViewModelProperty}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 		<Button Content="Update Value" Height="41" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,125,0,0">
-			<i:Interaction.Triggers>
+			<!--<i:Interaction.Triggers>
 				<i:EventTrigger EventName="Click">
 					<ic:CallMethodAction MethodName="ViewModelMethod" TargetObject="{Binding}"/>
 				</i:EventTrigger>
-			</i:Interaction.Triggers>
-		</Button>
+            </i:Interaction.Triggers> -->
+        </Button>
 	</Grid>
 </UserControl>

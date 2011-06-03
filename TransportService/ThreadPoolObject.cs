@@ -10,36 +10,34 @@ namespace TransportService
     {
         public enum ThreadState { FREE, BUSY };
         private Thread threadWorker;
-        private AutoResetEvent threadLock;
-        private ThreadState state;
 
         public ThreadPoolObject()
         {
-            this.threadLock = new AutoResetEvent(true);
+            this.ThreadLock = new AutoResetEvent(true);
         }
 
         public AutoResetEvent ThreadLock
         {
-            set { this.threadLock = value; }
-            get { return this.threadLock; }
+            set;
+            get;
         }
 
         public ThreadState State
         {
-            get { return this.state; }
-            set { this.state = value; }
+            get;
+            set;
         }
 
-        public void assignAndStart(ThreadStart d)
+        public void AssignAndStart(ThreadStart d)
         {
-            this.state = ThreadState.BUSY;
-            this.threadLock.WaitOne();
-            this.threadLock.Reset();
+            this.State = ThreadState.BUSY;
+            this.ThreadLock.WaitOne();
+            this.ThreadLock.Reset();
             threadWorker = new Thread(() => d());
             threadWorker.Start();
             threadWorker.Join();
-            this.state = ThreadState.FREE;
-            this.threadLock.Set();
+            this.State = ThreadState.FREE;
+            this.ThreadLock.Set();
         }
     }
 }

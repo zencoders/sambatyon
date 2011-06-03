@@ -85,7 +85,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service References\PeerService\Reference.cs">
+    <Compile Include="Service References\PeerReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -108,20 +108,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
-    <None Include="Service References\PeerService\item.xsd">
-      <SubType>Designer</SubType>
+    <None Include="Service References\PeerReference\item.disco" />
+    <None Include="Service References\PeerReference\configuration91.svcinfo" />
+    <None Include="Service References\PeerReference\configuration.svcinfo" />
+    <None Include="Service References\PeerReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\PeerService\item1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PeerService\item2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PeerService\item3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PeerService\Peer.wsdl" />
     <Content Include="ServiceReferences.ClientConfig" />
+    <None Include="Service References\PeerReference\item.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PeerReference\item1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PeerReference\item2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PeerReference\item3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PeerReference\Peer.wsdl" />
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -167,22 +174,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\PeerService\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PeerService\item.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PeerService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PeerService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PeerService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
+    <WCFMetadataStorage Include="Service References\PeerReference\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>

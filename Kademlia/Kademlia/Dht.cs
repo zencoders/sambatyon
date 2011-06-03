@@ -13,6 +13,8 @@ using System.Xml.Linq;
 using System.Linq;
 using System.ServiceModel;
 using Persistence;
+using System.Configuration;
+using Metrics;
 
 namespace Kademlia
 {
@@ -25,20 +27,8 @@ namespace Kademlia
 	public class Dht
 	{
 		private const int MAX_SIZE = 8 * 1024; // 8K is big
-        private const string DEFAULT_NODES_FILE = "nodes.xml";
 		
 		private KademliaNode dhtNode;
-		
-		/// <summary>
-		/// Create a new DHT. It should connect to the default overlay network
-		/// if possible, or use an existing connection, and do default things
-		/// with regard to UPnP and storage on the local filesystem. It also
-		/// will by default announce itself to the master list.
-		/// </summary>
-		public Dht() : this(DEFAULT_NODES_FILE)
-		{
-			// Nothing to do!
-		}
 		
 		/// <summary>
 		/// Create a DHT using the given master server, and specify whether to publish our IP.
@@ -47,8 +37,9 @@ namespace Kademlia
 		/// </summary>
 		/// <param name="overlayUrl"></param>
 		/// <param name="register"></param>
-		public Dht(string nodesFile, KademliaNode dhtNode = null, bool alreadyBootstrapped = false, string btpNode = "")
+		public Dht(KademliaNode dhtNode = null, bool alreadyBootstrapped = false, string btpNode = "")
 		{
+
 			// Make a new node and get port
             if (dhtNode != null)
             {
@@ -60,14 +51,15 @@ namespace Kademlia
             }
             if (!alreadyBootstrapped)
             {
-                if (btpNode != "")
+                if (btpNode == "")
                 {
                     int ourPort = dhtNode.GetPort();
                     Console.WriteLine("We are on UDP port " + ourPort.ToString());
 
                     Console.WriteLine("Getting bootstrap list...");
 
-                    XDocument xmlDoc = XDocument.Load(nodesFile);
+                    AppSettingsReader asr = new AppSettingsReader();
+                    XDocument xmlDoc = XDocument.Load((string)asr.GetValue("KademliaNodesFile", typeof(string)));
 
                     var nodes = from node in xmlDoc.Descendants("Node")
                                 select new
@@ -82,8 +74,8 @@ namespace Kademlia
                         // Each line is <ip> <port>
                         try
                         {
-                            EndpointAddress bootstrapNode = new EndpointAddress(node.Host + ":" + node.Port);
-                            Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
+                            Console.WriteLine("Bootstrapping with " + node.Host + ":" + node.Port);
+                            EndpointAddress bootstrapNode = new EndpointAddress("soap.udp://" + node.Host + ":" + node.Port + "/kademlia");
                             if (dhtNode.Bootstrap(bootstrapNode))
                             {
                                 Console.WriteLine("OK!");
@@ -104,8 +96,8 @@ namespace Kademlia
                     // Each line is <ip> <port>
                     try
                     {
+                        Console.WriteLine("Bootstrapping with " + btpNode);
                         EndpointAddress bootstrapNode = new EndpointAddress(btpNode);
-                        Console.Write("Bootstrapping with " + bootstrapNode.ToString() + ": ");
                         if (dhtNode.Bootstrap(bootstrapNode))
                         {
                             Console.WriteLine("OK!");
@@ -121,15 +113,15 @@ namespace Kademlia
                     }
                 }
             }
+            else
+            {
+                Console.WriteLine("Self Bootstrapping");
+                dhtNode.Bootstrap();
+            }
 			// Join the network officially
 			Console.WriteLine("Joining network...");
 			if(dhtNode.JoinNetwork()) {
 				Console.WriteLine("Online");
-/*				if(register) { // Announce our presence
-					downloader.DownloadString(overlayUrl + REGISTER_FRAGMENT + ourPort.ToString());
-					Console.WriteLine("Announced presence");
-				}*/
-				
 			} else {
 				Console.WriteLine("Unable to connect to Kademlia overlay!\n"
 				                   + "Check that nodes list has accessible nodes.");
@@ -143,9 +135,14 @@ namespace Kademlia
 		/// <returns>an arbitrary value stored for the key, or null if no values are found</returns>
 		public KademliaResource Get(string key)
 		{
-			IList<KademliaResource> found = dhtNode.Get(key);
+            IList<KademliaResource> found = dhtNode.Get(key);
 			if(found.Count > 0) {
-				return found[0]; // An arbitrary value
+                IList<KademliaResource> ordered = found.AsParallel().OrderByDescending(
+                    d => QualityCalculator.calculateQualityCoefficient(
+                        key, new string[3] { d.Tag.Album, d.Tag.Artist, d.Tag.Title },
+                        0, 0, d.Tag.Bitrate, d.Tag.Channels, d.Tag.SampleRate)
+                        ).ToList();
+				return ordered[0]; // An arbitrary value
 			} else {
 				return null; // Nothing there
 			}
@@ -158,7 +155,19 @@ namespace Kademlia
 		/// <returns></returns>
 		public IList<KademliaResource> GetAll(string key)
 		{
-			return dhtNode.Get(key);
+            IList<KademliaResource> found = dhtNode.Get(key);
+            if (found.Count > 0)
+            {
+                return found.AsParallel().OrderByDescending(
+                    d => QualityCalculator.calculateQualityCoefficient(
+                        key, new string[3] { d.Tag.Album, d.Tag.Artist, d.Tag.Title },
+                        0, 0, d.Tag.Bitrate, d.Tag.Channels, d.Tag.SampleRate)
+                        ).ToList();
+            }
+            else
+            {
+                return found;
+            }
 		}
 		
 		/// <summary>

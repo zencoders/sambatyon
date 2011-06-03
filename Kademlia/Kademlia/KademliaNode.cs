@@ -11,12 +11,15 @@ using Kademlia.Messages;
 using UdpTransportBinding;
 using Persistence.Tag;
 using Persistence;
+using System.Configuration;
 
 namespace Kademlia
 {
 	/// <summary>
 	/// Functions as a peer in the overlay network.
 	/// </summary>
+    
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	public class KademliaNode : IKademliaNode
 	{
 		// Identity
@@ -30,7 +33,7 @@ namespace Kademlia
 		private List<Contact> contactQueue; // Add contacts here to be considered for caching
 		private const int MAX_QUEUE_LENGTH = 10;
         private const string DEFAULT_ENDPOINT = "soap.udp://localhost:8001/kademlia";
-        private const string DEFAULT_REPOSITORY = @"..\..\Resource\Database";
+        private const string DEFAULT_REPOSITORY = @"..\..\Resource\KademliaDatabase";
 		
 		// Response cache
 		// We want to be able to synchronously wait for responses, so we have other threads put them in this cache.
@@ -75,28 +78,7 @@ namespace Kademlia
 		// How often do we run high-level maintainance (expiration, etc.)
 		private static TimeSpan MAINTAINANCE_INTERVAL = new TimeSpan(0, 10, 0);
 		private Thread maintainanceMinder;
-		
-		// Network IO
-		//private UdpClient client;
-		//private Thread clientMinder;
-		
-		// Events
-		// Messages are strongly typed. Hooray!
-        /*
-		public event MessageEventHandler<Message> GotMessage;
-		public event MessageEventHandler<Response> GotResponse;
-		
-		public event MessageEventHandler<Ping> GotPing;
-		public event MessageEventHandler<Pong> GotPong;
-		public event MessageEventHandler<FindNode> GotFindNode;
-		public event MessageEventHandler<FindNodeResponse> GotFindNodeResponse;
-		public event MessageEventHandler<FindValue> GotFindValue;
-		public event MessageEventHandler<FindValueContactResponse> GotFindValueContactResponse;
-		public event MessageEventHandler<FindValueDataResponse> GotFindValueDataResponse;
-		public event MessageEventHandler<StoreQuery> GotStoreQuery;
-		public event MessageEventHandler<StoreResponse> GotStoreResponse;
-		public event MessageEventHandler<StoreData> GotStoreData;
-		*/
+
 		private bool debug = false;
 		
 		#region Setup	
@@ -104,7 +86,7 @@ namespace Kademlia
 		/// <summary>
 		/// Make a node on a random available port, using an ID specific to this machine.
 		/// </summary>
-		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID(), DEFAULT_REPOSITORY)
+		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID())
 		{
 			// Nothing to do!
 		}
@@ -113,7 +95,7 @@ namespace Kademlia
 		/// Make a node with a specified ID.
 		/// </summary>
 		/// <param name="id"></param>
-		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id, DEFAULT_REPOSITORY)
+		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id)
 		{
 			// Nothing to do!
 		}
@@ -122,7 +104,7 @@ namespace Kademlia
 		/// Make a node on a specified port.
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID(), DEFAULT_REPOSITORY)
+		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID())
 		{
 			// Nothing to do!
 		}
@@ -131,14 +113,15 @@ namespace Kademlia
 		/// Make a node on a specific port, with a specified ID
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(EndpointAddress addr, ID id, string repository)
+		public KademliaNode(EndpointAddress addr, ID id)
 		{
 			// Set up all our data
+            AppSettingsReader asr = new AppSettingsReader();
             nodeEndpoint = addr;
 			nodeID = id;
 			contactCache = new BucketList(nodeID);
 			contactQueue = new List<Contact>();
-            RepositoryConfiguration conf = new RepositoryConfiguration(new { data_dir = repository });
+            RepositoryConfiguration conf = new RepositoryConfiguration(new { data_dir = (string) asr.GetValue("KademliaRepository", typeof(string)) });
             datastore = new KademliaRepository("Raven", conf);
 			acceptedStoreRequests = new SortedList<ID, DateTime>();
 			sentStoreRequests = new SortedList<ID, KademliaNode.OutstandingStoreRequest>();
@@ -217,9 +200,7 @@ namespace Kademlia
 				foreach(Contact c in found) {
 					Log("Found contact: " + c.ToString());
 				}
-			}
-			
-			
+			}			
 			// Should get very nearly all of them
 			// RefreshBuckets(); // Put this off until first maintainance.
 			if(contactCache.GetCount() > 0) {
@@ -729,6 +710,7 @@ namespace Kademlia
 		public void HandlePing(Ping ping)
 		{
             HandleMessage(ping);
+            Console.WriteLine("Handling ping from: " + ping.NodeEndpoint);
 			Pong pong = new Pong(nodeID, ping, nodeEndpoint.Uri);
             IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
                 new NetUdpBinding(), new EndpointAddress(ping.NodeEndpoint)
@@ -738,6 +720,7 @@ namespace Kademlia
 
         public void HandlePong(Pong pong)
         {
+            Console.WriteLine("Handling pong from: " + pong.NodeEndpoint);
             CacheResponse(pong);
         }
 		

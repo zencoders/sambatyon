@@ -112,6 +112,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Metrics\Metrics.csproj">
+      <Project>{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}</Project>
+      <Name>Metrics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Persistence\Persistence.csproj">
       <Project>{DF93835A-ED54-41C5-A878-6DB1411104E5}</Project>
       <Name>Persistence</Name>

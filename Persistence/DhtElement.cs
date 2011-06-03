@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Persistence
 {
-    public class DhtElement: IEquatable<DhtElement>,IEquatable<Uri> 
+    [Serializable]
+    public class DhtElement: IEquatable<DhtElement>,IEquatable<Uri>, ISerializable
     {
         #region Properties
         public Uri Url
@@ -35,6 +37,14 @@ namespace Persistence
             this.Validity = v;
         }
 
+        public DhtElement(SerializationInfo info, StreamingContext ctxt)
+            : this()
+        {
+            this.Url = (Uri) info.GetValue("url", typeof(Uri));
+            this.Publication = (DateTime) info.GetValue("publication", typeof(DateTime));
+            this.Validity = (TimeSpan) info.GetValue("validity", typeof(TimeSpan));
+        }
+
 
         #region IEquatable<DhtElement>
 
@@ -53,5 +63,12 @@ namespace Persistence
         }
 
         #endregion
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("url", this.Url);
+            info.AddValue("publication", this.Publication);
+            info.AddValue("validity", this.Validity);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ServiceModel;
 using System.IO;
+using Persistence;
 
 namespace PeerPlayer
 {
@@ -20,6 +21,12 @@ namespace PeerPlayer
         void StopFlow();
 
         [OperationContract]
-        void Configure(string httpPort, string tcpPort, string udpPort, string kademliaPort, string dbFile);
+        void Configure(string udpPort, string kademliaPort);
+
+        [OperationContract]
+        void StoreFile(string filename);
+
+        [OperationContract]
+        IList<KademliaResource> SearchFor(string queryString);
     }
 }

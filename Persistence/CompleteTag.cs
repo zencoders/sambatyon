@@ -5,12 +5,13 @@ using System.Text;
 using TagLib.Mpeg;
 using System.IO;
 using System.Security.Cryptography;
+using System.Runtime.Serialization;
 
 namespace Persistence
 {
 namespace Tag
 {
-    public class CompleteTag
+    public class CompleteTag : ISerializable
     {
         public CompleteTag() { }
         public CompleteTag(string filename)
@@ -35,6 +36,22 @@ namespace Tag
                 sb.Append(tHashByte[i].ToString("x2"));
             }
             this.TagHash = sb.ToString();
+        }
+        public CompleteTag(SerializationInfo info, StreamingContext ctxt)
+        {
+            this.Title = (string) info.GetValue("Title", typeof(string));
+            this.Artist = (string) info.GetValue("Artist", typeof(string));
+            this.Album = (string) info.GetValue("Album", typeof(string));
+            this.Genre = (string) info.GetValue("Genre", typeof(string));
+            this.Year = (uint) info.GetValue("Year", typeof(uint));
+            this.Track = (uint) info.GetValue("Track", typeof(uint));
+            this.Length = (int) info.GetValue("Length", typeof(int));
+            this.Bitrate = (int) info.GetValue("Bitrate", typeof(int));
+            this.SampleRate = (int) info.GetValue("SampleRate", typeof(int));
+            this.Channels = (int) info.GetValue("Channels", typeof(int));
+            this.FileSize = (int) info.GetValue("FileSize", typeof(int));
+            this.FileHash = (string) info.GetValue("FileHash", typeof(string));
+            this.TagHash = (string) info.GetValue("TagHash", typeof(string));
         }
 
         private string contentString()
@@ -172,5 +189,22 @@ namespace Tag
             set;
         }
         #endregion        
+    
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Title", this.Title);
+            info.AddValue("Artist", this.Artist);
+            info.AddValue("Album", this.Album);
+            info.AddValue("Genre", this.Genre);
+            info.AddValue("Year", this.Year);
+            info.AddValue("Track", this.Track);
+            info.AddValue("Length", this.Length);
+            info.AddValue("Bitrate", this.Bitrate);
+            info.AddValue("SampleRate", this.SampleRate);
+            info.AddValue("Channels", this.Channels);
+            info.AddValue("FileSize", this.FileSize);
+            info.AddValue("FileHash", this.FileHash);
+            info.AddValue("TagHash", this.TagHash);
+        }
     }       
 }} //namespace Persistence.Tag

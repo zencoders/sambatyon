@@ -1,24 +1,12 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WCFServiceHost.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PeerPlayer.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="tcpPort" Type="System.String" Scope="User">
-      <Value Profile="(Default)">9999</Value>
-    </Setting>
-    <Setting Name="httpPort" Type="System.String" Scope="User">
-      <Value Profile="(Default)">9998</Value>
-    </Setting>
     <Setting Name="udpPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">9997</Value>
     </Setting>
     <Setting Name="kademliaPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">10000</Value>
-    </Setting>
-    <Setting Name="dbFile" Type="System.String" Scope="User">
-      <Value Profile="(Default)">..\..\Resource\Database</Value>
-    </Setting>
-    <Setting Name="nodes" Type="System.String" Scope="User">
-      <Value Profile="(Default)">nodes.xml</Value>
     </Setting>
   </Settings>
 </SettingsFile>

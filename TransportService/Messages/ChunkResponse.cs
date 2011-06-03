@@ -9,7 +9,6 @@ namespace TransportService.Messages
     [DataContract]
     public class ChunkResponse : GenericMessage
     {
-        new string messageType;
         int servingBuffer;
         byte[] payload;
 

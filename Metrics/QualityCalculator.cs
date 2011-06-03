@@ -94,6 +94,12 @@ namespace Metrics{
 				return new FileQualityCoefficient();			
 			}
 		}
+
+        private static FileQualityCoefficient calculateFQ(int bitrate, int channelmode, int samplerate)
+        {
+            return new FileQualityCoefficient(bitrate, channelmode, samplerate);
+        }
+
 		private static double calculatePQ(int buffered,int queueSize) {
 			return (buffered/((double)queueSize));
 		}		
@@ -111,6 +117,10 @@ namespace Metrics{
 		public static QualityCoefficient calculateQualityCoefficient(String searchString,String[] tags,int buffered,int queueSize,String filepath) {
 			return new QualityCoefficient(calculateFQ(filepath),calculateAFF(searchString,tags),calculatePQ(buffered,queueSize));
 		}
+        public static QualityCoefficient calculateQualityCoefficient(String searchString, String[] tags, int buffered, int queueSize, int bitrate, int channelmode, int samplerate)
+        {
+            return new QualityCoefficient(calculateFQ(bitrate, channelmode, samplerate), calculateAFF(searchString, tags), 0);
+        }
 		#endregion
 	}
 }

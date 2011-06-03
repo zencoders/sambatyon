@@ -11,10 +11,7 @@ namespace TransportService
     {
         public enum ThreadState { FREE, BUSY };
 
-        private string peerAddress;
-        private float peerScore;
         private System.Timers.Timer timer;
-        private ThreadState state;
         private AutoResetEvent peerQueueNotEmpty;
 
         public PeerQueueElement()
@@ -23,47 +20,47 @@ namespace TransportService
 
         public PeerQueueElement(string peerAddress, float peerScore, ref AutoResetEvent peerQueueNotEmpty)
         {
-            this.peerAddress = peerAddress;
-            this.peerScore = peerScore;
-            this.state = ThreadState.FREE;
+            this.PeerAddress = peerAddress;
+            this.PeerScore = peerScore;
+            this.State = ThreadState.FREE;
             this.peerQueueNotEmpty = peerQueueNotEmpty;
         }
 
         public string PeerAddress
         {
-            get { return this.peerAddress; }
-            set { this.peerAddress = value; }
+            get;
+            set;
         }
 
         public float PeerScore
         {
-            get { return this.peerScore; }
-            set { this.peerScore = value; }
+            get;
+            set;
         }
 
         public ThreadState State
         {
-            get { return this.state; }
-            set { this.state = value; }
+            get;
+            set;
         }
 
-        public void timedPeerBlock(int millis)
+        public void TimedPeerBlock(int millis)
         {
-            this.state = ThreadState.BUSY;
+            this.State = ThreadState.BUSY;
             this.timer = new System.Timers.Timer(millis);
             this.timer.Enabled = true;
-            this.timer.Elapsed += new ElapsedEventHandler(this.TimerHandler);
+            this.timer.Elapsed += new ElapsedEventHandler(this.timerHandler);
         }
 
-        public void reset()
+        public void Reset()
         {
-            this.state = ThreadState.FREE;
+            this.State = ThreadState.FREE;
             this.peerQueueNotEmpty.Set();
         }
 
-        private void TimerHandler(object source, EventArgs e)
+        private void timerHandler(object source, EventArgs e)
         {
-            this.reset();
+            this.Reset();
         }
     }
 }

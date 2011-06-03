@@ -16,25 +16,15 @@ namespace TransportService
 
     public class NextArrivedEventArgs
     {
-        private int cID;
-        private byte[] payload;
 
-        public int CID
-        {
-            get { return this.cID; }
-            set { this.cID = value; }
-        }
+        public int CID { get; set; }
 
-        public byte[] Payload
-        {
-            get { return this.payload; }
-            set { this.payload = value; }
-        }
+        public byte[] Payload { get; set; }
 
         public NextArrivedEventArgs(int cID, byte[] payload)
         {
-            this.cID = cID;
-            this.payload = payload;
+            this.CID = cID;
+            this.Payload = payload;
         }
     }
 
@@ -48,8 +38,7 @@ namespace TransportService
         private int chunkLength;
         private int servingBuffer = 0;
         private Dictionary<int, BufferChunk> buffer;
-        private event NextArrivedHandler NextArrived;
-        private AppSettingsReader asr;
+        private event NextArrivedHandler nextArrived;
         private ThreadPool threadPool;
         private Thread worker;
         private StreamWriter writer;
@@ -57,21 +46,20 @@ namespace TransportService
         private Uri myAddress;
         private PeerQueue peerQueue;
 
-        public TransportProtocol(Uri uri)
+        public TransportProtocol(Uri uri, Persistence.Repository trackRepository)
         {
-            this.asr = new AppSettingsReader();
+            AppSettingsReader asr = new AppSettingsReader();
             int poolSize = (int)asr.GetValue("ThreadPoolSize", typeof(int));
             this.threadPool = new ThreadPool(poolSize);
-            this.worker = new Thread(() => DoWork());
-            this.NextArrived += new NextArrivedHandler(this.WriteOnStream);
+            this.worker = new Thread(() => doWork());
+            this.nextArrived += new NextArrivedHandler(this.writeOnStream);
             this.chunkLength = ((int)asr.GetValue("ChunkLength", typeof(int)));
             this.myAddress = uri;
-            Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(new { data_dir = "..\\..\\Resource\\Database" });
-            trackRepository = Persistence.RepositoryFactory.GetRepositoryInstance("Raven", conf);
+            this.trackRepository = trackRepository;
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private void WriteOnStream(Object o, NextArrivedEventArgs e)
+        private void writeOnStream(Object o, NextArrivedEventArgs e)
         {
             this.writer.Write(e.Payload);
             this.nextChunkToWrite++;
@@ -83,14 +71,14 @@ namespace TransportService
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private void SaveOnBuffer(int CID, byte[] payload)
+        private void saveOnBuffer(int CID, byte[] payload)
         {
             this.buffer[CID].Payload = payload;
             this.buffer[CID].ActualCondition = BufferChunk.condition.DOWNLOADED;
             if (CID == this.nextChunkToWrite)
             {
                 Console.WriteLine("IN WRITING!");
-                NextArrived(new object(), new NextArrivedEventArgs(CID, payload));
+                nextArrived(new object(), new NextArrivedEventArgs(CID, payload));
             }
             else
             {
@@ -115,14 +103,14 @@ namespace TransportService
             }
         }
 
-        private void GetNextChunk()
+        private void getNextChunk()
         {
             string address = peerQueue.GetBestPeer();
-            int nextChunk = this.NextChunkToGet();
+            int nextChunk = this.nextChunkToGet();
             try
             {
                 this.buffer[nextChunk].ActualCondition = BufferChunk.condition.DIRTY;
-                this.GetRemoteChunk(new ChunkRequest(this.RID, nextChunk, myAddress), address);
+                this.getRemoteChunk(new ChunkRequest(this.RID, nextChunk, myAddress), address);
             }
             catch (Exception e)
             {
@@ -133,7 +121,7 @@ namespace TransportService
             }
         }
 
-        private void GetRemoteChunk(ChunkRequest chkrq, string address)
+        private void getRemoteChunk(ChunkRequest chkrq, string address)
         {
             ITransportProtocol svc = ChannelFactory<ITransportProtocol>.CreateChannel(
                 new NetUdpBinding(), new EndpointAddress(address)
@@ -141,13 +129,13 @@ namespace TransportService
             svc.GetChunk(chkrq);
         }
 
-        private void DoWork()
+        private void doWork()
         {
-            while ( (!this.FullyDownloaded()) && (!this.shouldStop))
+            while ( (!this.fullyDownloaded()) && (!this.shouldStop))
             {
             //    Thread.Sleep(1000);
                 ThreadPoolObject chunkGetter = this.threadPool.GetNextThreadInPool();
-                chunkGetter.assignAndStart(new ThreadStart(() => GetNextChunk()));
+                chunkGetter.AssignAndStart(new ThreadStart(() => getNextChunk()));
             }
 /*            Console.WriteLine("FINISHED!");
             for (int i = this.maxNumber - this.buffer.Count(); i < this.maxNumber; i++)
@@ -156,7 +144,7 @@ namespace TransportService
             }*/
         }
 
-        private int NextChunkToGet()
+        private int nextChunkToGet()
         {
             int best = -1;
             try{
@@ -179,7 +167,7 @@ namespace TransportService
             return best;
         }
 
-        private bool FullyDownloaded()
+        private bool fullyDownloaded()
         {
             int downloaded = this.buffer.AsParallel().Where(Elem => Elem.Value.ActualCondition == BufferChunk.condition.DOWNLOADED
                 ).Count();
@@ -193,7 +181,7 @@ namespace TransportService
             }
         }
 
-        public void start(string RID, int begin, int length, Dictionary<string, float> peerQueue, Stream s)
+        public void Start(string RID, int begin, int length, Dictionary<string, float> peerQueue, Stream s)
         {
             this.RID = RID;
             this.peerQueue = new PeerQueue(peerQueue);
@@ -212,7 +200,7 @@ namespace TransportService
             this.worker.Start();
         }
 
-        public void stop()
+        public void Stop()
         {
             this.shouldStop = true;
             this.worker.Join();
@@ -242,8 +230,8 @@ namespace TransportService
 
         public void ReturnChunk(ChunkResponse chkrs)
         {
-            this.SaveOnBuffer(chkrs.CID, chkrs.Payload);
-            this.peerQueue.resetPeer(chkrs.SenderAddress.AbsoluteUri, chkrs.ServingBuffer);
+            this.saveOnBuffer(chkrs.CID, chkrs.Payload);
+            this.peerQueue.ResetPeer(chkrs.SenderAddress.AbsoluteUri, chkrs.ServingBuffer);
         }
     }
 }

@@ -9,9 +9,6 @@ namespace TransportService.Messages
     [DataContract]
     public class ChunkRequest : GenericMessage
     {
-        new string messageType;
-        //        int activeBuffer;
-
         public ChunkRequest() { }
 
         public ChunkRequest(/*int activeBuffer, */string RID, int CID, Uri SenderAddress)

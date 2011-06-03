@@ -39,14 +39,14 @@ namespace TransportService
             Console.WriteLine(this.peerQueue.Count());
             PeerQueueElement best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value.PeerScore > r.Value.PeerScore ? l : r).Value;
             best.State = PeerQueueElement.ThreadState.BUSY;
-            best.timedPeerBlock(3000);
+            best.TimedPeerBlock(3000);
             return best.PeerAddress;
         }
 
-        public void resetPeer(string key, int newScore)
+        public void ResetPeer(string key, int newScore)
         {
             this.peerQueue[key].PeerScore = newScore;
-            this.peerQueue[key].reset();
+            this.peerQueue[key].Reset();
         }
     }
 }

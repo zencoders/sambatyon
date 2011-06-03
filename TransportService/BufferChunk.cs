@@ -8,30 +8,28 @@ namespace TransportService
     class BufferChunk
     {
         public enum condition { CLEAN, DIRTY, DOWNLOADED };
-        private byte[] payload;
-        private condition actualCondition;
 
         public byte[] Payload
         {
-            get { return this.payload; }
-            set { this.payload = value; }
+            get;
+            set;
         }
 
         public condition ActualCondition
         {
-            get { return this.actualCondition; }
-            set { this.actualCondition = value; }
+            get;
+            set;
         }
 
         public BufferChunk()
         {
-            this.actualCondition = condition.CLEAN;
+            this.ActualCondition = condition.CLEAN;
         }
 
         public BufferChunk(byte[] payload)
         {
-            this.payload = payload;
-            this.actualCondition = condition.DOWNLOADED;
+            this.Payload = payload;
+            this.ActualCondition = condition.DOWNLOADED;
         }
     }
 }

@@ -12,29 +12,29 @@ namespace TransportService.Messages
         [DataMember]
         public override string MessageType
         {
-            get { return messageType; }
-            set { messageType = value; }
+            get;
+            set;
         }
 
         [DataMember]
         public override string RID
         {
-            get { return rID; }
-            set { rID = value; }
+            get;
+            set;
         }
 
         [DataMember]
         public override int CID
         {
-            get { return cID; }
-            set { cID = value; }
+            get;
+            set;
         }
 
         [DataMember]
         public override Uri SenderAddress
         {
-            get { return senderAddress; }
-            set { senderAddress = value; }
+            get;
+            set;
         }
     }
 }

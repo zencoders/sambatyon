@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Persistence.Tag;
+using System.Runtime.Serialization;
 
 namespace Persistence
 {
-    public class KademliaResource: IDocumentType,ILoadable
+    [Serializable]
+    public class KademliaResource: IDocumentType,ILoadable,ISerializable
     {
         public KademliaResource()
         {
@@ -28,6 +30,11 @@ namespace Persistence
             {
                 this.Urls.AddRange(urls);
             }
+        }
+        public KademliaResource(SerializationInfo info, StreamingContext ctxt) : this()
+        {
+            this.Tag = (CompleteTag)info.GetValue("Tag", typeof(CompleteTag));
+            this.Urls = (List<DhtElement>)info.GetValue("Urls", typeof(List<DhtElement>));
         }
         #region IDocumentType
         public string Id
@@ -80,5 +87,11 @@ namespace Persistence
             return this.GetType();
         }
         #endregion
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Tag", this.Tag);
+            info.AddValue("Urls", this.Urls);
+        }
     }
 }

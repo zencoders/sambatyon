@@ -8,6 +8,8 @@ using System.IO;
 using System.Configuration;
 using Kademlia;
 using System.ServiceModel.Description;
+using Persistence;
+using System.Threading.Tasks;
 
 namespace PeerPlayer
 {
@@ -18,12 +20,46 @@ namespace PeerPlayer
         private Dht kademliaLayer;
         private Stream localStream;
         private ServiceHost[] svcHosts = new ServiceHost[3];
+        private bool single;
+        private string btpNode;
+        private Persistence.Repository trackRep;
 
-        private ServiceHost RunInterfaceLayer()
+        public Dictionary<string, string> ConfOptions {get; set;}
+
+        public Peer(bool single = false, string btpNode = "")
+        {
+            this.ConfOptions = new Dictionary<string, string>();
+            this.ConfOptions["udpPort"] = PeerPlayer.Properties.Settings.Default.udpPort;
+            this.ConfOptions["kadPort"] = PeerPlayer.Properties.Settings.Default.kademliaPort;
+            this.localStream = new MemoryStream();
+            this.single = single;
+            this.btpNode = btpNode;
+            AppSettingsReader asr = new AppSettingsReader();
+            Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(new { data_dir = (string)asr.GetValue("TrackRepository", typeof(string)) });
+            this.trackRep = Persistence.RepositoryFactory.GetRepositoryInstance("Raven", conf);
+        }
+
+        public void runLayers(bool withoutInterface=false)
+        {
+            svcHosts[0] = this.runKademliaLayer(single, btpNode);
+            svcHosts[1] = this.runTransportLayer();
+            if(!withoutInterface)
+                svcHosts[2] = this.runInterfaceLayer();
+        }
+
+        #region layersInitialization
+        private ServiceHost runInterfaceLayer()
         {
             Console.WriteLine("Running Interface Layer.....");
-            ServiceHost host = new ServiceHost(this);            
-            host.Open();
+            ServiceHost host = new ServiceHost(this);
+            try
+            {
+                host.Open();
+            }
+            catch (AddressAlreadyInUseException)
+            {
+                Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
+            }
             foreach (Uri uri in host.BaseAddresses)
             {
                 Console.WriteLine("\t{0}", uri.ToString());
@@ -31,12 +67,13 @@ namespace PeerPlayer
             return host;
         }
 
-        private ServiceHost RunTransportLayer()
+        private ServiceHost runTransportLayer()
         {
-            string udpPort = PeerPlayer.Properties.Settings.Default.udpPort;
+            Console.WriteLine("Running Transport Layer.....");
+            string udpPort = this.ConfOptions["udpPort"];
             Uri[] addresses = new Uri[1];
-            addresses[0] = new Uri("soap.udp://localhost:" + udpPort + "/TransportProtocol/");
-            TransportProtocol tsp = new TransportProtocol(addresses[0]);
+            addresses[0] = new Uri("soap.udp://localhost:" + udpPort + "/transport_protocol/");
+            TransportProtocol tsp = new TransportProtocol(addresses[0], this.trackRep);
             this.transportLayer = tsp;
             ServiceHost host = new ServiceHost(tsp, addresses);
             try
@@ -48,31 +85,48 @@ namespace PeerPlayer
                     Console.WriteLine("\t{0}", uri.ToString());
                 }
                 Console.WriteLine();
-                Console.WriteLine("Number of dispatchers listening : {0}", host.ChannelDispatchers.Count);
+                Console.WriteLine("\tNumber of dispatchers listening : {0}", host.ChannelDispatchers.Count);
                 foreach (System.ServiceModel.Dispatcher.ChannelDispatcher dispatcher in host.ChannelDispatchers)
                 {
-                    Console.WriteLine("\t{0}", dispatcher.Listener.Uri.ToString());
+                    Console.WriteLine("\t\t{0}", dispatcher.Listener.Uri.ToString());
                 }
                 #endregion
             }
-            catch (AddressAlreadyInUseException)
+            catch (AddressAlreadyInUseException aaiue)
             {
                 Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
+                throw aaiue;
             }
             return host;
         }
 
-        private ServiceHost RunKademliaLayer(bool single, string btpNode)
+        private ServiceHost runKademliaLayer(bool single, string btpNode)
         {
-            string kademliaPort = PeerPlayer.Properties.Settings.Default.kademliaPort;
+            string kademliaPort = this.ConfOptions["kadPort"];
             KademliaNode node = new KademliaNode(new EndpointAddress("soap.udp://localhost:"+kademliaPort+"/kademlia"));
-            this.kademliaLayer = new Dht(PeerPlayer.Properties.Settings.Default.nodes, node, single, btpNode);
-            ServiceHost kadHost = new ServiceHost(node, new Uri("soap.udp://localhost:"+kademliaPort+"/kademlia"));
-            kadHost.Open();
+            ServiceHost kadHost = new ServiceHost(node, new Uri("soap.udp://localhost:" + kademliaPort + "/kademlia"));
+            try
+            {
+                kadHost.Open();
+            }
+            catch (AddressAlreadyInUseException aaiue)
+            {
+                Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
+                throw aaiue;
+            }
+            this.kademliaLayer = new Dht(node, single, btpNode);
+            List<TrackModel.Track> list = new List<TrackModel.Track>();
+            Console.WriteLine("GetAll Response : " + this.trackRep.GetAll(list));
+            Parallel.ForEach(list, t =>
+            {
+                this.kademliaLayer.Put(t.Filename);
+            });
             return kadHost;
         }
+        #endregion
 
-        public Peer(bool single = false, string btpNode = "")
+        #region interface
+        public void Configure(string udpPort = "-1", string kademliaPort = "-1")
         {
             this.localStream = new MemoryStream();
          //   svcHosts[0] = this.RunKademliaLayer(single, btpNode);
@@ -98,10 +152,6 @@ namespace PeerPlayer
             {
                 PeerPlayer.Properties.Settings.Default.kademliaPort = kademliaPort;
             }
-            if (dbFile != "")
-            {
-                PeerPlayer.Properties.Settings.Default.dbFile = dbFile;
-            }
             PeerPlayer.Properties.Settings.Default.Save();
         }
 
@@ -126,13 +176,60 @@ namespace PeerPlayer
 
         public void StopFlow()
         {
-            this.transportLayer.stop();
+            this.transportLayer.Stop();
         }
+
+        public void StoreFile(string filename)
+        {
+            TrackModel track = new TrackModel(filename);
+            this.trackRep.Save(track);
+        }
+
+        public IList<KademliaResource> SearchFor(string queryString)
+        {
+            return this.kademliaLayer.GetAll(queryString);
+        }
+
+        #endregion
 
         static void Main(string[] args)
         {
+            bool withoutInterface = false;
             using (Peer p = new Peer())
             {
+                if (args.Length % 2 != 0)
+                {
+                    Console.WriteLine("Error in parsing options");
+                    return;
+                }
+                else
+                {
+                    bool storeConf = false;
+                    for (int i = 0; i < args.Length; i += 2)
+                    {
+                        if (args[i] == "--udpPort" || args[i] == "-u")
+                        {
+                            p.ConfOptions["udpPort"] = args[i + 1];
+                        }
+                        else if (args[i] == "--kadPort" || args[i] == "-k")
+                        {
+                            p.ConfOptions["kadPort"] = args[i + 1];
+                        }
+                        else if ((args[i] == "--store" || args[i] == "-s") && (args[i + 1] == "1"))
+                        {
+                            storeConf = true;
+                        }
+                        else if ((args[i] == "--without_interface" || args[i] == "-i") && (args[i + 1] == "1"))
+                        {
+                            withoutInterface = true;
+                        }
+                    }
+                    if (storeConf)
+                    {
+                        p.Configure(p.ConfOptions["udpPort"], p.ConfOptions["kadPort"]);
+                    }
+                }
+                p.runLayers(withoutInterface);
                 Console.WriteLine();
                 Console.WriteLine("Press <ENTER> to terminate Host");
                 Console.ReadLine();
@@ -211,6 +308,7 @@ namespace PeerPlayer
                 if(svcHost != null)
                     svcHost.Close();
             }
+            this.trackRep.Dispose();
         }
     }
 }

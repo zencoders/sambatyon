@@ -7,7 +7,7 @@ namespace Metrics
 	/// <summary>
 	/// Classe rappresentante il coefficiente di qualità.
 	/// </summary>
-	public class QualityCoefficient {
+	public class QualityCoefficient : IComparable {
 		#region Attribute
 		/// <summary>
 		/// Componente che tiene conto di quanto il brano sia pertinente alla ricerca 
@@ -69,5 +69,35 @@ namespace Metrics
 			sB.Append(this.coefficient);
 			return sB.ToString();
 		}
-	}
+
+        public static bool operator <(QualityCoefficient a, QualityCoefficient b)
+        {
+            return a < b;
+        }
+
+        public static bool operator >(QualityCoefficient a, QualityCoefficient b)
+        {
+            return a > b;
+        }
+
+        public static bool operator ==(QualityCoefficient a, QualityCoefficient b)
+        {
+            return a == b;
+        }
+
+        public static bool operator !=(QualityCoefficient a, QualityCoefficient b)
+        {
+            return a != b;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is QualityCoefficient)
+            {
+                QualityCoefficient coeff = (QualityCoefficient)obj;
+                return this.coefficient.CompareTo(coeff.coefficient);
+            }
+            throw new ArgumentException("object is not a QualityCoefficient");
+        }
+    }
 }

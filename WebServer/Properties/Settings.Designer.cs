@@ -25,30 +25,6 @@ namespace PeerPlayer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("9999")]
-        public string tcpPort {
-            get {
-                return ((string)(this["tcpPort"]));
-            }
-            set {
-                this["tcpPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("9998")]
-        public string httpPort {
-            get {
-                return ((string)(this["httpPort"]));
-            }
-            set {
-                this["httpPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("9997")]
         public string udpPort {
             get {
@@ -68,30 +44,6 @@ namespace PeerPlayer.Properties {
             }
             set {
                 this["kademliaPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\Resource\\Database")]
-        public string dbFile {
-            get {
-                return ((string)(this["dbFile"]));
-            }
-            set {
-                this["dbFile"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("nodes.xml")]
-        public string nodes {
-            get {
-                return ((string)(this["nodes"]));
-            }
-            set {
-                this["nodes"] = value;
             }
         }
     }
