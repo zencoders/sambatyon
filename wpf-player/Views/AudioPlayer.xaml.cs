@@ -9,9 +9,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.IO;
 
-namespace p2p_player
+namespace wpf_player
 {
 	/// <summary>
 	/// Logica di interazione per AudioPlayer.xaml
@@ -21,6 +20,7 @@ namespace p2p_player
 		public AudioPlayer()
 		{
 			this.InitializeComponent();
+			
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}
 	}

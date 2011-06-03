@@ -77,7 +77,7 @@ namespace PeerPlayer
             this.localStream = new MemoryStream();
          //   svcHosts[0] = this.RunKademliaLayer(single, btpNode);
          //   svcHosts[2] = this.RunTransportLayer();
-            svcHosts[1] = this.RunInterfaceLayer();
+         //   svcHosts[1] = this.RunInterfaceLayer();
         }
 
         public void Configure(string httpPort = "-1", string tcpPort = "-1", string udpPort = "-1", string kademliaPort = "-1", string dbFile = "")
@@ -112,7 +112,16 @@ namespace PeerPlayer
 
         public void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes)
         {
-            this.transportLayer.start(RID, begin, length, nodes, this.localStream);
+            this.GetFlow(RID, begin, length, nodes, null);
+        }
+        public void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes, Stream stream = null)
+        {
+            Stream handlingStream = stream;
+            if (handlingStream == null)
+            {
+                handlingStream = this.localStream;
+            }
+            this.transportLayer.start(RID, begin, length, nodes, handlingStream);
         }
 
         public void StopFlow()
