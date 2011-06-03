@@ -126,24 +126,9 @@ namespace PeerPlayer
         #endregion
 
         #region interface
+
         public void Configure(string udpPort = "-1", string kademliaPort = "-1")
         {
-            this.localStream = new MemoryStream();
-         //   svcHosts[0] = this.RunKademliaLayer(single, btpNode);
-         //   svcHosts[2] = this.RunTransportLayer();
-         //   svcHosts[1] = this.RunInterfaceLayer();
-        }
-
-        public void Configure(string httpPort = "-1", string tcpPort = "-1", string udpPort = "-1", string kademliaPort = "-1", string dbFile = "")
-        {
-            if (httpPort != "-1")
-            {
-                PeerPlayer.Properties.Settings.Default.httpPort = httpPort;
-            }
-            if (tcpPort != "-1")
-            {
-                PeerPlayer.Properties.Settings.Default.tcpPort = tcpPort;
-            }
             if (udpPort != "-1")
             {
                 PeerPlayer.Properties.Settings.Default.udpPort = udpPort;
@@ -171,7 +156,7 @@ namespace PeerPlayer
             {
                 handlingStream = this.localStream;
             }
-            this.transportLayer.start(RID, begin, length, nodes, handlingStream);
+            this.transportLayer.Start(RID, begin, length, nodes, handlingStream);
         }
 
         public void StopFlow()
