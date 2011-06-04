@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace TransportService
 {
-    public class ThreadPoolObject
+    internal class ThreadPoolObject
     {
         public enum ThreadState { FREE, BUSY };
         private Thread threadWorker;

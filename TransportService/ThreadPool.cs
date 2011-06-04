@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TransportService
 {
-    public class ThreadPool
+    internal class ThreadPool
     {
         private ThreadPoolObject[] pool;
         private int poolSize;

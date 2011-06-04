@@ -15,6 +15,7 @@ using System.ServiceModel;
 using Persistence;
 using System.Configuration;
 using Metrics;
+using log4net;
 
 namespace Kademlia
 {
@@ -27,6 +28,7 @@ namespace Kademlia
 	public class Dht
 	{
 		private const int MAX_SIZE = 8 * 1024; // 8K is big
+        private static readonly ILog log = LogManager.GetLogger(typeof(Dht));
 		
 		private KademliaNode dhtNode;
 		
@@ -54,9 +56,9 @@ namespace Kademlia
                 if (btpNode == "")
                 {
                     int ourPort = dhtNode.GetPort();
-                    Console.WriteLine("We are on UDP port " + ourPort.ToString());
+                    log.Info("We are on UDP port " + ourPort.ToString());
 
-                    Console.WriteLine("Getting bootstrap list...");
+                    log.Info("Getting bootstrap list...");
 
                     AppSettingsReader asr = new AppSettingsReader();
                     XDocument xmlDoc = XDocument.Load((string)asr.GetValue("KademliaNodesFile", typeof(string)));
@@ -74,20 +76,20 @@ namespace Kademlia
                         // Each line is <ip> <port>
                         try
                         {
-                            Console.WriteLine("Bootstrapping with " + node.Host + ":" + node.Port);
+                            log.Debug("Bootstrapping with " + node.Host + ":" + node.Port);
                             EndpointAddress bootstrapNode = new EndpointAddress("soap.udp://" + node.Host + ":" + node.Port + "/kademlia");
                             if (dhtNode.Bootstrap(bootstrapNode))
                             {
-                                Console.WriteLine("OK!");
+                                log.Debug("OK!");
                             }
                             else
                             {
-                                Console.WriteLine("Failed.");
+                                log.Debug("Failed.");
                             }
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("Bad entry!");
+                            log.Error("Bad entry!", ex);
                         }
                     }
                 }
@@ -96,34 +98,34 @@ namespace Kademlia
                     // Each line is <ip> <port>
                     try
                     {
-                        Console.WriteLine("Bootstrapping with " + btpNode);
+                        log.Debug("Bootstrapping with " + btpNode);
                         EndpointAddress bootstrapNode = new EndpointAddress(btpNode);
                         if (dhtNode.Bootstrap(bootstrapNode))
                         {
-                            Console.WriteLine("OK!");
+                            log.Debug("OK!");
                         }
                         else
                         {
-                            Console.WriteLine("Failed.");
+                            log.Debug("Failed.");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Bad entry!");
+                        log.Error("Bad entry!", ex);
                     }
                 }
             }
             else
             {
-                Console.WriteLine("Self Bootstrapping");
+                log.Info("Self Bootstrapping");
                 dhtNode.Bootstrap();
             }
 			// Join the network officially
-			Console.WriteLine("Joining network...");
+			log.Info("Trying to join network....");
 			if(dhtNode.JoinNetwork()) {
-				Console.WriteLine("Online");
+				log.Info("Online");
 			} else {
-				Console.WriteLine("Unable to connect to Kademlia overlay!\n"
+				log.Warn("Unable to connect to Kademlia overlay!\n"
 				                   + "Check that nodes list has accessible nodes.");
 			}
 		}

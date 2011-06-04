@@ -12,6 +12,7 @@ using UdpTransportBinding;
 using Persistence.Tag;
 using Persistence;
 using System.Configuration;
+using log4net;
 
 namespace Kademlia
 {
@@ -79,7 +80,7 @@ namespace Kademlia
 		private static TimeSpan MAINTAINANCE_INTERVAL = new TimeSpan(0, 10, 0);
 		private Thread maintainanceMinder;
 
-		private bool debug = false;
+        private static readonly ILog log = LogManager.GetLogger(typeof(KademliaNode));
 		
 		#region Setup	
 		
@@ -137,25 +138,6 @@ namespace Kademlia
 			authMinder = new Thread(new ThreadStart(MindCaches));
 			authMinder.IsBackground = true;
 			authMinder.Start();
-			
-			// Set all the event handlers
-			/*GotMessage += HandleMessage;
-			GotResponse += CacheResponse;
-			
-			GotPing += HandlePing;
-			GotFindNode += HandleFindNode;
-			GotFindValue += HandleFindValue;
-			GotStoreQuery += HandleStoreQuery;
-			GotStoreResponse += HandleStoreResponse;
-			GotStoreData += HandleStoreData;*/
-			
-			// Connect
-/*			client = new UdpClient(port);
-			clientMinder = new Thread(new ThreadStart(MindClient));
-			clientMinder.IsBackground = true;
-			clientMinder.Start(); */
-			
-
 
 			// Start maintainance
 			maintainanceMinder = new Thread(new ThreadStart(MindMaintainance));
@@ -192,35 +174,28 @@ namespace Kademlia
 		/// Returns true if we are connected after all that, false otherwise.
 		/// </summary>
 		public bool JoinNetwork() {
-			Log("Joining");
+			log.Info("Joining network");
 			IList<Contact> found = IterativeFindNode(nodeID);
 			if(found == null) {
-				Log("Found <null list>");
+				log.Info("Found <null list>");
 			} else {
 				foreach(Contact c in found) {
-					Log("Found contact: " + c.ToString());
+					log.Info("Found contact: " + c.ToString());
 				}
 			}			
 			// Should get very nearly all of them
 			// RefreshBuckets(); // Put this off until first maintainance.
 			if(contactCache.GetCount() > 0) {
-				Log("Joined");
+				log.Info("Joined");
 				return true;
 			} else {
-				Log("Failed to join! No other nodes known!");
+				log.Info("Failed to join! No other nodes known!");
 				return false;
 			}
 		}
 		#endregion
 		
 		#region Interface
-		/// <summary>
-		/// Enables degugging output for the node.
-		/// </summary>
-		public void EnableDebug() 
-		{
-			this.debug = true;
-		}
 		
 		/// <summary>
 		/// Returns the ID of the node
@@ -274,9 +249,10 @@ namespace Kademlia
 		/// </summary>
 		private void MindMaintainance()
 		{
+            log.Info("Launched Maintenance thread!");
 			while(true) {
 				Thread.Sleep(MAINTAINANCE_INTERVAL);
-				Log("Performing maintainance");
+				log.Info("Performing maintainance");
 				// Expire old
 				datastore.Expire();
 				//Log(datastore.GetKeys().Count + " keys stored.");
@@ -284,7 +260,7 @@ namespace Kademlia
 				// Replicate all if needed
 				// We get our own lists to iterate
 				if(DateTime.Now > lastReplication.Add(REPLICATE_TIME)) {
-					Log("Replicating");
+					log.Debug("Replicating data");
                     foreach (KademliaResource kr in datastore.GetAllElements())
                     {
                         foreach (Persistence.DhtElement dhtEl in kr.Urls)
@@ -295,7 +271,7 @@ namespace Kademlia
                             }
                             catch (Exception ex)
                             {
-                                Log("Could not replicate: " + ex.ToString());
+                                log.Error("Could not replicate", ex);
                             }
                         }
                     }
@@ -304,7 +280,7 @@ namespace Kademlia
 				
 				// Refresh any needy buckets
 				RefreshBuckets();
-				Log("Done");
+				log.Info("Done Replication");
 			}
 		}
 		
@@ -313,12 +289,12 @@ namespace Kademlia
 		/// </summary>
 		private void RefreshBuckets()
 		{
-			Log("Refreshing buckets");
+			log.Info("Refreshing buckets");
 			IList<ID> toLookup = contactCache.IDsForRefresh(REFRESH_TIME);
 			foreach(ID key in toLookup) {
 				IterativeFindNode(key);
 			}
-			Log("Refreshed");
+			log.Info("Refreshed buckets");
 		}
 		
 		#endregion
@@ -328,7 +304,7 @@ namespace Kademlia
         private void IterativeStore(CompleteTag tag, DateTime originalInsertion, EndpointAddress endpoint = null)
         {
             IList<Contact> closest = IterativeFindNode(new ID(tag.TagHash));
-            Log("Storing at " + closest.Count + " nodes");
+            log.Info("Storing at " + closest.Count + " nodes");
             foreach (Contact c in closest)
             {
                 // Store a copy at each
@@ -643,7 +619,7 @@ namespace Kademlia
 				}
 				Thread.Sleep(CHECK_INTERVAL); // Otherwise wait for one
 			}
-			Log("Ping timeout");
+			log.Info("Ping timeout");
 			return false; // Nothing in time
 		}
 		#endregion
@@ -656,7 +632,7 @@ namespace Kademlia
 		/// <param name="msg"></param>
 		public void HandleMessage(Message msg)
 		{
-			Log(nodeID.ToString() + " got " + msg.Name + " from " + msg.SenderID.ToString());
+			log.Info(nodeID.ToString() + " got " + msg.Name + " from " + msg.SenderID.ToString());
 			SawContact(new Contact(msg.SenderID,new EndpointAddress(msg.NodeEndpoint)));
 		}
 		
@@ -668,6 +644,7 @@ namespace Kademlia
 		public void CacheResponse(Response response)
 		{
             HandleMessage(response);
+            log.Info("Caching response");
 			CachedResponse entry = new CachedResponse();
 			entry.arrived = DateTime.Now;
 			entry.response = response;
@@ -859,6 +836,7 @@ namespace Kademlia
 		/// </summary>
 		private void MindCaches()
 		{
+            log.Info("Starting cache manager");
 			while(true) {
 				// Do accepted requests
 				lock(acceptedStoreRequests) {
@@ -898,109 +876,6 @@ namespace Kademlia
 		#endregion
 		
 		#region Framework
-		/// <summary>
-		/// Handle incoming packets
-		/// </summary>
-/*		private void MindClient() {
-			while(true) {
-				try {
-					// Get a datagram
-					IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0); // Get from anyone
-					byte[] data = client.Receive(ref sender);
-					
-					// Decode the message
-					MemoryStream ms = new MemoryStream(data);
-					IFormatter decoder = new BinaryFormatter();
-					object got = null;
-					try {
-						got = decoder.Deserialize(ms);
-					} catch(Exception ex) {
-						Log("Invalid datagram!");
-					}
-					
-					// Process the message
-					if(got != null && got is Message) {
-						DispatchMessageEvents(sender, (Message) got);
-					} else {
-						Log("Non-message object!");
-					}
-				} catch (Exception ex) {
-					Log("Error recieving data: " + ex.ToString());
-				}
-			}
-		}*/
-		/*
-		/// <summary>
-		/// Sends out message events for the given message.
-		/// ADD NEW MESSAGE TYPES HERE
-		/// </summary>
-		/// <param name="msg"></param>
-		private void DispatchMessageEvents(IPEndPoint recievedFrom, Message msg) 
-		{
-			// Make a contact for the person who sent it.
-			Contact sender = new Contact(msg.SenderID, recievedFrom);
-			
-			// Every message gets this one
-			if(GotMessage != null)
-				GotMessage(sender, msg);
-			
-			// All responses get this one
-			if(msg is Response && GotResponse != null)
-				GotResponse(sender, (Response) msg);
-			
-			// All messages have special events
-			// TODO: Dynamically register from each message class instead of this ugly elsif?
-			if(msg is Ping) { // Pings
-				if(GotPing != null)
-					GotPing(sender, (Ping) msg);
-			} else if(msg is Pong) { // Pongs
-				if(GotPong != null)
-					GotPong(sender, (Pong) msg);
-			} else if(msg is FindNode) { // Node search
-				if(GotFindNode != null)
-					GotFindNode(sender, (FindNode) msg);
-			} else if(msg is FindNodeResponse) {
-				if(GotFindNodeResponse != null)
-					GotFindNodeResponse(sender, (FindNodeResponse) msg);
-			} else if(msg is FindValue) { // Key search
-				if(GotFindValue != null)
-					GotFindValue(sender, (FindValue) msg);
-			} else if(msg is FindValueContactResponse) {
-				if(GotFindValueContactResponse != null)
-					GotFindValueContactResponse(sender, (FindValueContactResponse) msg);
-			} else if(msg is FindValueDataResponse) {
-				if(GotFindValueDataResponse != null)
-					GotFindValueDataResponse(sender, (FindValueDataResponse) msg);
-			} else if(msg is StoreQuery) {
-				if(GotStoreQuery != null)
-					GotStoreQuery(sender, (StoreQuery) msg);
-			} else if(msg is StoreResponse) {
-				if(GotStoreResponse != null)
-					GotStoreResponse(sender, (StoreResponse) msg);
-			} else if(msg is StoreData) {
-				if(GotStoreData != null)
-					GotStoreData(sender, (StoreData) msg);
-			}
-		}
-		*/
-		/// <summary>
-		/// Send a mesaage to someone.
-		/// </summary>
-		/// <param name="msg"></param>
-		/// <param name="to"></param>
-		/*private void SendMessage(IPEndPoint destination, Message msg)
-		{
-			// Encode the message
-			MemoryStream ms = new MemoryStream();
-			IFormatter encoder = new BinaryFormatter();
-			encoder.Serialize(ms, msg);
-			byte[] messageData = ms.GetBuffer();
-			
-			Log(nodeID.ToString() + " sending " + msg.Name + " to " + destination.ToString());
-			
-			// Send it
-			client.Send(messageData, messageData.Length, destination);
-		}*/
 		
 		/// <summary>
 		/// Call this whenever we see a contact.
@@ -1027,6 +902,7 @@ namespace Kademlia
 		/// </summary>
 		private void MindBuckets()
 		{
+            log.Info("Starting buckets periodic manager.");
 			while(true) {
 				
 				// Handle all the queued contacts
@@ -1065,9 +941,9 @@ namespace Kademlia
 						if(!SyncPing(blocker.NodeEndPoint)) { // If the blocker doesn't respond, pick the applicant.
                             contactCache.Remove(blocker.NodeID);
 							contactCache.Put(applicant);
-							Log("Chose applicant");
+							log.Info("Chose applicant");
 						} else {
-							Log("Chose blocker");
+							log.Info("Chose blocker");
 						}
 					}
 					
@@ -1077,16 +953,6 @@ namespace Kademlia
 				// Wait for more
 				Thread.Sleep(CHECK_INTERVAL);
 			}
-		}
-		
-		/// <summary>
-		/// Log debug messages, if debugging is enabled.
-		/// </summary>
-		/// <param name="message"></param>
-		private void Log(string message)
-		{
-			if(this.debug)
-				Console.WriteLine(message);
 		}
 		#endregion
 		

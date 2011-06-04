@@ -1,12 +1,4 @@
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 7:20 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Net.NetworkInformation;

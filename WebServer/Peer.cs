@@ -10,6 +10,7 @@ using Kademlia;
 using System.ServiceModel.Description;
 using Persistence;
 using System.Threading.Tasks;
+using log4net;
 
 namespace PeerPlayer
 {
@@ -17,6 +18,7 @@ namespace PeerPlayer
     class Peer : IDisposable, IPeer
     {
         private TransportProtocol transportLayer;
+        private static readonly ILog log = LogManager.GetLogger(typeof(Peer));
         private Dht kademliaLayer;
         private Stream localStream;
         private ServiceHost[] svcHosts = new ServiceHost[3];
@@ -28,6 +30,7 @@ namespace PeerPlayer
 
         public Peer(bool single = false, string btpNode = "")
         {
+            log.Debug("Initializing peer structure");
             this.ConfOptions = new Dictionary<string, string>();
             this.ConfOptions["udpPort"] = PeerPlayer.Properties.Settings.Default.udpPort;
             this.ConfOptions["kadPort"] = PeerPlayer.Properties.Settings.Default.kademliaPort;
@@ -41,6 +44,7 @@ namespace PeerPlayer
 
         public void runLayers(bool withoutInterface=false)
         {
+            log.Debug("Running layers...");
             svcHosts[0] = this.runKademliaLayer(single, btpNode);
             svcHosts[1] = this.runTransportLayer();
             if(!withoutInterface)
@@ -50,26 +54,26 @@ namespace PeerPlayer
         #region layersInitialization
         private ServiceHost runInterfaceLayer()
         {
-            Console.WriteLine("Running Interface Layer.....");
+            log.Info("Running Interface Layer.");
             ServiceHost host = new ServiceHost(this);
             try
             {
                 host.Open();
             }
-            catch (AddressAlreadyInUseException)
+            catch (AddressAlreadyInUseException aaiue)
             {
-                Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
+                log.Error("Unable to Connect as a Server because there is already one on this machine", aaiue);
             }
             foreach (Uri uri in host.BaseAddresses)
             {
-                Console.WriteLine("\t{0}", uri.ToString());
+                log.Info(uri.ToString());
             }
             return host;
         }
 
         private ServiceHost runTransportLayer()
         {
-            Console.WriteLine("Running Transport Layer.....");
+            log.Info("Running Transport Layer.");
             string udpPort = this.ConfOptions["udpPort"];
             Uri[] addresses = new Uri[1];
             addresses[0] = new Uri("soap.udp://localhost:" + udpPort + "/transport_protocol/");
@@ -82,19 +86,18 @@ namespace PeerPlayer
                 #region Output dispatchers listening
                 foreach (Uri uri in host.BaseAddresses)
                 {
-                    Console.WriteLine("\t{0}", uri.ToString());
+                    log.Info(uri.ToString());
                 }
-                Console.WriteLine();
-                Console.WriteLine("\tNumber of dispatchers listening : {0}", host.ChannelDispatchers.Count);
+                log.Info("Number of dispatchers listening : " + host.ChannelDispatchers.Count);
                 foreach (System.ServiceModel.Dispatcher.ChannelDispatcher dispatcher in host.ChannelDispatchers)
                 {
-                    Console.WriteLine("\t\t{0}", dispatcher.Listener.Uri.ToString());
+                    log.Info(dispatcher.Listener.Uri.ToString());
                 }
                 #endregion
             }
             catch (AddressAlreadyInUseException aaiue)
             {
-                Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
+                log.Error("Unable to Connect as a Server because there is already one on this machine", aaiue);
                 throw aaiue;
             }
             return host;
@@ -102,6 +105,7 @@ namespace PeerPlayer
 
         private ServiceHost runKademliaLayer(bool single, string btpNode)
         {
+            log.Info("Running Kademlia layer.");
             string kademliaPort = this.ConfOptions["kadPort"];
             KademliaNode node = new KademliaNode(new EndpointAddress("soap.udp://localhost:"+kademliaPort+"/kademlia"));
             ServiceHost kadHost = new ServiceHost(node, new Uri("soap.udp://localhost:" + kademliaPort + "/kademlia"));
@@ -111,12 +115,12 @@ namespace PeerPlayer
             }
             catch (AddressAlreadyInUseException aaiue)
             {
-                Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
+                log.Error("Unable to Connect as a Server because there is already one on this machine", aaiue);
                 throw aaiue;
             }
             this.kademliaLayer = new Dht(node, single, btpNode);
             List<TrackModel.Track> list = new List<TrackModel.Track>();
-            Console.WriteLine("GetAll Response : " + this.trackRep.GetAll(list));
+            log.Debug("GetAll Response : " + this.trackRep.GetAll(list));
             Parallel.ForEach(list, t =>
             {
                 this.kademliaLayer.Put(t.Filename);
@@ -129,6 +133,7 @@ namespace PeerPlayer
 
         public void Configure(string udpPort = "-1", string kademliaPort = "-1")
         {
+            log.Info("Reconfiguring peer with " + (udpPort != "-1" ? "udpPort=" + udpPort : "") + (kademliaPort != "-1" ? "kademliaPort=" + kademliaPort : ""));
             if (udpPort != "-1")
             {
                 PeerPlayer.Properties.Settings.Default.udpPort = udpPort;
@@ -142,6 +147,7 @@ namespace PeerPlayer
 
         public Stream ConnectToStream()
         {
+            log.Info("Returning stream to requestor.");
             return this.localStream;
         }
 
@@ -151,6 +157,7 @@ namespace PeerPlayer
         }
         public void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes, Stream stream = null)
         {
+            log.Info("Beginning to get flow from the network");
             Stream handlingStream = stream;
             if (handlingStream == null)
             {
@@ -161,11 +168,13 @@ namespace PeerPlayer
 
         public void StopFlow()
         {
+            log.Info("Stop flow.");
             this.transportLayer.Stop();
         }
 
         public void StoreFile(string filename)
         {
+            log.Info("Storing file:" + filename);
             TrackModel track = new TrackModel(filename);
             this.trackRep.Save(track);
         }
@@ -184,7 +193,7 @@ namespace PeerPlayer
             {
                 if (args.Length % 2 != 0)
                 {
-                    Console.WriteLine("Error in parsing options");
+                    log.Error("Error in parsing options");
                     return;
                 }
                 else
@@ -219,75 +228,11 @@ namespace PeerPlayer
                 Console.WriteLine("Press <ENTER> to terminate Host");
                 Console.ReadLine();
             }
-
-        /*    if (args.Length < 1 || (args.Length >= 1 && args[0] != "configuration"))
-            {
-                string httpPort = WCFServiceHost.Properties.Settings.Default.httpPort;
-                string tcpPort = WCFServiceHost.Properties.Settings.Default.tcpPort;
-                string udpPort = WCFServiceHost.Properties.Settings.Default.udpPort;
-                Uri[] addresses = new Uri[1];
-          //      addresses[0] = new Uri("http://localhost:" + httpPort + "/TransportProtocol/");
-          //      addresses[0] = new Uri("net.tcp://localhost:" + tcpPort + "/TransportProtocol/");
-                addresses[0] = new Uri("soap.udp://localhost:" + udpPort + "/TransportProtocol/");
-                Type serviceType = typeof(TransportProtocol);
-                ServiceHost host = new ServiceHost(serviceType, addresses);
-                try
-                {
-                    host.Open();
-                    #region Output dispatchers listening
-                    foreach (Uri uri in host.BaseAddresses)
-                    {
-                        Console.WriteLine("\t{0}", uri.ToString());
-                    }
-                    Console.WriteLine();
-                    Console.WriteLine("Number of dispatchers listening : {0}", host.ChannelDispatchers.Count);
-                    foreach (System.ServiceModel.Dispatcher.ChannelDispatcher dispatcher in host.ChannelDispatchers)
-                    {
-                        Console.WriteLine("\t{0}, {1}", dispatcher.Listener.Uri.ToString(), dispatcher.BindingName);
-                    }
-
-                    Console.WriteLine();
-                    Console.WriteLine("Press <ENTER> to terminate Host");
-                    Console.ReadLine();
-                    #endregion
-                }
-                catch (AddressAlreadyInUseException)
-                {
-                    Console.WriteLine("Unable to Connect as a Server because there is already one on this machine");
-                }
-            }
-            //Example CODE
-            if(args.Length >= 1 && args[0] != "configuration") {
-//                ChunkRequest chkrq = new ChunkRequest(System.Convert.ToInt32(args[0]), args[1], System.Convert.ToInt32(args[2]));
-/*                Transferer tsf = new Transferer();
-                Dictionary<string, float> p2p = new Dictionary<string,float>();
-                p2p["net.tcp://localhost:9999/TransportProtocol"] = (float)0.50;
-                System.Console.WriteLine("AAAAAAAAAAAAA");
-                System.Console.WriteLine(p2p.Count());
-                MemoryStream s = new MemoryStream();
-                tsf.start("AIAIA", 2, 1000, p2p, s);
-                StreamReader sr = new StreamReader(s);
-                while (true)
-                {
-                    while (sr.Peek() >= 0) 
-                    {
-                        Console.Write("AAA" + (char)sr.Read());
-                    }
-                }
-//                Console.WriteLine("Remote Serving Buffer is: {0}", result.ServingBuffer);
-            }
-            else if (args.Length >= 1 && args[0] == "configuration")
-            {
-                Console.WriteLine("New Http Port:");
-                WCFServiceHost.Properties.Settings.Default.httpPort = Console.ReadLine();
-                Console.WriteLine("New Tcp Port:");
-                WCFServiceHost.Properties.Settings.Default.tcpPort = Console.ReadLine();
-                WCFServiceHost.Properties.Settings.Default.Save();
-            }*/
         }
 
         public void Dispose()
         {
+            log.Info("Disposing Peer");
             foreach (ServiceHost svcHost in this.svcHosts)
             {
                 if(svcHost != null)

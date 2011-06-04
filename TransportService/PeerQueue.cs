@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace TransportService
 {
-    class PeerQueue
+    internal class PeerQueue
     {
         private Dictionary<string, PeerQueueElement> peerQueue;
         private AutoResetEvent peerQueueNotEmpty = new AutoResetEvent(true);
@@ -35,8 +35,6 @@ namespace TransportService
                 this.peerQueueNotEmpty.WaitOne();
             }
             this.peerQueueNotEmpty.Reset();
-            Console.WriteLine("getbestpeer");
-            Console.WriteLine(this.peerQueue.Count());
             PeerQueueElement best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value.PeerScore > r.Value.PeerScore ? l : r).Value;
             best.State = PeerQueueElement.ThreadState.BUSY;
             best.TimedPeerBlock(3000);

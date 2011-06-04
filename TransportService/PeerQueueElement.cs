@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace TransportService
 {
-    class PeerQueueElement
+    internal class PeerQueueElement
     {
         public enum ThreadState { FREE, BUSY };
 

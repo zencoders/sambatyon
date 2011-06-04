@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TransportService
 {
-    class BufferChunk
+    internal class BufferChunk
     {
         public enum condition { CLEAN, DIRTY, DOWNLOADED };
 
