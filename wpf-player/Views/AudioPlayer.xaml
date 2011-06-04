@@ -5,25 +5,25 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
 	xmlns:local="clr-namespace:wpf_player"
-	x:Class="wpf_player.AudioPlayer" d:DesignHeight="114">
-	<UserControl.Resources>
-		<local:AudioPlayerModel x:Key="AudioPlayerModelDataSource" />
-	</UserControl.Resources>
-
-	<Grid x:Name="LayoutRoot" DataContext="{Binding Source={StaticResource AudioPlayerModelDataSource}}" VerticalAlignment="Top" RenderTransformOrigin="0.479,1.207" Height="114">
+	x:Class="wpf_player.AudioPlayer" d:DesignHeight="114">    
+	<Grid x:Name="LayoutRoot" 
+          VerticalAlignment="Top" 
+          RenderTransformOrigin="0.479,1.207" 
+          Height="114"
+          >
 		<Grid.RowDefinitions>
 			<RowDefinition/>
 			<RowDefinition Height="0"/>
 			<RowDefinition Height="0*"/>
 		</Grid.RowDefinitions>
 		<StackPanel x:Name="PlayerButtonPanel" HorizontalAlignment="Left" Margin="11,17,0,49" Width="178" Orientation="Horizontal">
-			<Button x:Name="PlayButton" HorizontalAlignment="Left" Width="52" Height="48" Margin="0,0,10,0" DataContext="{Binding Play, Mode=OneWay}">
+            <Button x:Name="PlayButton" HorizontalAlignment="Left" Width="52" Height="48" Margin="0,0,10,0" Command="{Binding Path=Play}">
 				<Image Height="32" Source="playback_play.png" Stretch="Fill" Width="32"/>
 			</Button>
-			<Button x:Name="PauseButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" DataContext="{Binding Pause, Mode=OneWay}">
+			<Button x:Name="PauseButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Path=Pause}" >
 				<Image Height="32" Source="playback_pause.png" Stretch="Fill" Width="32"/>
 			</Button>
-			<Button x:Name="StopButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" DataContext="{Binding Stop, Mode=OneWay}">
+			<Button x:Name="StopButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Path=Stop}">
 				<Image Height="32" Source="playback_stop.png" Stretch="Fill" Width="32"/>
 			</Button>
 		</StackPanel>
@@ -41,11 +41,18 @@
 			<TextBlock Margin="0,29,2,29" TextWrapping="Wrap" Text="TextBlock" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right" Width="218"/>
 			<TextBlock Margin="0,0,2,4" TextWrapping="Wrap" Text="TextBlock" FontWeight="Bold" Height="21" VerticalAlignment="Bottom" Foreground="White" HorizontalAlignment="Right" Width="218"/>
 		</Grid>
-		<Slider HorizontalAlignment="Right" Margin="0,8,27,49" Width="27" Orientation="Vertical" ToolTipService.ToolTip="Volume"/>
+		<Slider HorizontalAlignment="Right" Margin="0,8,27,49" Width="27" Orientation="Vertical"                 
+                ToolTipService.ToolTip="Volume" 
+                Maximum="{Binding Path=MaxVolume}"
+                Minimum="0"
+                TickFrequency="0.05"
+                Value="{Binding Path=Volume,Mode=TwoWay}"
+                />
 		<Grid Margin="8,0,27,3" Height="38" VerticalAlignment="Bottom">
-			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="00:00" TextAlignment="Right" Foreground="White" Margin="8,8,0,8" d:LayoutOverrides="HorizontalAlignment"/>
-			<Slider x:Name="TrackSlider" Margin="56,8,53,8" MinWidth="430"/>
-			<TextBlock x:Name="CurrentTimeLabel_Copy" TextWrapping="Wrap" Text="00:00" TextAlignment="Right" Foreground="White" Margin="845,8,8,8"/>
+			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Path=Position,Converter={local:LengthConverter}}"  TextAlignment="Right" Foreground="White" Margin="8,8,0,8" d:LayoutOverrides="HorizontalAlignment"/>
+            <Slider x:Name="TrackSlider" Margin="56,8,53,8" MinWidth="430" TickFrequency="0.5" Value="{Binding Path=Position,Mode=TwoWay}" Minimum="0" Maximum="{Binding Path=Length}">
+            </Slider>
+            <TextBlock x:Name="TotalLengthLabel" TextWrapping="Wrap" Text="{Binding Path=Length,Converter={local:LengthConverter}}" TextAlignment="Right" Foreground="White" Margin="845,8,8,8"/>
 		</Grid>
 	</Grid>
 </UserControl>

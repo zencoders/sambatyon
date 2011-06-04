@@ -5,7 +5,8 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
 	x:Class="wpf_player.MainWindow"
 	x:Name="Window" 
-	Title="P2P-Player" Foreground="White" SizeToContent="Width" WindowStartupLocation="CenterScreen" Height="600" d:DesignWidth="847.48">
+	Title="P2P-Player" Foreground="White" SizeToContent="Width" WindowStartupLocation="CenterScreen" Height="600" d:DesignWidth="847.48"    
+    >
 	<Window.Background>
 		<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
 			<GradientStop Color="Black" Offset="0.474"/>
@@ -35,8 +36,9 @@
 		<local:AudioPlayer Margin="8,2,8,0" Grid.Row="1"/>
 		<local:SearchList Margin="8,8,8,0" Grid.Row="2"/>
 		<Menu IsMainMenu="True" Grid.Row="0">
-			<MenuItem Header="_Aiuto">
-				<MenuItem Header="_Informazioni"/>
+			<MenuItem Header="_Aiuto" IsEnabled="True">
+				<MenuItem Header="_Informazioni">
+				</MenuItem>
 			</MenuItem>
 		</Menu>
 	</Grid>

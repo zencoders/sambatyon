@@ -92,7 +92,7 @@ namespace Tag
                 if (AudioHeader.Find(out header, mpegFile, 0))
                 {
                     this.Bitrate = header.AudioBitrate;
-                    this.Length = mpegFile.Properties.Duration.Seconds;
+                    this.Length = (int)mpegFile.Properties.Duration.TotalSeconds;
                     this.Channels = header.AudioChannels;
                     this.SampleRate = header.AudioSampleRate;
                 }

@@ -85,11 +85,6 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service References\PeerPlayer\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="ViewModels\AudioPlayerModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SearchListModel.cs" />
@@ -108,27 +103,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
-    <None Include="Service References\PeerPlayer\item.disco" />
-    <None Include="Service References\PeerPlayer\configuration91.svcinfo" />
-    <None Include="Service References\PeerPlayer\configuration.svcinfo" />
-    <None Include="Service References\PeerPlayer\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <Content Include="ServiceReferences.ClientConfig" />
-    <None Include="Service References\PeerPlayer\item.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PeerPlayer\item1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PeerPlayer\item2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PeerPlayer\item3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PeerPlayer\Peer.wsdl" />
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -172,9 +147,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\PeerPlayer\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>

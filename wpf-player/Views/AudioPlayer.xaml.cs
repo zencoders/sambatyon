@@ -17,11 +17,18 @@ namespace wpf_player
 	/// </summary>
 	public partial class AudioPlayer : UserControl
 	{
+        private AudioPlayerModel vm= new AudioPlayerModel();
 		public AudioPlayer()
 		{
 			this.InitializeComponent();
-			
+            this.DataContext = vm;
+            this.Dispatcher.ShutdownStarted += new EventHandler(Dispatcher_ShutdownStarted);
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}
+
+        void Dispatcher_ShutdownStarted(object sender, EventArgs e)
+        {
+            vm.Dispose();
+        }
 	}
 }

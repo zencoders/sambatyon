@@ -5,7 +5,7 @@ using System.Windows.Data;
 using System.ComponentModel;
 using System.Windows.Controls;
 using System.IO;
-using p2p_player.PeerPlayer;
+//using p2p_player.PeerPlayer;
 using System.Windows;
 using System.Net.Sockets;
 
@@ -14,15 +14,15 @@ namespace p2p_player
 	public class AudioPlayerModel : INotifyPropertyChanged,IDisposable
 	{
         public MediaElement media = new MediaElement();
-        public PeerClient peer= new PeerClient();
+        //public PeerClient peer= new PeerClient();
         public Socket sk= new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
 		public AudioPlayerModel()
 		{            
-            peer.ConnectToStreamAsync();
-            peer.CloseAsync();
+            //peer.ConnectToStreamAsync();
+            //peer.CloseAsync();
             //media.SetSource(s);            
 		}    
-        private void connectToStream_completed(object obj, ConnectToStreamCompletedEventArgs args)
+        /*private void connectToStream_completed(object obj, ConnectToStreamCompletedEventArgs args)
         {
             if (args.Error != null)
             {
@@ -30,7 +30,7 @@ namespace p2p_player
                 return;
             }
             MessageBox.Show(args.Result.Length.ToString());
-        }
+        }*/
         public void Stop()
         {
             media.Stop();
@@ -63,7 +63,7 @@ namespace p2p_player
 
         public void Dispose()
         {
-            peer.CloseAsync();
+            //peer.CloseAsync();
         }
 
         #endregion
