@@ -62,11 +62,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AboutDialog.xaml.cs">
+      <DependentUpon>AboutDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ByteSizeConverter.cs" />
     <Compile Include="CanExecuteCommand.cs" />
+    <Compile Include="DefaultValueConverter.cs" />
+    <Compile Include="LengthConverter.cs" />
     <Compile Include="ViewModels\SearchListModel.cs" />
     <Compile Include="Views\SearchList.xaml.cs">
       <DependentUpon>SearchList.xaml</DependentUpon>
     </Compile>
+    <Page Include="AboutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -103,6 +113,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\info_black.png" />
+    <Resource Include="info_black.png" />
+    <Resource Include="MyIco.ico" />
+    <Resource Include="Views\media_volume_2_inv.png" />
     <Resource Include="Views\playback_pause.png" />
     <Resource Include="Views\playback_play.png" />
     <Resource Include="Views\playback_stop.png" />

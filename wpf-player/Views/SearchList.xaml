@@ -6,19 +6,35 @@
 	mc:Ignorable="d"
 	xmlns:local="clr-namespace:wpf_player"
 	x:Class="wpf_player.SearchList"
-	d:DesignWidth="640" d:DesignHeight="480">
-	<UserControl.Resources>
-		<local:SearchListModel x:Key="SearchListModelDataSource" />
-	</UserControl.Resources>
+	d:DesignWidth="640" d:DesignHeight="480">	
 
-	<Grid x:Name="LayoutRoot" DataContext="{Binding Source={StaticResource SearchListModelDataSource}}">
+	<Grid x:Name="LayoutRoot">
 		<Grid Margin="8">
 			<ScrollViewer Margin="8,50,8,8">
-				<DataGrid/>
-			</ScrollViewer>
-			<TextBox Height="24" Margin="140,15,106,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <DataGrid 
+                    ItemsSource="{Binding Path=QueryResponse,Mode=OneWay}" 
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" 
+                    AlternatingRowBackground="LightGray" CanUserResizeRows="False" >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Path=Tag.Title}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Artist" Binding="{Binding Path=Tag.Artist}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Duration" Binding="{Binding Path=Tag.Length,Converter={local:LengthConverter}}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Size" Binding="{Binding Path=Tag.FileSize,Converter={local:ByteSizeConverter}}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+			<TextBox Height="24" Margin="140,15,106,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="{Binding Path=Query,Mode=TwoWay}"/>
 			<TextBlock HorizontalAlignment="Left" Height="24" Margin="8,15,0,0" TextWrapping="Wrap" Text="Search Query" VerticalAlignment="Top" Width="128" FontWeight="Bold" FontSize="13.333" Foreground="White"/>
-			<Button Content="Search" HorizontalAlignment="Right" Height="24" Margin="0,15,8,0" VerticalAlignment="Top" Width="94" BorderThickness="1"/>
+			<Button 
+                Content="Search" 
+                HorizontalAlignment="Right" 
+                Height="24" 
+                Margin="0,15,8,0" 
+                VerticalAlignment="Top" 
+                Width="94" 
+                BorderThickness="1"
+                Command="{Binding Path=Search,Mode=OneWay}"
+            />
 		</Grid>
 	</Grid>
 </UserControl>

@@ -22,5 +22,17 @@ namespace wpf_player
 			this.InitializeComponent();
 			// Insert code required on object creation below this point.
 		}
+
+		private void MenuItem_Click(object sender, System.Windows.RoutedEventArgs e)
+		{
+			this.Close();
+		}
+
+        private void about_item_Click(object sender, RoutedEventArgs e)
+        {
+            AboutDialog dlg = new AboutDialog();
+            dlg.Owner = this;
+            dlg.ShowDialog();
+        }
 	}
 }

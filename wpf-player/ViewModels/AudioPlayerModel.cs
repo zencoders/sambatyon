@@ -11,46 +11,11 @@ using NAudio.Wave;
 using System.Windows.Input;
 using Persistence;
 using System.Windows.Markup;
+using Persistence.Tag;
 
 
 namespace wpf_player
 {
-    public class LengthConverter : MarkupExtension,IValueConverter
-    {
-        public LengthConverter() { }
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            double ll = (double)value;
-            TimeSpan ts = TimeSpan.FromSeconds(ll);
-            StringBuilder sb=new StringBuilder();
-            sb.Append(((long)ts.TotalMinutes).ToString().PadLeft(2,'0'));
-            sb.Append(":");
-            sb.Append(ts.Seconds.ToString().PadLeft(2,'0'));
-            return sb.ToString();
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            string str = value as string;
-            string[] splitted = str.Split(':');
-            if (splitted.Length==2)
-            {
-                TimeSpan ts = TimeSpan.FromMinutes(Double.Parse(splitted[0]));
-                TimeSpan ts_sec=TimeSpan.FromSeconds(Double.Parse(splitted[1]));
-                ts.Add(ts_sec);
-                return (int)ts.TotalSeconds;
-            } else
-            {
-                return 0;
-            }
-        }
-
-        public override object ProvideValue(IServiceProvider serviceProvider)
-        {
-            return this;
-        }
-    }
-
 	public class AudioPlayerModel : INotifyPropertyChanged,IDisposable
 	{
         private Stream localstream;
@@ -61,9 +26,9 @@ namespace wpf_player
         private IWavePlayer player = new WaveOut();
         //private Mp3Reader wr = null;
         private double pos = 0;
-        private int seconds = 3;
-        private int len = 0;
-        private AlwaysExecuteCommand playCmd;
+        //private int seconds = 3;
+        //private int len = 0;
+        //private AlwaysExecuteCommand playCmd;
 		public AudioPlayerModel()
 		{
             //player.Done += new PlayerEx.DoneEventHandler(player_Done);
@@ -78,6 +43,20 @@ namespace wpf_player
             Prova = "PPPPPPPPPPPPPPP";
 		}
         #region Properties
+        public CompleteTag ResourceTag
+        {
+            get
+            {
+                if (rsc != null)
+                {
+                    return rsc.Tag;
+                }
+                else
+                {
+                    return new CompleteTag();
+                }
+            }
+        }
         public string Prova
         {
             get;
@@ -178,6 +157,7 @@ namespace wpf_player
             if (player.PlaybackState != PlaybackState.Paused)            
             {
                 rsc = new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3");
+                NotifyPropertyChanged("ResourceTag");
                 NotifyPropertyChanged("Position");
                 NotifyPropertyChanged("Length");
                 localstream = new FileStream(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3",FileMode.Open);                

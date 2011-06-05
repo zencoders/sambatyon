@@ -13,17 +13,20 @@ using System.Windows.Shapes;
 namespace wpf_player
 {
 	/// <summary>
-	/// Logica di interazione per SearchList.xaml
-	/// </summary>    
-	public partial class SearchList : UserControl
+	/// Logica di interazione per AboutDialog.xaml
+	/// </summary>
+	public partial class AboutDialog : Window
 	{
-        private SearchListModel vm = new SearchListModel();
-		public SearchList()
+		public AboutDialog()
 		{
-
 			this.InitializeComponent();
-            this.DataContext = vm;
+			
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
+		}
+
+		private void okButton_Click(object sender, System.Windows.RoutedEventArgs e)
+		{
+			this.Close();
 		}
 	}
 }
