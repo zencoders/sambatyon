@@ -25,5 +25,6 @@ namespace wpf_player
             this.DataContext = vm;
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}
+
 	}
 }

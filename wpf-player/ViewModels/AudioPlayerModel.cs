@@ -218,7 +218,7 @@ namespace wpf_player
             }
             if (wc!=null)
             {
-                MessageBox.Show(wc.Position.ToString());
+                //MessageBox.Show(wc.Position.ToString());
                 wc.Close();
                 wc = null;
             }
@@ -231,7 +231,7 @@ namespace wpf_player
         #endregion
         public void playback_stopped(object sender, EventArgs args)
         {
-            MessageBox.Show(args.ToString());
+            //MessageBox.Show(args.ToString());
             this.stop();
         }
         /*private void ReadData()

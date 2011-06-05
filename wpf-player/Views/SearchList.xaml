@@ -12,14 +12,84 @@
 		<Grid Margin="8">
 			<ScrollViewer Margin="8,50,8,8">
                 <DataGrid 
+                    Name="ResultsGrid"
                     ItemsSource="{Binding Path=QueryResponse,Mode=OneWay}" 
-                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" 
-                    AlternatingRowBackground="LightGray" CanUserResizeRows="False" >
+                    AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                    AlternatingRowBackground="LightGray" CanUserResizeRows="False" Grid.Column="0" Grid.Row="1"
+                    RowDetailsVisibilityMode="VisibleWhenSelected" RowHeaderWidth="0"
+                    >                                             
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate>
+                            <Grid Margin="5,5,5,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Border HorizontalAlignment="Left" BorderThickness="0,0,0,1" BorderBrush="Black" 
+                                        Height="20" Width="200"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6">
+                                    <TextBlock HorizontalAlignment="Left"  FontWeight="Bold" FontSize="12">
+                                        Dettagli Traccia
+                                    </TextBlock>
+                                </Border>
+                                <TextBlock Grid.Row="1" Grid.Column="0" FontSize="10" FontWeight="Bold" Text="Track:"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Tag.Track}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" FontSize="10" FontWeight="Bold" Text="Title:"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=Tag.Title}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" FontSize="10" FontWeight="Bold" Text="Artist:"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=Tag.Artist}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="0" FontSize="10" FontWeight="Bold" Text="Album:"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Path=Tag.Album}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="0" FontSize="10" FontWeight="Bold" Text="Genre:"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Path=Tag.Genre}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" FontSize="10" FontWeight="Bold" Text="Year:"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Path=Tag.Year}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="2" FontSize="10" FontWeight="Bold" Text="Bitrate (kbps):"/>
+                                <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding Path=Tag.Bitrate}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="2" FontSize="10" FontWeight="Bold" Text="Duration:"/>
+                                <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding Path=Tag.Length,Converter={local:LengthConverter}}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="2" FontSize="10" FontWeight="Bold" Text="File Size:"/>
+                                <TextBlock Grid.Row="4" Grid.Column="3" Text="{Binding Path=Tag.FileSize,Converter={local:ByteSizeConverter}}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="2" FontSize="10" FontWeight="Bold" Text="Sample Rate (Hz):"/>
+                                <TextBlock Grid.Row="5" Grid.Column="3" Text="{Binding Path=Tag.SampleRate}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="4" FontSize="10" FontWeight="Bold" Text="Channels:"/>
+                                <TextBlock Grid.Row="1" Grid.Column="5" Text="{Binding Path=Tag.Channels}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="4" FontSize="10" FontWeight="Bold" Text="Resource Identifier:"/>
+                                <TextBlock Grid.Row="2" Grid.Column="5" Text="{Binding Path=Tag.TagHash}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="4" FontSize="10" FontWeight="Bold" Text="File Identifier:"/>
+                                <TextBlock Grid.Row="3" Grid.Column="5" Text="{Binding Path=Tag.FileHash}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="4" FontSize="10" FontWeight="Bold" Text="Number of Peer:"/>
+                                <TextBlock Grid.Row="4" Grid.Column="5" Text="{Binding Path=Urls.Count}"/>
+                            </Grid>                            
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Title" Binding="{Binding Path=Tag.Title}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Artist" Binding="{Binding Path=Tag.Artist}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Duration" Binding="{Binding Path=Tag.Length,Converter={local:LengthConverter}}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Size" Binding="{Binding Path=Tag.FileSize,Converter={local:ByteSizeConverter}}" CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Path=Tag.Title}" MinWidth="250"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True">                                
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Artist" Binding="{Binding Path=Tag.Artist}" MinWidth="200"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>                        
+                        <DataGridTextColumn Header="Size" Binding="{Binding Path=Tag.FileSize,Converter={local:ByteSizeConverter}}" MinWidth="80"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Peers" Binding="{Binding Path=Urls.Count}" MinWidth="40"
+                                            CanUserResize="True" CanUserSort="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Duration" Binding="{Binding Path=Tag.Length,Converter={local:LengthConverter}}" MinWidth="60" 
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Bitrate" Binding="{Binding Path=Tag.Bitrate}" MinWidth="45"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Resource Identifier" Binding="{Binding Path=Id}" MinWidth="200" Width="*"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </ScrollViewer>

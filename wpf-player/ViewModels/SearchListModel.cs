@@ -18,6 +18,7 @@ namespace wpf_player
 		{
             Query = "";
             Search = new AlwaysExecuteCommand(searchFn);
+            Search.Execute(null);
         }
         #region Property
         public IList<KademliaResource> QueryResponse
@@ -51,7 +52,7 @@ namespace wpf_player
         #region Command Backfunction
         private void searchFn(object args=null)
         {
-            MessageBox.Show(Query);
+            //MessageBox.Show(Query);
             List<KademliaResource> res= new List<KademliaResource>();
             res.Add(new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3",new DhtElement() { Url = new Uri("http://localhost:1292") }));
             res.Add(new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\SevenMP3.mp3",new DhtElement() { Url = new Uri("http://localhost:5213") },new DhtElement() { Url = new Uri("http://localhost:5411") }));
