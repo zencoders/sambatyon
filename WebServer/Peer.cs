@@ -11,6 +11,8 @@ using System.ServiceModel.Description;
 using Persistence;
 using System.Threading.Tasks;
 using log4net;
+using System.Net;
+using System.Net.Sockets;
 
 namespace PeerPlayer
 {
@@ -25,6 +27,7 @@ namespace PeerPlayer
         private bool single;
         private string btpNode;
         private Persistence.Repository trackRep;
+        private string peerAddress;
 
         public Dictionary<string, string> ConfOptions {get; set;}
 
@@ -40,6 +43,16 @@ namespace PeerPlayer
             AppSettingsReader asr = new AppSettingsReader();
             Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(new { data_dir = (string)asr.GetValue("TrackRepository", typeof(string)) });
             this.trackRep = Persistence.RepositoryFactory.GetRepositoryInstance("Raven", conf);
+            IPHostEntry IPHost = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress[] listaIP = IPHost.AddressList;
+            foreach (IPAddress ip in listaIP)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    this.peerAddress = ip.ToString();
+                    break;
+                }
+            }
         }
 
         public void runLayers(bool withoutInterface=false)
@@ -76,7 +89,7 @@ namespace PeerPlayer
             log.Info("Running Transport Layer.");
             string udpPort = this.ConfOptions["udpPort"];
             Uri[] addresses = new Uri[1];
-            addresses[0] = new Uri("soap.udp://localhost:" + udpPort + "/transport_protocol/");
+            addresses[0] = new Uri("soap.udp://"+this.peerAddress+":" + udpPort + "/transport_protocol/");
             TransportProtocol tsp = new TransportProtocol(addresses[0], this.trackRep);
             this.transportLayer = tsp;
             ServiceHost host = new ServiceHost(tsp, addresses);
@@ -107,8 +120,8 @@ namespace PeerPlayer
         {
             log.Info("Running Kademlia layer.");
             string kademliaPort = this.ConfOptions["kadPort"];
-            KademliaNode node = new KademliaNode(new EndpointAddress("soap.udp://localhost:"+kademliaPort+"/kademlia"));
-            ServiceHost kadHost = new ServiceHost(node, new Uri("soap.udp://localhost:" + kademliaPort + "/kademlia"));
+            KademliaNode node = new KademliaNode(new EndpointAddress("soap.udp://"+this.peerAddress+":"+kademliaPort+"/kademlia"));
+            ServiceHost kadHost = new ServiceHost(node, new Uri("soap.udp://"+this.peerAddress+":" + kademliaPort + "/kademlia"));
             try
             {
                 kadHost.Open();
