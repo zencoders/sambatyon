@@ -56,7 +56,7 @@
             	<local:PositionIndicator x:Name="position_indicator" Canvas.Top="22" d:LayoutOverrides="Width, Height" Visibility="Hidden"/>
             </Canvas>
 			<Slider 
-				x:Name="TrackSlider" Margin="56,8,81,8" TickFrequency="1024" 
+				x:Name="TrackSlider" Margin="56,8,81,8" TickFrequency="4096" 
 				Value="{Binding Position, Mode=TwoWay}" Minimum="0" Maximum="{Binding BigBufferSize}"
 				MouseEnter="Slider_MouseEnter" MouseMove="Slider_MouseEnter" MouseLeave="TrackSlider_MouseLeave" Thumb.DragStarted="TrackSlider_DragStarted" Thumb.DragCompleted="TrackSlider_DragCompleted"                     
                     d:LayoutOverrides="Height"
