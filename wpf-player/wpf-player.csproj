@@ -69,6 +69,10 @@
     <Compile Include="CanExecuteCommand.cs" />
     <Compile Include="DefaultValueConverter.cs" />
     <Compile Include="LengthConverter.cs" />
+    <Compile Include="ObservableStream.cs" />
+    <Compile Include="PositionIndicator.xaml.cs">
+      <DependentUpon>PositionIndicator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\SearchListModel.cs" />
     <Compile Include="Views\SearchList.xaml.cs">
       <DependentUpon>SearchList.xaml</DependentUpon>
@@ -93,6 +97,10 @@
     <Compile Include="Views\AudioPlayer.xaml.cs">
       <DependentUpon>AudioPlayer.xaml</DependentUpon>
     </Compile>
+    <Page Include="PositionIndicator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\SearchList.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -1,0 +1,29 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="wpf_player.PositionIndicator"
+	d:DesignWidth="39" Height="32" Foreground="White" Width="40">
+
+	<Grid x:Name="LayoutRoot">
+		<Rectangle Height="17" Stroke="#FF9D9D9D" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,15,0,0" RenderTransformOrigin="0.5,0.294" RadiusX="5" RadiusY="5">
+			<Rectangle.Fill>
+				<RadialGradientBrush>
+					<GradientStop Color="Black"/>
+					<GradientStop Color="#FF353333" Offset="1"/>
+				</RadialGradientBrush>
+			</Rectangle.Fill>
+		</Rectangle>
+		<TextBlock Name="TimePositionLabel" TextWrapping="Wrap" Margin="0,0,0,-4.5" TextAlignment="Center" FontFamily="Arial" FontSize="10.667" FontWeight="Bold" Height="19" VerticalAlignment="Bottom"><Run Language="it-it" Text="00:00"/><LineBreak/><Run Language="it-it"/><LineBreak/></TextBlock>
+		<Path Data="M19.25,16 L19,0" Margin="19.5,-0.75,19.5,0" Stretch="Fill" Stroke="#FF9D9D9D" Height="16.75" VerticalAlignment="Top">
+			<Path.Fill>
+				<RadialGradientBrush>
+					<GradientStop Color="Black"/>
+					<GradientStop Color="#FF353333" Offset="1"/>
+				</RadialGradientBrush>
+			</Path.Fill>
+		</Path>
+	</Grid>
+</UserControl>

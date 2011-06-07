@@ -40,11 +40,12 @@
 			<TextBlock Margin="0,29,2,29" TextWrapping="Wrap" Text="TextBlock" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right" Width="218"/>
 			<TextBlock Margin="0,0,2,4" TextWrapping="Wrap" Text="TextBlock" FontWeight="Bold" Height="21" VerticalAlignment="Bottom" Foreground="White" HorizontalAlignment="Right" Width="218"/>
 		</Grid>
-		<Slider HorizontalAlignment="Right" Margin="0,8,276,48" Width="27" Orientation="Vertical" ToolTipService.ToolTip="Volume"/>
+		<Slider HorizontalAlignment="Right" Margin="0,8,276,40" Width="27" Orientation="Vertical" ToolTipService.ToolTip="Volume"/>
 		<Grid Margin="8,0,276,3" VerticalAlignment="Bottom" Height="37">
 			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="00:00" TextAlignment="Right" Foreground="White" Margin="8,8,0,8" d:LayoutOverrides="HorizontalAlignment"/>
-			<Slider x:Name="TrackSlider" Margin="56,8,53,8" MinWidth="430"/>
-			<TextBlock x:Name="CurrentTimeLabel_Copy" TextWrapping="Wrap" Text="00:00" TextAlignment="Right" Foreground="White" Margin="845,8,8,8"/>
+			<Slider x:Name="TrackSlider" Margin="56,8,78,8" MinWidth="430"/>
+			<TextBlock x:Name="CurrentTimeLabel_Copy" TextWrapping="Wrap" Text="00:00" TextAlignment="Right" Foreground="White" Margin="812,8,41,8"/>
+			<Image HorizontalAlignment="Right" Margin="0,1,0,8" Source="media_volume_2_inv.png" Stretch="Fill" Width="27"/>
 		</Grid>
 	</Grid>
 </UserControl>

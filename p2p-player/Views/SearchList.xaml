@@ -13,8 +13,12 @@
 	</UserControl.Resources>
 
 	<Grid x:Name="LayoutRoot" DataContext="{Binding Source={StaticResource SearchListModelDataSource}}">
-		<Grid Margin="8">
-			<ScrollViewer Margin="8,50,45,8">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="0.108*"/>
+			<RowDefinition Height="0.892*"/>
+		</Grid.RowDefinitions>
+		<Grid Margin="8" Grid.RowSpan="2">
+			<ScrollViewer Margin="8,50,45,8" Width="570">
 				<sdk:DataGrid/>
 			</ScrollViewer>
 			<TextBox Height="24" Margin="140,15,143,0" TextWrapping="Wrap" VerticalAlignment="Top"/>

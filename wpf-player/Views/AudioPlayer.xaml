@@ -10,7 +10,7 @@
           VerticalAlignment="Top" 
           RenderTransformOrigin="0.479,1.207" 
           Height="114"
-          >
+          >		
 		<Grid.RowDefinitions>
 			<RowDefinition/>
 			<RowDefinition Height="0"/>
@@ -38,22 +38,29 @@
 			<TextBlock HorizontalAlignment="Right" Height="21" Margin="0,0,204,4" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="68" Foreground="White"><Run Text="Genere"/><LineBreak/><Run/></TextBlock>
 			<TextBlock Margin="0,29,204,15" TextWrapping="Wrap" HorizontalAlignment="Right" Width="68" Foreground="White"><Run Text="Anno"/><LineBreak/><Run/></TextBlock>
             <TextBlock Margin="0,8,2,0" TextWrapping="Wrap" Text="{Binding Path=ResourceTag.Track,Converter={local:DefaultValueConverter DefaultValue=0, ShownValue=''} ,Mode=OneWay}" FontWeight="Bold" Foreground="White" Height="21" VerticalAlignment="Top" HorizontalAlignment="Right" Width="218"/>
-            <TextBlock Margin="0,29,2,29" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Genre,Mode=OneWay}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right" Width="218"/>
-            <TextBlock Margin="0,0,2,4" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Year,Converter={local:DefaultValueConverter DefaultValue=0, ShownValue=''},Mode=OneWay}" FontWeight="Bold" Height="21" VerticalAlignment="Bottom" Foreground="White" HorizontalAlignment="Right" Width="218"/>
-		</Grid>
-		<Slider HorizontalAlignment="Right" Margin="0,8,27,41" Width="27" Orientation="Vertical"                 
+            <TextBlock Margin="0,29,2,29" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Year,Converter={local:DefaultValueConverter DefaultValue=0, ShownValue=''},Mode=OneWay}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right" Width="218"/>
+            <TextBlock Margin="0,0,2,4" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Genre,Mode=OneWay}" FontWeight="Bold" Height="21" VerticalAlignment="Bottom" Foreground="White" HorizontalAlignment="Right" Width="218"/>
+		</Grid>        
+        <Slider HorizontalAlignment="Right" Margin="0,8,27,41" Width="27" Orientation="Vertical"                 
                 ToolTipService.ToolTip="Volume" 
                 Maximum="{Binding Path=MaxVolume}"
                 Minimum="0"
                 TickFrequency="0.05"
-                Value="{Binding Path=Volume,Mode=TwoWay}"
+                Value="{Binding Path=Volume,Mode=TwoWay}"                
                 />
 		<Grid Margin="8,0,27,3" Height="38" VerticalAlignment="Bottom">
-			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Path=Position,Converter={local:LengthConverter}}"  TextAlignment="Right" Foreground="White" Margin="8,11,0,5" d:LayoutOverrides="HorizontalAlignment" FontFamily="Global Monospace"/>
-            <Slider x:Name="TrackSlider" Margin="56,8,91,8" MinWidth="430" TickFrequency="0.5" Value="{Binding Path=Position,Mode=TwoWay}" Minimum="0" Maximum="{Binding Path=Length}">
-            </Slider>
+			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Path=CurrentTime,Converter={local:LengthConverter}}"  TextAlignment="Right" Foreground="White" Margin="8,11,0,5" d:LayoutOverrides="HorizontalAlignment" FontFamily="Global Monospace"/>
             <TextBlock x:Name="TotalLengthLabel" TextWrapping="Wrap" Text="{Binding Path=Length,Converter={local:LengthConverter}}" TextAlignment="Right" Foreground="White" Margin="816,11,37,5" FontFamily="Global Monospace"/>
             <Image HorizontalAlignment="Right" Margin="0,0,0,5" Source="media_volume_2_inv.png" Stretch="Fill" Width="33"/>
+            <Canvas Margin="56,0,81,0">
+            	<local:PositionIndicator x:Name="position_indicator" Canvas.Top="22" d:LayoutOverrides="Width, Height" Visibility="Hidden"/>
+            </Canvas>
+			<Slider 
+				x:Name="TrackSlider" Margin="56,8,81,8" TickFrequency="1024" 
+				Value="{Binding Position, Mode=TwoWay}" Minimum="0" Maximum="{Binding BigBufferSize}"
+				MouseEnter="Slider_MouseEnter" MouseMove="Slider_MouseEnter" MouseLeave="TrackSlider_MouseLeave" Thumb.DragStarted="TrackSlider_DragStarted" Thumb.DragCompleted="TrackSlider_DragCompleted"                     
+                    d:LayoutOverrides="Height"
+                    />
 		</Grid>
 	</Grid>
 </UserControl>

@@ -13,12 +13,16 @@ namespace wpf_player
 	public class SearchListModel : INotifyPropertyChanged
 	{
         private ObservableCollection<KademliaResource> responseList=new ObservableCollection<KademliaResource>();
+        public delegate void StreamRequestedEventHandler(object sender, StreamRequestedArgs args);
+        public event StreamRequestedEventHandler StreamRequested;
+        private FakePeer peer = null;
         private string queryStr;
-		public SearchListModel()
+		public SearchListModel(FakePeer peer=null)
 		{
-            Query = "";
+            this.peer = peer;
+            Query = "";            
             Search = new AlwaysExecuteCommand(searchFn);
-            Search.Execute(null);
+            RaiseStartStream = new AlwaysExecuteCommand(startStream);            
         }
         #region Property
         public IList<KademliaResource> QueryResponse
@@ -43,6 +47,11 @@ namespace wpf_player
         #endregion
 
         #region Command
+        public ICommand RaiseStartStream
+        {
+            get;
+            private set;
+        }
         public ICommand Search
         {
             get;
@@ -53,16 +62,35 @@ namespace wpf_player
         private void searchFn(object args=null)
         {
             //MessageBox.Show(Query);
-            List<KademliaResource> res= new List<KademliaResource>();
-            res.Add(new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3",new DhtElement() { Url = new Uri("http://localhost:1292") }));
-            res.Add(new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\SevenMP3.mp3",new DhtElement() { Url = new Uri("http://localhost:5213") },new DhtElement() { Url = new Uri("http://localhost:5411") }));
+            IList<KademliaResource> res = peer.SearchFor(this.Query);
             responseList.Clear();
-            responseList = new ObservableCollection<KademliaResource>(res);
+            if ((res != null)&&(res.Count>0))
+            {
+                responseList = new ObservableCollection<KademliaResource>(res);
+            }
+            else
+            {
+                MessageBox.Show("Unable to find resource for query \"" + this.Query + "\"", "Search", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
             res.Clear();
             Query = "";
             NotifyPropertyChanged("QueryResponse");
         }
+        private void startStream(object args = null)
+        {
+            MessageBox.Show(args.GetType().FullName);
+            OnStreamRequest(new StreamRequestedArgs(args as KademliaResource));
+        }
         #endregion
+        public virtual void OnStreamRequest(StreamRequestedArgs args)
+        {
+            StreamRequestedEventHandler handler = StreamRequested;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+
+        }
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -75,4 +103,19 @@ namespace wpf_player
 		}
 		#endregion
 	}
+    public class StreamRequestedArgs : EventArgs
+    {
+        private KademliaResource res;
+        public StreamRequestedArgs(KademliaResource rs = null)
+        {
+            res = rs;
+        }
+        public KademliaResource RequestedResource
+        {
+            get
+            {
+                return res;
+            }
+        }
+    }
 }

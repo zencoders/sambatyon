@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Persistence;
 
 namespace wpf_player
 {
@@ -17,14 +18,39 @@ namespace wpf_player
 	/// </summary>    
 	public partial class SearchList : UserControl
 	{
-        private SearchListModel vm = new SearchListModel();
+        private SearchListModel vm = null;
 		public SearchList()
 		{
-
 			this.InitializeComponent();
-            this.DataContext = vm;
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
-		}
+		}        
+       
+        public void SetDataContext(SearchListModel model)
+        {
+            vm = model;
+            this.DataContext = vm;
+        }
 
+        private void ResultsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (vm != null)
+            {
+                DataGrid g = sender as DataGrid;
+                vm.OnStreamRequest(new StreamRequestedArgs(g.SelectedItem as KademliaResource));   
+            }
+        }
+
+        private void start_stream_button_Click(object sender, RoutedEventArgs e)
+        {
+            if (vm != null)
+            {
+                object item = this.FindName("ResultsGrid");
+                if ((item != null) && (item is DataGrid))
+                {
+                    DataGrid g = item as DataGrid;
+                    vm.OnStreamRequest(new StreamRequestedArgs(g.SelectedItem as KademliaResource));
+                }
+            }
+        }       
 	}
 }
