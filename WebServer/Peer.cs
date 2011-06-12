@@ -29,7 +29,23 @@ namespace PeerPlayer
         private Persistence.Repository trackRep;
         private string peerAddress;
 
+        #region Properties
         public Dictionary<string, string> ConfOptions {get; set;}
+        public int ChunkLength
+        {
+            get
+            {
+                if (transportLayer != null)
+                {
+                    return transportLayer.ChunckLength;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+        #endregion
 
         public Peer(bool single = false, string btpNode = "")
         {

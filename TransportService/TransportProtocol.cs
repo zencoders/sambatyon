@@ -48,6 +48,14 @@ namespace TransportService
         private PeerQueue peerQueue;
         private static readonly ILog log = LogManager.GetLogger(typeof(TransportProtocol));
 
+        public int ChunckLength
+        {
+            get
+            {
+                return chunkLength;
+            }
+        }
+
         public TransportProtocol(Uri uri, Persistence.Repository trackRepository)
         {
             AppSettingsReader asr = new AppSettingsReader();
