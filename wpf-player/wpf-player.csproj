@@ -65,19 +65,28 @@
     <Compile Include="AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BusyIndicatorBehavior.cs" />
     <Compile Include="ByteSizeConverter.cs" />
     <Compile Include="CanExecuteCommand.cs" />
+    <Compile Include="CircularProgressBar.xaml.cs">
+      <DependentUpon>CircularProgressBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DefaultValueConverter.cs" />
     <Compile Include="LengthConverter.cs" />
     <Compile Include="ObservableStream.cs" />
     <Compile Include="PositionIndicator.xaml.cs">
       <DependentUpon>PositionIndicator.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SizeToMarginConverter.cs" />
     <Compile Include="ViewModels\SearchListModel.cs" />
     <Compile Include="Views\SearchList.xaml.cs">
       <DependentUpon>SearchList.xaml</DependentUpon>
     </Compile>
     <Page Include="AboutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CircularProgressBar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

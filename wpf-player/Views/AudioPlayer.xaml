@@ -1,4 +1,5 @@
-﻿<UserControl
+﻿
+ <UserControl
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -16,41 +17,63 @@
 			<RowDefinition Height="0"/>
 			<RowDefinition Height="0*"/>
 		</Grid.RowDefinitions>
-		<StackPanel x:Name="PlayerButtonPanel" HorizontalAlignment="Left" Margin="11,17,0,49" Width="178" Orientation="Horizontal">
-            <Button x:Name="PlayButton" HorizontalAlignment="Left" Width="52" Height="48" Margin="0,0,10,0" Command="{Binding Path=Play}">
+        <Path x:Name="buffer_line" Data="M52,178L251,178" Fill="#FFF4F4F5"                     
+              Stretch="Fill" Stroke="#FFAD0101" StrokeThickness="5" Height="3" VerticalAlignment="Bottom">
+            <Path.Margin>
+                <MultiBinding Converter="{local:SizeToMarginConverter LeftMargin=66,TopMargin=0,RightMargin=110,BottomMargin=24}">
+                    <Binding Path="BufferPortion"/>
+                    <Binding ElementName="TrackSlider" Path="ActualWidth"/>
+                    <Binding Path="ResourceTag.FileSize"/>
+                </MultiBinding>
+            </Path.Margin>
+        </Path>
+        <StackPanel x:Name="PlayerButtonPanel" HorizontalAlignment="Left" Margin="11,17,0,49" Width="178" Orientation="Horizontal">
+            <Button x:Name="PlayButton" HorizontalAlignment="Left" Width="52" Height="48" Margin="0,0,10,0" Command="{Binding Play}">
 				<Image Height="32" Source="playback_play.png" Stretch="Fill" Width="32"/>
 			</Button>
-			<Button x:Name="PauseButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Path=Pause}" >
+			<Button x:Name="PauseButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Pause}" >
 				<Image Height="32" Source="playback_pause.png" Stretch="Fill" Width="32"/>
 			</Button>
-			<Button x:Name="StopButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Path=Stop}">
+			<Button x:Name="StopButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Stop}">
 				<Image Height="32" Source="playback_stop.png" Stretch="Fill" Width="32"/>
 			</Button>
 		</StackPanel>
-		<Grid Margin="202,6,54,0" Height="76" VerticalAlignment="Top">
-			<TextBlock HorizontalAlignment="Left" Margin="8,8,0,0" TextWrapping="Wrap" Width="68" Foreground="White" Height="21" VerticalAlignment="Top"><Run Text="Titolo"/><LineBreak/><Run/></TextBlock>
+		<Grid Margin="202,6,54,0" Height="76" VerticalAlignment="Top" x:Name="TrackDataGrid">
+			<TextBlock HorizontalAlignment="Left" Margin="8,8,0,0" TextWrapping="Wrap" Width="68" Foreground="White" Height="21" VerticalAlignment="Top"><Run Text="Title"/><LineBreak/><Run/></TextBlock>
 			<TextBlock HorizontalAlignment="Left" Height="21" Margin="8,0,0,4" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="68" Foreground="White"><Run Text="Album"/><LineBreak/><Run/></TextBlock>
-			<TextBlock Margin="8,29,0,15" TextWrapping="Wrap" HorizontalAlignment="Left" Width="68" Foreground="White"><Run Text="Artista"/><LineBreak/><Run/></TextBlock>
-            <TextBlock Margin="60,8,288,0" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Title,Mode=OneWay}" FontWeight="Bold" Foreground="White" Height="21" VerticalAlignment="Top"/>
-            <TextBlock Margin="60,29,288,29" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Artist,Mode=OneWay}" FontWeight="Bold" Foreground="White"/>
-            <TextBlock Margin="60,0,288,4" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Album,Mode=OneWay}" FontWeight="Bold" Height="21" VerticalAlignment="Bottom" Foreground="White"/>
-			<TextBlock HorizontalAlignment="Right" Margin="0,8,204,0" TextWrapping="Wrap" Width="68" Foreground="White" Height="21" VerticalAlignment="Top" Text="Traccia"/>
-			<TextBlock HorizontalAlignment="Right" Height="21" Margin="0,0,204,4" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="68" Foreground="White"><Run Text="Genere"/><LineBreak/><Run/></TextBlock>
-			<TextBlock Margin="0,29,204,15" TextWrapping="Wrap" HorizontalAlignment="Right" Width="68" Foreground="White"><Run Text="Anno"/><LineBreak/><Run/></TextBlock>
-            <TextBlock Margin="0,8,2,0" TextWrapping="Wrap" Text="{Binding Path=ResourceTag.Track,Converter={local:DefaultValueConverter DefaultValue=0, ShownValue=''} ,Mode=OneWay}" FontWeight="Bold" Foreground="White" Height="21" VerticalAlignment="Top" HorizontalAlignment="Right" Width="218"/>
-            <TextBlock Margin="0,29,2,29" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Year,Converter={local:DefaultValueConverter DefaultValue=0, ShownValue=''},Mode=OneWay}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right" Width="218"/>
-            <TextBlock Margin="0,0,2,4" TextWrapping="Wrap"  Text="{Binding Path=ResourceTag.Genre,Mode=OneWay}" FontWeight="Bold" Height="21" VerticalAlignment="Bottom" Foreground="White" HorizontalAlignment="Right" Width="218"/>
+			<TextBlock Margin="8,29,0,15" TextWrapping="Wrap" HorizontalAlignment="Left" Width="68" Foreground="White"><Run Text="Artist"/><LineBreak/><Run/></TextBlock>
+            <TextBlock Margin="60,8,288,0" TextWrapping="Wrap"  Text="{Binding ResourceTag.Title, Mode=OneWay}" FontWeight="Bold" Foreground="White" Height="21" VerticalAlignment="Top"/>
+            <TextBlock Margin="60,29,288,29" TextWrapping="Wrap"  Text="{Binding ResourceTag.Artist, Mode=OneWay}" FontWeight="Bold" Foreground="White"/>
+            <TextBlock Margin="60,0,288,4" TextWrapping="Wrap"  Text="{Binding ResourceTag.Album, Mode=OneWay}" FontWeight="Bold" Height="21" VerticalAlignment="Bottom" Foreground="White"/>
+			<TextBlock HorizontalAlignment="Right" Margin="0,8,204,0" TextWrapping="Wrap" Width="68" Foreground="White" Height="21" VerticalAlignment="Top" Text="Year"/>
+			<TextBlock HorizontalAlignment="Right" Height="21" Margin="0,0,204,4" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="68" Foreground="White"><Run Text="State"/><LineBreak/></TextBlock>
+			<TextBlock Margin="0,29,204,15" TextWrapping="Wrap" HorizontalAlignment="Right" Width="68" Foreground="White"><Run Text="Genre"/><LineBreak/><Run/></TextBlock>
+            <TextBlock Margin="0,29,8,29" TextWrapping="Wrap"  Text="{Binding ResourceTag.Genre, Mode=OneWay}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right" Width="212"/>
+            <Grid Height="17" Width="212" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,8">
+            	<Grid.ColumnDefinitions>
+            		<ColumnDefinition Width="146.5"/>
+            		<ColumnDefinition/>
+            	</Grid.ColumnDefinitions>
+            	<TextBlock Grid.Column="0" Text="{Binding Path=PlayingState}"
+                      TextWrapping="Wrap" d:LayoutOverrides="Height" FontWeight="Bold" Foreground="White"/>
+            	<Grid Grid.Column="1" x:Name="PlayerStateGrid"
+                      local:BusyIndicatorBehavior.BusyState="{Binding Path=BufferingState}" 
+                      local:BusyIndicatorBehavior.DimTransitionDuration="00:00:0.1"
+                      local:BusyIndicatorBehavior.TargetVisual="{Binding ElementName=PlayerStateGrind}"
+                />
+            </Grid>
+            <TextBlock Margin="0,8,8,0" TextWrapping="Wrap" Text="{Binding ResourceTag.Year, Converter={local:DefaultValueConverter DefaultValue=0, ShownValue=''}, Mode=OneWay}" FontWeight="Bold" Foreground="White" Height="21" VerticalAlignment="Top" HorizontalAlignment="Right" Width="212"/>
 		</Grid>        
         <Slider HorizontalAlignment="Right" Margin="0,8,27,41" Width="27" Orientation="Vertical"                 
                 ToolTipService.ToolTip="Volume" 
-                Maximum="{Binding Path=MaxVolume}"
+                Maximum="{Binding MaxVolume}"
                 Minimum="0"
                 TickFrequency="0.05"
-                Value="{Binding Path=Volume,Mode=TwoWay}"                
+                Value="{Binding Volume, Mode=TwoWay}"                
                 />
 		<Grid Margin="8,0,27,3" Height="38" VerticalAlignment="Bottom">
-			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Path=CurrentTime,Converter={local:LengthConverter}}"  TextAlignment="Right" Foreground="White" Margin="8,11,0,5" d:LayoutOverrides="HorizontalAlignment" FontFamily="Global Monospace"/>
-            <TextBlock x:Name="TotalLengthLabel" TextWrapping="Wrap" Text="{Binding Path=Length,Converter={local:LengthConverter}}" TextAlignment="Right" Foreground="White" Margin="816,11,37,5" FontFamily="Global Monospace"/>
+			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding CurrentTime, Converter={local:LengthConverter}}"  TextAlignment="Right" Foreground="White" Margin="8,11,0,5" d:LayoutOverrides="HorizontalAlignment" FontFamily="Global Monospace"/>
+            <TextBlock x:Name="TotalLengthLabel" TextWrapping="Wrap" Text="{Binding Length, Converter={local:LengthConverter}}" TextAlignment="Right" Foreground="White" Margin="816,11,37,5" FontFamily="Global Monospace"/>
             <Image HorizontalAlignment="Right" Margin="0,0,0,5" Source="media_volume_2_inv.png" Stretch="Fill" Width="33"/>
             <Canvas Margin="56,0,81,0">
             	<local:PositionIndicator x:Name="position_indicator" Canvas.Top="22" d:LayoutOverrides="Width, Height" Visibility="Hidden"/>
@@ -58,8 +81,10 @@
 			<Slider 
 				x:Name="TrackSlider" Margin="56,8,81,8" TickFrequency="4096" 
 				Value="{Binding Position, Mode=TwoWay}" Minimum="0" Maximum="{Binding BigBufferSize}"
-				MouseEnter="Slider_MouseEnter" MouseMove="Slider_MouseEnter" MouseLeave="TrackSlider_MouseLeave" Thumb.DragStarted="TrackSlider_DragStarted" Thumb.DragCompleted="TrackSlider_DragCompleted"                     
-                    d:LayoutOverrides="Height"
+				MouseEnter="Slider_MouseEnter" MouseMove="Slider_MouseEnter" MouseLeave="TrackSlider_MouseLeave" 
+                Thumb.DragStarted="TrackSlider_DragStarted" Thumb.DragCompleted="TrackSlider_DragCompleted"                     
+                MouseDoubleClick="TrackSlider_MouseDoubleClick"
+                d:LayoutOverrides="Height"
                     />
 		</Grid>
 	</Grid>

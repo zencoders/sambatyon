@@ -19,6 +19,14 @@ namespace wpf_player
     {
         private List<KademliaResource> res = new List<KademliaResource>();
         private Dictionary<string, string> fileMap = new Dictionary<string, string>();
+        private Thread th=null;
+        public int ChunkLength
+        {
+            get
+            {
+                return 60;
+            }
+        }
         public FakePeer()
         {
             KademliaResource tr = new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3", new DhtElement() { Url = new Uri("http://localhost:1292") });
@@ -30,6 +38,7 @@ namespace wpf_player
         }
         public void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes, Stream s)
         {
+            if (th != null) return;
             string filename="";
             if (fileMap.TryGetValue(RID, out filename))
             {
@@ -38,13 +47,15 @@ namespace wpf_player
                     path = filename,
                     stream = s
                 };
-                Thread th = new Thread((p)=>
+                this.th = new Thread((p)=>
                     {
+                        FileStream inFile = null;
                         try
                         {
-                            FileStream inFile = new FileStream((p as dynamic).path, FileMode.Open);
+                            inFile = new FileStream((p as dynamic).path, FileMode.Open);
+                            inFile.Seek(begin * 60000, SeekOrigin.Begin);
                             int offset = 0;
-                            int buffsize = 60 * 1024;
+                            int buffsize = 60000;
                             byte[] buff = new byte[buffsize];
                             int count = 0;
                             while ((count = inFile.Read(buff, 0, buffsize)) != 0)
@@ -58,16 +69,19 @@ namespace wpf_player
                                     Console.WriteLine("TH(in) => " + e.Message);
                                     return;
                                 }
-                                Console.WriteLine(s.Position);
+                                //Console.WriteLine(s.Position);
                                 offset += count;
                                 Thread.Sleep(4000);
                             }
-                            inFile.Close();
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine("TH(ext) => " + e.Message);
                             return;
+                        }
+                        finally
+                        {
+                            inFile.Close();
                         }
                     }
                 );
@@ -76,6 +90,12 @@ namespace wpf_player
         }
         public void StopFlow()
         {
+            if (th != null)
+            {
+                this.th.Interrupt();
+                this.th.Join();
+                this.th = null;
+            }
         }
         public void Configure(string udpPort, string kademliaPort)
         {

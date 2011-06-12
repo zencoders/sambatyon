@@ -12,6 +12,7 @@ using System.Windows.Input;
 using Persistence;
 using System.Windows.Markup;
 using Persistence.Tag;
+using NAudio.FileFormats.Mp3;
 
 
 namespace wpf_player
@@ -24,16 +25,12 @@ namespace wpf_player
         private byte[] streambuff = null;
         private KademliaResource rsc=null;
         private bool bufferingState=false;
-        //private Stream localstream = null;
-        //private PlayerEx player=new PlayerEx();
         WaveChannel32 wc=null;
         private IWavePlayer player = new WaveOut();
-        //private Mp3Reader wr = null;
         private long pos = 0;
         private double currentTime=0.0;
-        //private int seconds = 3;
-        //private int len = 0;
-        //private AlwaysExecuteCommand playCmd;
+        private long startPosition = 0L;
+        private bool startPhaseBuffering = false;
         public AudioPlayerModel(FakePeer p = null)
 		{
             //player.Done += new PlayerEx.DoneEventHandler(player_Done);
@@ -47,7 +44,56 @@ namespace wpf_player
             MaxVolume = 1.0F;
             Volume = 0.4F;
 		}
-        #region Properties
+        #region Properties 
+        public bool BufferingState
+        {
+            get
+            {
+                return bufferingState;
+            }
+            private set
+            {
+                bufferingState = value;
+                NotifyPropertyChanged("BufferingState");
+            }
+        }
+        public string PlayingState
+        {
+            get
+            {
+                if (BufferingState)
+                {
+                    return "Buffering ...";
+                } else {
+                    PlaybackState st = player.PlaybackState;
+                    switch (st)
+                    {
+                        case PlaybackState.Playing : 
+                            return "Playing";
+                        case PlaybackState.Stopped:
+                            return "Stopped";
+                        case PlaybackState.Paused:
+                            return "Paused";
+                        default:
+                            return "";
+                    }
+                }
+            }
+        }
+        public KeyValuePair<long,long> BufferPortion
+        {
+            get
+            {
+                if (localstream != null)
+                {
+                    return new KeyValuePair<long,long>(startPosition,localstream.Position);
+                }
+                else
+                {
+                    return new KeyValuePair<long, long>(startPosition, 0);
+                }
+            }            
+        }
         public CompleteTag ResourceTag
         {
             get
@@ -89,32 +135,34 @@ namespace wpf_player
             get;
             private set;
         }
+        public bool EnableFlowRestart
+        {
+            get;
+            set;
+        }
         public long Position
         {
             get
             {
-                /*if (this.wc != null)
-                {
-                    return this.wc.Position;
-                }
-                else
-                {
-                    return 0;
-                }*/
-                Console.WriteLine("POS:"+pos);
+                Console.WriteLine("POS:"+pos+" | " + BigBufferSize);
                 return pos;
                 
             }
             set
             {
+                if ((EnableFlowRestart)&&(localstream != null) && (value > localstream.Position))
+                {
+                    /*Console.WriteLine("Too Far ........... ! "+value);
+                    this.stop();
+                    setupLocalStream(this.rsc, value);
+                    resetWaveStream();*/
+                    //Console.WriteLine("Too far ... waiting!");
+                    //BufferingState = true;
+                    //this.pause();
+                   // localstream.WaitForMore(Math.Max(0, (int)(value - localstream.Position)));
+                }
                 if (this.wc != null)
                 {
-                    //    double loadedPerc = (double)localstream.Position / localstream.Length;
-                    //    double askedPerc = value / this.rsc.Tag.Length;
-                    //    if (askedPerc > loadedPerc)
-                    //    {
-                    //        Console.WriteLine("Wait!!! "+askedPerc+">"+loadedPerc);
-                    //    }
                     this.wc.CurrentTime = TimeSpan.FromSeconds(timeFromPosition(value));
                     //    Console.WriteLine(this.wc.CurrentTime);
                 }
@@ -148,7 +196,6 @@ namespace wpf_player
             {
                 if (rsc!=null)
                 {
-                    Console.WriteLine("FS:"+rsc.Tag.FileSize);
                     return rsc.Tag.FileSize;
                 }
                 else
@@ -198,44 +245,28 @@ namespace wpf_player
         private void play(object args=null)
         {
             if (rsc == null) return;
-            if (player.PlaybackState == PlaybackState.Playing) return;            
-            if (player.PlaybackState != PlaybackState.Paused)            
+            if (player.PlaybackState == PlaybackState.Playing) return;
+            //NotifyPropertyChanged("Position");                                
+            //localstream = new FileStream(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3",FileMode.Open);                
+            //if (localstream == null) return;      
+            //long lastpos = (lmem!=null?lmem.Position:startPosition);
+            long lastpos = (lmem != null ? Position : startPosition);
+            lmem = new MemoryStream(streambuff);
+            resetWaveStream();
+            if (player.PlaybackState != PlaybackState.Paused)
             {
                 //rsc = new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3");
                 //NotifyPropertyChanged("ResourceTag");
-                Position = 0;
-                //NotifyPropertyChanged("Position");                                
-                //localstream = new FileStream(@"C:\prog\p2p-player\Examples\Resource\Garden.mp3",FileMode.Open);                
-                //if (localstream == null) return;      
-                lmem = new MemoryStream(streambuff);
-                Mp3FileReader mp3file = new Mp3FileReader(lmem);                
-                wc= new WaveChannel32(mp3file);
-                wc.Sample += new EventHandler<SampleEventArgs>(wc_Sample);
-
+                Position = startPosition;                
+            }
+            else
+            {
+                Position = lastpos;
             }
             player.Init(wc);            
-            player.Play();                              
+            player.Play();
+            NotifyPropertyChanged("PlayingState");
         }        
-        private void wc_Sample(object sender, SampleEventArgs e)
-        {
-            if (wc == null) return;
-            if (wc.CurrentTime.TotalSeconds != currentTime)
-            {
-                currentTime = wc.CurrentTime.TotalSeconds;
-                NotifyPropertyChanged("CurrentTime");
-                pos = lmem.Position;
-                NotifyPropertyChanged("Position");
-            }
-            if (lmem.Position == lmem.Length) { this.stop(); return; }
-            long myBufferSize= 20480;           
-            if ((!bufferingState)&&(localstream.Position!=rsc.Tag.FileSize)&&((localstream.Position-lmem.Position)<myBufferSize))
-            {
-                Console.WriteLine("Paused ... waiting!");
-                bufferingState = true;
-                this.pause();
-                localstream.WaitForMore();
-            }
-        }
         private void close(object args=null)
         {
             this.stop();
@@ -262,9 +293,16 @@ namespace wpf_player
             }
             else if (player.PlaybackState == PlaybackState.Paused)
             {
-                //player.Init(wc);
-                player.Play();
+                /*player.Init(wc);
+                player.Play();*/
+                this.play();
             }
+            else if (startPhaseBuffering)
+            {
+                startPhaseBuffering = false;
+                this.play();
+            }
+            NotifyPropertyChanged("PlayingState");
         }
         private void stop(object args=null)
         {            
@@ -273,53 +311,115 @@ namespace wpf_player
                 player.Stop();
                 Position = 0;
                 CurrentTime = 0;
-                bufferingState = false;
+                BufferingState = false;
             }
             if (wc!=null)
             {
                 //MessageBox.Show(wc.Position.ToString());
                 wc.Close();
                 wc = null;
-            }            
+            }
+            NotifyPropertyChanged("PlayingState");
+            peer.StopFlow();
         }
         #endregion
+        #region Callback
         public void playback_stopped(object sender, EventArgs args)
         {
-            MessageBox.Show(args.ToString());
+            MessageBox.Show(args.ToString());            
             this.stop();
+        }
+        private void wc_Sample(object sender, SampleEventArgs e)
+        {
+            if (wc == null) return;
+            if (wc.CurrentTime.TotalSeconds != currentTime)
+            {
+                currentTime = wc.CurrentTime.TotalSeconds;
+                NotifyPropertyChanged("CurrentTime");
+                NotifyPropertyChanged("BufferPortion");
+                pos = lmem.Position;
+                NotifyPropertyChanged("Position");
+            }
+            if (lmem.Position == lmem.Length) { this.stop(); return; }
+            long myBufferSize = 20480;
+            if ((!BufferingState) && (localstream.Position != rsc.Tag.FileSize) && ((localstream.Position - lmem.Position) < myBufferSize))
+            {
+                Console.WriteLine("Paused ... waiting!");
+                BufferingState = true;
+                this.pause();
+                localstream.WaitForMore();
+            }
+        }
+        private void resumePlay(object sender, EventArgs args)
+        {
+            BufferingState = false;
+            Console.WriteLine("Resuming !");
+            Position = pos;
+            this.pause();            
         }
         public void SetResourceHandler(object sender, StreamRequestedArgs args)
         {
             setResource(args.RequestedResource);
         }
-        private void resumePlay(object sender, EventArgs args)
+        #endregion
+        public bool CheckWaitingBuffering(long newPosition)
         {
-            bufferingState = false;
-            Console.WriteLine("Resuming !");
-            this.pause();
+            if ((localstream != null) && (newPosition > localstream.Position))
+            {
+                Console.WriteLine("Too far ... waiting!");
+                BufferingState = true;
+                //this.pause();
+                localstream.WaitForMore(Math.Max(0, (int)(newPosition - localstream.Position)+20480));
+                return true;
+            } else
+            {
+                return false;
+            }
         }
         private void setResource(KademliaResource rsc)
         {
-            this.stop();
+            this.stop();            
             if (rsc == null) return;
             if ((this.rsc!=null)&&(rsc.Id.Equals(this.rsc.Id))) return;
+            this.rsc = rsc;
+            setupLocalStream(this.rsc, 0);              
+        }
+        private void setupLocalStream(KademliaResource rsc,long spos)
+        {
             if (localstream != null)
             {
-                localstream.Close();                
+                localstream.Close();
             }
-            Dictionary<string,float> tD=new Dictionary<string,float>();
+            EnableFlowRestart = true;
+            Dictionary<string, float> tD = new Dictionary<string, float>();
             foreach (DhtElement de in rsc.Urls)
             {
-                tD.Add(de.Url.ToString(),0);
-            }            
-            this.rsc = rsc;
+                tD.Add(de.Url.ToString(), 0);
+            }
+            this.streambuff = new byte[rsc.Tag.FileSize];
+            localstream = new ObservableStream(streambuff);
+            startPosition = spos;
+            localstream.Seek(spos, SeekOrigin.Begin);
+            pos = spos;
+            NotifyPropertyChanged("Position");
+            NotifyPropertyChanged("BufferPortion");
+            localstream.WaitedPositionReached += resumePlay;
+            localstream.PositionChanged += (sender, args) => { NotifyPropertyChanged("BufferPortion"); };
+            peer.GetFlow(rsc.Id,convertSizeToChunk(startPosition), convertSizeToChunk(rsc.Tag.FileSize), tD, localstream);
+            BufferingState = true;
+            NotifyPropertyChanged("PlayingState");
+            startPhaseBuffering = true;
+            localstream.WaitForMore();            
             NotifyPropertyChanged("ResourceTag");
             NotifyPropertyChanged("Length");
             NotifyPropertyChanged("BigBufferSize");
-            this.streambuff = new byte[rsc.Tag.FileSize];
-            localstream = new ObservableStream(streambuff);
-            localstream.WaitedPositionReached += resumePlay;
-            peer.GetFlow(rsc.Id, 0, 0, tD, localstream);            
+        }
+        private void resetWaveStream()
+        {            
+            Mp3FileReader mp3file = new Mp3FileReader(lmem);                        
+            wc = new WaveChannel32(mp3file);            
+            Console.WriteLine(mp3file.WaveFormat);
+            wc.Sample += new EventHandler<SampleEventArgs>(wc_Sample);
         }
         private double timeFromPosition(long p)
         {
@@ -332,19 +432,12 @@ namespace wpf_player
                 return 0.0;
             }
         }
-        /*private void ReadData()
+        private int convertSizeToChunk(long size)
         {
-            if (pos <= len)
-                {
-                byte[] data = wr.ReadData(pos, seconds);
-                pos += seconds;
-                player.AddData(data);
-            }
+            int cl = this.peer.ChunkLength * 1024;
+            if (cl == 0) return 0;
+            return (int)(size / cl);
         }
-        private void player_Done(object sender, DoneEventArgs args)
-        {
-            ReadData();
-        }*/
 		#region INotifyPropertyChanged
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -365,5 +458,5 @@ namespace wpf_player
         }
 
         #endregion
-    }
+    }    
 }

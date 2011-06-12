@@ -59,7 +59,7 @@ namespace wpf_player
                     TextBlock label = item_label as TextBlock;
                     LengthConverter converter = new LengthConverter();
                     label.Text = (string)converter.Convert(myTime, typeof(string), null, null);
-                    Console.WriteLine(myTime);
+                    //Console.WriteLine(myTime);
                 }
                 //indicator.Margin = new Thickness(globalP.X, 0, 0, 0);
             }
@@ -77,11 +77,29 @@ namespace wpf_player
 
         private void TrackSlider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
         {
-            ((AudioPlayerModel)this.DataContext).Pause.Execute(null);
+            AudioPlayerModel vm = (AudioPlayerModel)this.DataContext;
+            vm.EnableFlowRestart = false;
+            vm.Pause.Execute(null);            
         }
         private void TrackSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
-            ((AudioPlayerModel)this.DataContext).Play.Execute(null);
+            AudioPlayerModel vm=(AudioPlayerModel)this.DataContext;
+            vm.EnableFlowRestart = true;
+            Slider s = sender as Slider;
+            Console.WriteLine("_________" + s.Value);
+            if (!vm.CheckWaitingBuffering((long)s.Value))
+            {
+                vm.Pause.Execute(null);
+            }
+        }
+
+        private void TrackSlider_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Slider s = sender as Slider;
+            Point p = e.GetPosition(s);
+            AudioPlayerModel mv = (AudioPlayerModel)this.DataContext;
+            long mySize = (long)((p.X / s.ActualWidth) * mv.ResourceTag.FileSize);
+            mv.Position = mySize;
         }
 	}
 }
