@@ -37,7 +37,7 @@
 		<local:SearchList x:Name="KadSearchList" Margin="8,-16,8,0" Grid.Row="2"/>
 		<Menu IsMainMenu="True" Grid.Row="0">
 			<MenuItem Header="_File">
-                <MenuItem Header="_Close" Click="MenuItem_Click">                   
+                <MenuItem Header="_Close" Click="exit_item_Click">                   
                     <MenuItem.Icon>
                         <Image Source="Images\app_exit.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
@@ -67,7 +67,12 @@
                 </MenuItem>
             </MenuItem>
 			<MenuItem Header="_Edit">				
-                <MenuItem Header="Peer _Configuration">
+                <MenuItem Header="Local _Music Store">
+                    <MenuItem.Icon>
+                        <Image Source="Images\folder_database.png" Width="20" Height="20"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Peer _Configuration" Click="peer_config_item_Click">
                     <MenuItem.Icon>
                         <Image Source="Images\global_network.png" Width="20" Height="20"/>
                     </MenuItem.Icon>

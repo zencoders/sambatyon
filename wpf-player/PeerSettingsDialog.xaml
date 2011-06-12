@@ -3,9 +3,11 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
 	x:Class="wpf_player.PeerSettingsDialog"
+    xmlns:local="clr-namespace:wpf_player"
 	x:Name="Window"
+    ShowInTaskbar="False"
 	Title="Peer Settings"
-	Width="537" Height="458" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+	Width="537" Height="488" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
 
 	<Grid x:Name="LayoutRoot">
 		<Grid.ColumnDefinitions>
@@ -21,24 +23,57 @@
 			<Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="125"/>
-					<ColumnDefinition/>
+                    <ColumnDefinition/>
 				</Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition>                        
+                    </RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
 				<TextBlock TextWrapping="Wrap" VerticalAlignment="Center" d:LayoutOverrides="Width"><Run FontStyle="Italic" Language="it-it" Text="UDP Port"/></TextBlock>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" d:LayoutOverrides="GridBox" HorizontalAlignment="Left" Width="150"/>
-			</Grid>
-			<TextBlock TextWrapping="Wrap" FontSize="13.333" Margin="0,15,0,5"><Run FontWeight="Bold" Language="it-it" Text="Kademlia Protocol"/></TextBlock>
+                <!--<TextBlock Grid.Column="1" FontStyle="Italic" Foreground="LightGray" Text="Enter a Port number..." />-->
+                <TextBox x:Name="udpPortField" Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" 
+                         d:LayoutOverrides="GridBox" HorizontalAlignment="Left" Width="150"                         
+                         >
+                    <TextBox.Text>
+                        <Binding Path="UdpPort" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+                            <Binding.ValidationRules>
+                                <local:PortValidationRule CheckInUse="true"/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>                    
+                </TextBox>
+                <TextBlock Grid.Column="1" Grid.Row="1" Margin="0,5,0,0" FontStyle="Italic" Foreground="Red"
+                           Text="{Binding ElementName=udpPortField, Path=(Validation.Errors)[0].ErrorContent}"></TextBlock>
+            </Grid>
+			<TextBlock TextWrapping="Wrap" FontSize="13.333" Margin="0,10,0,5"><Run FontWeight="Bold" Language="it-it" Text="Kademlia Protocol"/></TextBlock>
 			<TextBlock TextWrapping="Wrap" Margin="0,0,0,8" TextAlignment="Justify"><Run Language="it-it" Text="The Kademlia protocol is used to search and share resource over the network."/></TextBlock>
-			<Grid>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="125"/>
-					<ColumnDefinition/>
-				</Grid.ColumnDefinitions>
-				<TextBlock TextWrapping="Wrap" VerticalAlignment="Center"><Run FontStyle="Italic" Language="it-it" Text="Kademlia Port"/></TextBlock>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="150"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="125"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"><Run FontStyle="Italic" Language="it-it" Text="Kademlia Port"/></TextBlock>
+                <TextBox x:Name="kadPortField" Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" 
+                         HorizontalAlignment="Left" Width="150">
+                    <TextBox.Text>
+                        <Binding Path="KademliaPort" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+                            <Binding.ValidationRules>
+                                <local:PortValidationRule CheckInUse="True"/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <TextBlock Grid.Column="1" Grid.Row="1" Margin="0,5,0,0" FontStyle="Italic" Foreground="Red"
+                           Text="{Binding ElementName=kadPortField, Path=(Validation.Errors)[0].ErrorContent}"></TextBlock>
 			</Grid>
 			<StackPanel Orientation="Horizontal" Margin="168.753,50,10,0" Height="30">
-				<Button Content="Ok" Margin="0,0,20,0" Width="75" VerticalAlignment="Center" Height="25"/>
-				<Button Content="Cancel" Margin="0,0,20,0" Width="75" VerticalAlignment="Center" Height="25" BorderThickness="1"/>
+				<Button Content="Ok" Margin="0,0,20,0" Width="75" VerticalAlignment="Center" Height="25" Click="okButton_Click" />
+				<Button Content="Cancel" Margin="0,0,20,0" Width="75" VerticalAlignment="Center" Height="25" BorderThickness="1" Click="cancelButton_Click"/>
 			</StackPanel>
 		</StackPanel>
 	</Grid>

@@ -74,9 +74,11 @@
     <Compile Include="DefaultValueConverter.cs" />
     <Compile Include="LengthConverter.cs" />
     <Compile Include="ObservableStream.cs" />
+    <Compile Include="PeerConfigurationModel.cs" />
     <Compile Include="PeerSettingsDialog.xaml.cs">
       <DependentUpon>PeerSettingsDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PortValidationRule.cs" />
     <Compile Include="PositionIndicator.xaml.cs">
       <DependentUpon>PositionIndicator.xaml</DependentUpon>
     </Compile>
@@ -84,6 +86,9 @@
     <Compile Include="ViewModels\SearchListModel.cs" />
     <Compile Include="Views\SearchList.xaml.cs">
       <DependentUpon>SearchList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Window1.xaml.cs">
+      <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
     <Page Include="AboutDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -118,6 +123,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SearchList.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Window1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -185,6 +194,10 @@
   <ItemGroup>
     <Resource Include="Images\global_network.png" />
     <Resource Include="Images\network.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\db.png" />
+    <Resource Include="Images\folder_database.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath32)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Expression\Blend\.NETFramework\v4.0\Microsoft.Expression.Blend.WPF.targets" />
