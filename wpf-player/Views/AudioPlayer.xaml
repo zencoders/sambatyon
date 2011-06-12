@@ -29,13 +29,13 @@
         </Path>
         <StackPanel x:Name="PlayerButtonPanel" HorizontalAlignment="Left" Margin="11,17,0,49" Width="178" Orientation="Horizontal">
             <Button x:Name="PlayButton" HorizontalAlignment="Left" Width="52" Height="48" Margin="0,0,10,0" Command="{Binding Play}">
-				<Image Height="32" Source="playback_play.png" Stretch="Fill" Width="32"/>
+				<Image Height="32" Source="..\Images\playback_play.png" Stretch="Fill" Width="32"/>
 			</Button>
 			<Button x:Name="PauseButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Pause}" >
-				<Image Height="32" Source="playback_pause.png" Stretch="Fill" Width="32"/>
+                <Image Height="32" Source="..\Images\playback_pause.png" Stretch="Fill" Width="32"/>
 			</Button>
 			<Button x:Name="StopButton" HorizontalAlignment="Left" Height="48" Width="52" Margin="0,0,10,0" Command="{Binding Stop}">
-				<Image Height="32" Source="playback_stop.png" Stretch="Fill" Width="32"/>
+                <Image Height="32" Source="..\Images\playback_stop.png" Stretch="Fill" Width="32"/>
 			</Button>
 		</StackPanel>
 		<Grid Margin="202,6,54,0" Height="76" VerticalAlignment="Top" x:Name="TrackDataGrid">
@@ -60,6 +60,7 @@
                       local:BusyIndicatorBehavior.BusyState="{Binding Path=BufferingState}" 
                       local:BusyIndicatorBehavior.DimTransitionDuration="00:00:0.1"
                       local:BusyIndicatorBehavior.TargetVisual="{Binding ElementName=PlayerStateGrind}"
+                      local:BusyIndicatorBehavior.DimBackground="False"
                 />
             </Grid>
             <TextBlock Margin="0,8,8,0" TextWrapping="Wrap" Text="{Binding ResourceTag.Year, Converter={local:DefaultValueConverter DefaultValue=0, ShownValue=''}, Mode=OneWay}" FontWeight="Bold" Foreground="White" Height="21" VerticalAlignment="Top" HorizontalAlignment="Right" Width="212"/>
@@ -74,7 +75,7 @@
 		<Grid Margin="8,0,27,3" Height="38" VerticalAlignment="Bottom">
 			<TextBlock x:Name="CurrentTimeLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding CurrentTime, Converter={local:LengthConverter}}"  TextAlignment="Right" Foreground="White" Margin="8,11,0,5" d:LayoutOverrides="HorizontalAlignment" FontFamily="Global Monospace"/>
             <TextBlock x:Name="TotalLengthLabel" TextWrapping="Wrap" Text="{Binding Length, Converter={local:LengthConverter}}" TextAlignment="Right" Foreground="White" Margin="816,11,37,5" FontFamily="Global Monospace"/>
-            <Image HorizontalAlignment="Right" Margin="0,0,0,5" Source="media_volume_2_inv.png" Stretch="Fill" Width="33"/>
+            <Image HorizontalAlignment="Right" Margin="0,0,0,5" Source="..\Images\media_volume_2_inv.png" Stretch="Fill" Width="33"/>
             <Canvas Margin="56,0,81,0">
             	<local:PositionIndicator x:Name="position_indicator" Canvas.Top="22" d:LayoutOverrides="Width, Height" Visibility="Hidden"/>
             </Canvas>

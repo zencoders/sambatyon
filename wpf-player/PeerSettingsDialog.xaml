@@ -1,0 +1,45 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
+	x:Class="wpf_player.PeerSettingsDialog"
+	x:Name="Window"
+	Title="Peer Settings"
+	Width="537" Height="458" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+
+	<Grid x:Name="LayoutRoot">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="132"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Image Margin="16,64,16,0" Source="Images/network.png" Stretch="Fill" Width="100" Height="100" VerticalAlignment="Top" d:LayoutOverrides="Height" HorizontalAlignment="Center"/>
+		<StackPanel Grid.Column="1" Margin="24,0">
+			<TextBlock TextWrapping="Wrap" Height="22.24" Margin="0,42,0,0"><Run FontWeight="Bold" FontSize="16" Language="it-it" Text="Peer Configuration"/><LineBreak/><Run Language="it-it"/></TextBlock>
+			<TextBlock TextWrapping="Wrap" Margin="0,16,0,10" TextAlignment="Justify"><Run Language="it-it" Text="Every peer in the network needs a couple of valid UDP (User Datagram Protocol) port. As valid port we mean one which is currently not in use. "/></TextBlock>
+			<TextBlock TextWrapping="Wrap" FontSize="13.333" Margin="0,10,0,5"><Run FontWeight="Bold" Language="it-it" Text="Transport Protocol"/></TextBlock>
+			<TextBlock TextWrapping="Wrap" Margin="0,0,0,8" TextAlignment="Justify"><Run Language="it-it" Text="The transport protocol is used to stream the file all over the network."/></TextBlock>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="125"/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+				<TextBlock TextWrapping="Wrap" VerticalAlignment="Center" d:LayoutOverrides="Width"><Run FontStyle="Italic" Language="it-it" Text="UDP Port"/></TextBlock>
+				<TextBox Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" d:LayoutOverrides="GridBox" HorizontalAlignment="Left" Width="150"/>
+			</Grid>
+			<TextBlock TextWrapping="Wrap" FontSize="13.333" Margin="0,15,0,5"><Run FontWeight="Bold" Language="it-it" Text="Kademlia Protocol"/></TextBlock>
+			<TextBlock TextWrapping="Wrap" Margin="0,0,0,8" TextAlignment="Justify"><Run Language="it-it" Text="The Kademlia protocol is used to search and share resource over the network."/></TextBlock>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="125"/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+				<TextBlock TextWrapping="Wrap" VerticalAlignment="Center"><Run FontStyle="Italic" Language="it-it" Text="Kademlia Port"/></TextBlock>
+				<TextBox Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="150"/>
+			</Grid>
+			<StackPanel Orientation="Horizontal" Margin="168.753,50,10,0" Height="30">
+				<Button Content="Ok" Margin="0,0,20,0" Width="75" VerticalAlignment="Center" Height="25"/>
+				<Button Content="Cancel" Margin="0,0,20,0" Width="75" VerticalAlignment="Center" Height="25" BorderThickness="1"/>
+			</StackPanel>
+		</StackPanel>
+	</Grid>
+</Window>

@@ -74,6 +74,9 @@
     <Compile Include="DefaultValueConverter.cs" />
     <Compile Include="LengthConverter.cs" />
     <Compile Include="ObservableStream.cs" />
+    <Compile Include="PeerSettingsDialog.xaml.cs">
+      <DependentUpon>PeerSettingsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PositionIndicator.xaml.cs">
       <DependentUpon>PositionIndicator.xaml</DependentUpon>
     </Compile>
@@ -106,6 +109,10 @@
     <Compile Include="Views\AudioPlayer.xaml.cs">
       <DependentUpon>AudioPlayer.xaml</DependentUpon>
     </Compile>
+    <Page Include="PeerSettingsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="PositionIndicator.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -130,13 +137,32 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <BlendEmbeddedFont Include="Fonts\segoeui.ttf">
+      <IsSystemFont>True</IsSystemFont>
+      <All>True</All>
+      <AutoFill>True</AutoFill>
+    </BlendEmbeddedFont>
+    <BlendEmbeddedFont Include="Fonts\segoeuib.ttf">
+      <IsSystemFont>True</IsSystemFont>
+      <All>True</All>
+      <AutoFill>True</AutoFill>
+    </BlendEmbeddedFont>
+    <BlendEmbeddedFont Include="Fonts\segoeuii.ttf">
+      <IsSystemFont>True</IsSystemFont>
+      <All>True</All>
+      <AutoFill>True</AutoFill>
+    </BlendEmbeddedFont>
+    <BlendEmbeddedFont Include="Fonts\segoeuiz.ttf">
+      <IsSystemFont>True</IsSystemFont>
+      <All>True</All>
+      <AutoFill>True</AutoFill>
+    </BlendEmbeddedFont>
     <Resource Include="Images\info_black.png" />
-    <Resource Include="info_black.png" />
     <Resource Include="MyIco.ico" />
-    <Resource Include="Views\media_volume_2_inv.png" />
-    <Resource Include="Views\playback_pause.png" />
-    <Resource Include="Views\playback_play.png" />
-    <Resource Include="Views\playback_stop.png" />
+    <Resource Include="Images\media_volume_2_inv.png" />
+    <Resource Include="Images\playback_pause.png" />
+    <Resource Include="Images\playback_play.png" />
+    <Resource Include="Images\playback_stop.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SampleData\" />
@@ -147,7 +173,21 @@
       <Name>Persistence</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\app_exit.png" />
+    <Resource Include="Images\info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pause.png" />
+    <Resource Include="Images\play.png" />
+    <Resource Include="Images\stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\global_network.png" />
+    <Resource Include="Images\network.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath32)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\Expression\Blend\.NETFramework\v4.0\Microsoft.Expression.Blend.WPF.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">

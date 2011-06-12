@@ -57,6 +57,13 @@ namespace wpf_player
                 NotifyPropertyChanged("BufferingState");
             }
         }
+        public bool HasResource
+        {
+            get
+            {
+                return rsc != null;
+            }
+        }
         public string PlayingState
         {
             get
@@ -143,24 +150,12 @@ namespace wpf_player
         public long Position
         {
             get
-            {
-                Console.WriteLine("POS:"+pos+" | " + BigBufferSize);
+            {                
                 return pos;
                 
             }
             set
             {
-                if ((EnableFlowRestart)&&(localstream != null) && (value > localstream.Position))
-                {
-                    /*Console.WriteLine("Too Far ........... ! "+value);
-                    this.stop();
-                    setupLocalStream(this.rsc, value);
-                    resetWaveStream();*/
-                    //Console.WriteLine("Too far ... waiting!");
-                    //BufferingState = true;
-                    //this.pause();
-                   // localstream.WaitForMore(Math.Max(0, (int)(value - localstream.Position)));
-                }
                 if (this.wc != null)
                 {
                     this.wc.CurrentTime = TimeSpan.FromSeconds(timeFromPosition(value));
@@ -413,6 +408,7 @@ namespace wpf_player
             NotifyPropertyChanged("ResourceTag");
             NotifyPropertyChanged("Length");
             NotifyPropertyChanged("BigBufferSize");
+            NotifyPropertyChanged("HasResource");
         }
         private void resetWaveStream()
         {            

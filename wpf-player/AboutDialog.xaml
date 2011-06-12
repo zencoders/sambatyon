@@ -5,6 +5,7 @@
 	x:Class="wpf_player.AboutDialog"
 	x:Name="Window"
 	Title="About p2p-player"
+    Icon="Images\info_black.png"
 	Width="373" Height="337" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"  ResizeMode="NoResize">
 
 	<Grid x:Name="LayoutRoot">
@@ -16,9 +17,9 @@
 			<ColumnDefinition Width="0.288*"/>
 			<ColumnDefinition Width="0.712*"/>
 		</Grid.ColumnDefinitions>
-		<Image HorizontalAlignment="Stretch" Margin="18,40,20.856,0" Source="info_black.png" Stretch="Fill" Width="Auto" Height="64" VerticalAlignment="Top"/>
+		<Image HorizontalAlignment="Stretch" Margin="18,40,20.856,0" Source="Images/info_black.png" Stretch="Fill" Width="Auto" Height="64" VerticalAlignment="Top"/>
 		<StackPanel Grid.Column="1" Grid.Row="1">
-			<Button x:Name="okButton" Click="okButton_Click" IsDefault="True" HorizontalAlignment="Right" Width="75.184" Margin="0,0,20,0">
+            <Button x:Name="okButton" Click="okButton_Click" IsDefault="True" HorizontalAlignment="Right" Width="75.184" Margin="0,0,20,0">
 				<Run Text="OK"/>				
 			</Button>
 		</StackPanel>

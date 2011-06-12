@@ -36,10 +36,42 @@
 		<local:AudioPlayer x:Name="StreamPlayer" Margin="8,2,8,0" Grid.Row="1"/>
 		<local:SearchList x:Name="KadSearchList" Margin="8,-16,8,0" Grid.Row="2"/>
 		<Menu IsMainMenu="True" Grid.Row="0">
-			<MenuItem Header="_File" Click="MenuItem_Click">
-				<MenuItem Header="_Close"></MenuItem>
+			<MenuItem Header="_File">
+                <MenuItem Header="_Close" Click="MenuItem_Click">                   
+                    <MenuItem.Icon>
+                        <Image Source="Images\app_exit.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
 			</MenuItem>
+            <MenuItem Header="_Player" DataContext="{Binding ElementName=StreamPlayer,Path=DataContext}">
+                <MenuItem Header="_Play" IsEnabled="{Binding Path=HasResource}" Command="{Binding Path=Play}">
+                    <MenuItem.Icon>
+                        <Image Source="Images\play.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="P_ause" IsEnabled="{Binding Path=HasResource}" Command="{Binding Path=Pause}">
+                    <MenuItem.Icon>
+                        <Image Source="Images\pause.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Stop" IsEnabled="{Binding Path=HasResource}" Command="{Binding Path=Stop}">
+                    <MenuItem.Icon>
+                        <Image Source="Images\stop.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>                    
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="File _Information" IsEnabled="{Binding Path=HasResource}">
+                    <MenuItem.Icon>
+                        <Image Source="Images\info.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
 			<MenuItem Header="_Edit">				
+                <MenuItem Header="Peer _Configuration">
+                    <MenuItem.Icon>
+                        <Image Source="Images\global_network.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
 			</MenuItem>
 			<MenuItem Header="_?" IsEnabled="True">
 				<MenuItem Name="about_item" Header="_About p2p-player" Click="about_item_Click">
