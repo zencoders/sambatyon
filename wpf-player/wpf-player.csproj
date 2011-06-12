@@ -73,8 +73,10 @@
     </Compile>
     <Compile Include="DefaultValueConverter.cs" />
     <Compile Include="LengthConverter.cs" />
+    <Compile Include="LocalStoreWindow.xaml.cs">
+      <DependentUpon>LocalStoreWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ObservableStream.cs" />
-    <Compile Include="PeerConfigurationModel.cs" />
     <Compile Include="PeerSettingsDialog.xaml.cs">
       <DependentUpon>PeerSettingsDialog.xaml</DependentUpon>
     </Compile>
@@ -83,18 +85,20 @@
       <DependentUpon>PositionIndicator.xaml</DependentUpon>
     </Compile>
     <Compile Include="SizeToMarginConverter.cs" />
+    <Compile Include="ViewModels\PeerConfigurationModel.cs" />
     <Compile Include="ViewModels\SearchListModel.cs" />
     <Compile Include="Views\SearchList.xaml.cs">
       <DependentUpon>SearchList.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Window1.xaml.cs">
-      <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
     <Page Include="AboutDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CircularProgressBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="LocalStoreWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -123,10 +127,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SearchList.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Window1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
