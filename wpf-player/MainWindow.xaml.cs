@@ -35,6 +35,7 @@ namespace wpf_player
                 try
                 {
                     peer = new Peer();
+                    peer.runLayers(true);
                     keepTry = false;
                 }
                 catch (Exception e)
