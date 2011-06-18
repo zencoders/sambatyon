@@ -48,8 +48,22 @@
 			</StackPanel>
 			<StackPanel Height="38" Orientation="Horizontal">
 				<TextBox TextWrapping="Wrap" Text="" Width="346.553" Margin="25,5,10,10" IsEnabled="True" x:Name="QueryField"/>
-				<Button Content="Add File" Margin="50,6,0,10" Width="83" Click="addFile_Click"/>
-				<Button Content="Refresh" Margin="10,6,0,10" Width="83" Click="refreshList_Click"/>
+				<Button Margin="50,6,0,10" Width="83" Click="addFile_Click">
+					<Button.Content>
+						<StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+							<Image Source="Images\load.png" Width="16" Height="16" Margin="0,0,8,0"/>
+							<TextBlock>Add File</TextBlock>
+						</StackPanel>
+					</Button.Content>
+				</Button>
+				<Button Margin="10,6,0,10" Width="83" Click="refreshList_Click">
+					<Button.Content>
+						<StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+							<Image Source="Images\document_refresh.png" Width="16" Height="16" Margin="0,0,8,0"/>
+							<TextBlock>Refresh</TextBlock>
+						</StackPanel>
+					</Button.Content>
+				</Button>
 			</StackPanel>
 		</StackPanel>
 	</Grid>

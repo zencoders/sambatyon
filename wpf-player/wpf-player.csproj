@@ -109,6 +109,9 @@
       <DependentUpon>PositionIndicator.xaml</DependentUpon>
     </Compile>
     <Compile Include="SizeToMarginConverter.cs" />
+    <Compile Include="TrackDetailDialog.xaml.cs">
+      <DependentUpon>TrackDetailDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\LocalStoreModel.cs" />
     <Compile Include="ViewModels\PeerConfigurationModel.cs" />
     <Compile Include="ViewModels\SearchListModel.cs" />
@@ -148,6 +151,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="PositionIndicator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TrackDetailDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -191,7 +198,9 @@
       <All>True</All>
       <AutoFill>True</AutoFill>
     </BlendEmbeddedFont>
+    <Resource Include="Images\document_refresh.png" />
     <Resource Include="Images\info_black.png" />
+    <Resource Include="Images\load.png" />
     <Resource Include="MyIco.ico" />
     <Resource Include="Images\media_volume_2_inv.png" />
     <Resource Include="Images\playback_pause.png" />
