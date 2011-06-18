@@ -4,24 +4,52 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
 	x:Class="wpf_player.LocalStoreWindow"
 	x:Name="Window"
-	Title="LocalStoreWindow"
-	Width="640" Height="480">
+    xmlns:local="clr-namespace:wpf_player"
+	Title="Local Music Store"
+	Width="640" Height="480" ResizeMode="NoResize" Icon="Images/db.png" WindowStartupLocation="CenterScreen">
 
-	<Grid x:Name="LayoutRoot">
+	<Grid x:Name="LayoutRoot"
+          local:BusyIndicatorBehavior.BusyState="{Binding ElementName=QueryField,Path=IsEnabled,Converter={local:BooleanInverter}}"
+          local:BusyIndicatorBehavior.TargetVisual="{Binding ElementName=LayoutRoot}"
+          local:BusyIndicatorBehavior.AddMargins="True"
+          local:BusyIndicatorBehavior.DimTransitionDuration="00:00:0.1"
+          >
 		<Grid.RowDefinitions>
-			<RowDefinition Height="128.18"/>
+			<RowDefinition Height="58"/>
+			<RowDefinition Height="43"/>
 			<RowDefinition/>
 		</Grid.RowDefinitions>
-		<ScrollViewer Margin="24" Grid.Row="1">
-			<DataGrid/>
+		<ScrollViewer Margin="24" Grid.Row="2">
+			<DataGrid
+                AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                AlternatingRowBackground="LightGray" CanUserResizeRows="False" ItemsSource="{Binding Path=LocalStore,Mode=OneWay}"
+                RowDetailsVisibilityMode="VisibleWhenSelected" RowHeaderWidth="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Title" Binding="{Binding Path=Title}" MinWidth="250"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True">
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Artist" Binding="{Binding Path=Artist}" MinWidth="200"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Size" Binding="{Binding Path=FileSize,Converter={local:ByteSizeConverter}}" MinWidth="80"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>                    
+                    <DataGridTextColumn Header="Duration" Binding="{Binding Path=Length,Converter={local:LengthConverter}}" MinWidth="60" 
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Bitrate" Binding="{Binding Path=Bitrate}" MinWidth="45"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Hash" Binding="{Binding Path=FileHash}" MinWidth="200" Width="*"
+                                            CanUserSort="True" CanUserResize="True" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
 		</ScrollViewer>
-		<StackPanel Grid.Row="0">
-			<StackPanel Height="44" Orientation="Horizontal">
+		<StackPanel Grid.Row="0" Grid.RowSpan="2">
+			<StackPanel Height="44" Orientation="Horizontal" Margin="0,10">
 				<Image Source="Images\db.png" HorizontalAlignment="Left" Width="32" Height="32" Margin="12,6,0,6"/>
 				<TextBlock TextWrapping="Wrap" Margin="35,0,0,0" FontSize="18.667" FontWeight="Bold" VerticalAlignment="Center"><Run Language="it-it" Text="Local Music Store"/></TextBlock>
 			</StackPanel>
-			<StackPanel Height="29" Orientation="Horizontal">
-				<TextBox TextWrapping="Wrap" Text="TextBox"/>
+			<StackPanel Height="38" Orientation="Horizontal">
+				<TextBox TextWrapping="Wrap" Text="" Width="346.553" Margin="25,5,10,10" IsEnabled="True" x:Name="QueryField"/>
+				<Button Content="Add File" Margin="50,6,0,10" Width="83" Click="addFile_Click"/>
+				<Button Content="Refresh" Margin="10,6,0,10" Width="83" Click="refreshList_Click"/>
 			</StackPanel>
 		</StackPanel>
 	</Grid>

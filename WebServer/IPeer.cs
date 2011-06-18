@@ -24,7 +24,7 @@ namespace PeerPlayer
         void Configure(string udpPort, string kademliaPort);
 
         [OperationContract]
-        void StoreFile(string filename);
+        bool StoreFile(string filename);
 
         [OperationContract]
         IList<KademliaResource> SearchFor(string queryString);

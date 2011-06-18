@@ -67,7 +67,7 @@
                 </MenuItem>
             </MenuItem>
 			<MenuItem Header="_Edit">				
-                <MenuItem Header="Local _Music Store">
+                <MenuItem Header="Local _Music Store" Click="local_store_Click">
                     <MenuItem.Icon>
                         <Image Source="Images\folder_database.png" Width="20" Height="20"></Image>
                     </MenuItem.Icon>

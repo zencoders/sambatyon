@@ -38,8 +38,31 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\RavenEmbeddedClient\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net, Version=2.9.2.1, Culture=neutral, PublicKeyToken=02f879aa45933051, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\RavenEmbeddedClient\Lucene.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="MissingBitsFromClientProfile, Version=0.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\RavenClient\MissingBitsFromClientProfile.dll</HintPath>
+    </Reference>
     <Reference Include="NAudio">
       <HintPath>..\lib\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Embedded, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\RavenEmbeddedClient\Raven.Client.Embedded.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\RavenEmbeddedClient\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Storage.Esent">
+      <HintPath>..\lib\RavenEmbeddedClient\Raven.Storage.Esent.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -65,6 +88,7 @@
     <Compile Include="AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BooleanInverter.cs" />
     <Compile Include="BusyIndicatorBehavior.cs" />
     <Compile Include="ByteSizeConverter.cs" />
     <Compile Include="CanExecuteCommand.cs" />
@@ -85,6 +109,7 @@
       <DependentUpon>PositionIndicator.xaml</DependentUpon>
     </Compile>
     <Compile Include="SizeToMarginConverter.cs" />
+    <Compile Include="ViewModels\LocalStoreModel.cs" />
     <Compile Include="ViewModels\PeerConfigurationModel.cs" />
     <Compile Include="ViewModels\SearchListModel.cs" />
     <Compile Include="Views\SearchList.xaml.cs">
@@ -180,6 +205,10 @@
     <ProjectReference Include="..\Persistence\Persistence.csproj">
       <Project>{DF93835A-ED54-41C5-A878-6DB1411104E5}</Project>
       <Name>Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebServer\PeerPlayer.csproj">
+      <Project>{49FD3F87-0FB7-4605-B256-5A4AA486268B}</Project>
+      <Name>PeerPlayer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

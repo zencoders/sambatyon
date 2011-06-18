@@ -44,7 +44,7 @@ namespace PeerPlayer
                     return 0;
                 }
             }
-        }
+        }        
         #endregion
 
         public Peer(bool single = false, string btpNode = "")
@@ -201,11 +201,21 @@ namespace PeerPlayer
             this.transportLayer.Stop();
         }
 
-        public void StoreFile(string filename)
+        public bool StoreFile(string filename)
         {
             log.Info("Storing file:" + filename);
             TrackModel track = new TrackModel(filename);
-            this.trackRep.Save(track);
+            TrackModel sameTk = new TrackModel();
+            this.trackRep.GetByKey<TrackModel.Track>(track.GetAsDatabaseType().Id, sameTk);
+            if ((sameTk != null) && (sameTk.GetAsDatabaseType().Id == track.GetAsDatabaseType().Id))
+            {
+                return false;
+            }
+            else
+            {
+                this.trackRep.Save(track);
+                return true;
+            }
         }
 
         public IList<KademliaResource> SearchFor(string queryString)
@@ -213,6 +223,12 @@ namespace PeerPlayer
             return this.kademliaLayer.GetAll(queryString);
         }
 
+        public IList<TrackModel.Track> GetAllTracks()
+        {
+            List<TrackModel.Track> list = new List<TrackModel.Track>();
+            this.trackRep.GetAll(list);
+            return list;
+        }
         #endregion
 
         static void Main(string[] args)

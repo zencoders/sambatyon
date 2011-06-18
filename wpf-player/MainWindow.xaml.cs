@@ -10,8 +10,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Persistence;
+using Persistence.RepositoryImpl;
 using System.IO;
 using System.Threading;
+using System.Linq;
 
 namespace wpf_player
 {    
@@ -22,6 +24,7 @@ namespace wpf_player
 	{
         private AudioPlayerModel playerModel = null;
         private SearchListModel listModel = null;
+        private LocalStoreModel storeModel=null;
         private FakePeer peer = null;
 		public MainWindow()
 		{
@@ -35,8 +38,12 @@ namespace wpf_player
                 }
                 catch (Exception e)
                 {
-                    PeerConfigurationModel vm = new PeerConfigurationModel(int.Parse(peer.ConfOptions["udpPort"]), int.Parse(peer.ConfOptions["kadPort"]));
+                    MessageBox.Show(e.Message, "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
+                    int udpPort=((peer!=null)?int.Parse(peer.ConfOptions["udpPort"]):0);
+                    int kadPort=((peer!=null)?int.Parse(peer.ConfOptions["kadPort"]):0);
+                    PeerConfigurationModel vm = new PeerConfigurationModel(udpPort,kadPort);
                     PeerSettingsDialog dlg = new PeerSettingsDialog();
+                    dlg.DataContext = vm;
                     dlg.ShowDialog();
                     if (dlg.DialogResult.HasValue && dlg.DialogResult.Value)
                     {
@@ -92,6 +99,15 @@ namespace wpf_player
             dlg.Owner = this;
             dlg.ShowDialog();
         }
+
+        private void local_store_Click(object sender, RoutedEventArgs e)
+        {
+            storeModel = new LocalStoreModel(peer);
+            LocalStoreWindow dlg = new LocalStoreWindow();
+            dlg.DataContext = storeModel;
+            dlg.Owner = this;
+            dlg.Show();
+        }
 	}
 
     public class FakePeer
@@ -100,6 +116,7 @@ namespace wpf_player
         private Dictionary<string, string> fileMap = new Dictionary<string, string>();
         private Thread th = null;
         public Dictionary<string, string> ConfOptions {get; set;}
+        public Persistence.Repository tRep;
         public int ChunkLength
         {
             get
@@ -118,6 +135,8 @@ namespace wpf_player
             tr = new KademliaResource(@"C:\prog\p2p-player\Examples\Resource\SevenMP3.mp3", new DhtElement() { Url = new Uri("http://localhost:5213") }, new DhtElement() { Url = new Uri("http://localhost:5411") });
             res.Add(tr);
             fileMap.Add(tr.Id, @"C:\prog\p2p-player\Examples\Resource\SevenMP3.mp3");
+            Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(new { data_dir = "..\\..\\Resource\\TrackDb" });
+            tRep = Persistence.RepositoryFactory.GetRepositoryInstance("Raven", conf);
         }
         public void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes, Stream s)
         {
@@ -183,12 +202,30 @@ namespace wpf_player
         public void Configure(string udpPort, string kademliaPort)
         {
         }
-        public void StoreFile(string filename)
+        public bool StoreFile(string filename)
         {
+            TrackModel track = new TrackModel(filename);
+            TrackModel sameTk = new TrackModel();
+            this.tRep.GetByKey<TrackModel.Track>(track.GetAsDatabaseType().Id, sameTk);
+            if ((sameTk != null) && (sameTk.GetAsDatabaseType().Id == track.GetAsDatabaseType().Id))
+            {
+                return false;
+            }
+            else
+            {
+                this.tRep.Save(track);
+                return true;
+            }
         }
         public IList<KademliaResource> SearchFor(string queryString)
         {
             return new List<KademliaResource>(res);
+        }
+        public IList<TrackModel.Track> GetAllTracks()
+        {
+            List<TrackModel.Track> list = new List<TrackModel.Track>();
+            tRep.GetAll(list);
+            return list;           
         }
     }
 }
