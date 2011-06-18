@@ -14,6 +14,7 @@ using Persistence.RepositoryImpl;
 using System.IO;
 using System.Threading;
 using System.Linq;
+using PeerPlayer;
 
 namespace wpf_player
 {    
@@ -25,7 +26,7 @@ namespace wpf_player
         private AudioPlayerModel playerModel = null;
         private SearchListModel listModel = null;
         private LocalStoreModel storeModel=null;
-        private FakePeer peer = null;
+        private Peer peer = null;
 		public MainWindow()
 		{
             bool keepTry = true;
@@ -33,7 +34,7 @@ namespace wpf_player
             {
                 try
                 {
-                    peer = new FakePeer();
+                    peer = new Peer();
                     keepTry = false;
                 }
                 catch (Exception e)
@@ -72,14 +73,21 @@ namespace wpf_player
             {
                 SearchList s = item as SearchList;
                 s.SetDataContext(listModel);
-            }
+            }            
 			// Insert code required on object creation below this point.
-		} 
-
+		}
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            if (peer != null)
+            {
+                peer.Dispose();
+            }
+            base.OnClosing(e);
+        }
 		private void exit_item_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
 			this.Close();
-		}
+		}        
         private void peer_config_item_Click(object sender, RoutedEventArgs e)
         {
             PeerConfigurationModel vm = new PeerConfigurationModel(int.Parse(peer.ConfOptions["udpPort"]),int.Parse(peer.ConfOptions["kadPort"]));

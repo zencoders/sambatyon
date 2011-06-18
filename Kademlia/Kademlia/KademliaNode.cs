@@ -303,7 +303,7 @@ namespace Kademlia
 
         private void IterativeStore(CompleteTag tag, DateTime originalInsertion, EndpointAddress endpoint = null)
         {
-            IList<Contact> closest = IterativeFindNode(new ID(tag.TagHash));
+            IList<Contact> closest = IterativeFindNode(ID.FromString(tag.TagHash));
             log.Info("Storing at " + closest.Count + " nodes");
             foreach (Contact c in closest)
             {
@@ -507,7 +507,7 @@ namespace Kademlia
 		private void SyncStore(Contact storeAt, CompleteTag tag, DateTime originalInsertion, EndpointAddress endpoint)
 		{
 			// Make a message
-            ID tagID = new ID(tag.TagHash);
+            ID tagID = ID.FromString(tag.TagHash);
 			StoreQuery storeIt = new StoreQuery(nodeID, tagID, originalInsertion, endpoint.Uri);
 			
 			// Record having sent it

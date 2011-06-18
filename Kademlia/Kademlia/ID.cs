@@ -7,6 +7,7 @@ using System.Threading;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Linq;
 
 namespace Kademlia
 {
@@ -71,7 +72,16 @@ namespace Kademlia
 			HashAlgorithm hasher = new SHA1CryptoServiceProvider(); // Keeping this around results in exceptions
 			return new ID(hasher.ComputeHash(Encoding.UTF8.GetBytes(key)));
 		}
-		
+
+        public static ID FromString(string hash)
+        {
+            return new ID(
+                    Enumerable.Range(0, hash.Length)
+                     .Where(x => x % 2 == 0)
+                     .Select(x => Convert.ToByte(hash.Substring(x, 2), 16))
+                     .ToArray()
+                     );
+        }
 		/// <summary>
 		/// XOR operator.
 		/// This is our distance metric in the DHT.

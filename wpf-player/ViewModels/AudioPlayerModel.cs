@@ -13,13 +13,14 @@ using Persistence;
 using System.Windows.Markup;
 using Persistence.Tag;
 using NAudio.FileFormats.Mp3;
+using PeerPlayer;
 
 
 namespace wpf_player
 {
 	public class AudioPlayerModel : INotifyPropertyChanged,IDisposable
 	{
-        private FakePeer peer = null;
+        private Peer peer = null;
         private ObservableStream localstream=null;
         private MemoryStream lmem = null;
         private byte[] streambuff = null;
@@ -31,7 +32,7 @@ namespace wpf_player
         private double currentTime=0.0;
         private long startPosition = 0L;
         private bool startPhaseBuffering = false;
-        public AudioPlayerModel(FakePeer p = null)
+        public AudioPlayerModel(Peer p = null)
 		{
             //player.Done += new PlayerEx.DoneEventHandler(player_Done);
            //player.SetVolume(200, 200);

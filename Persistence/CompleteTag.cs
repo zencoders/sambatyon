@@ -25,7 +25,7 @@ namespace Tag
             {
                 sb.Append(retVal[i].ToString("x2"));
             }
-            this.FileHash= sb.ToString();
+            this.FileHash= sb.ToString();            
             this.FillTag(filename);    
             System.Text.UTF8Encoding enc= new UTF8Encoding();
             byte[] tHashByte = crypto.ComputeHash(enc.GetBytes(this.contentString()));

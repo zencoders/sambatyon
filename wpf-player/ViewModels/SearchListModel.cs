@@ -7,6 +7,7 @@ using Persistence;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using PeerPlayer;
 
 namespace wpf_player
 {
@@ -15,9 +16,9 @@ namespace wpf_player
         private ObservableCollection<KademliaResource> responseList=new ObservableCollection<KademliaResource>();
         public delegate void StreamRequestedEventHandler(object sender, StreamRequestedArgs args);
         public event StreamRequestedEventHandler StreamRequested;
-        private FakePeer peer = null;
+        private Peer peer = null;
         private string queryStr;
-		public SearchListModel(FakePeer peer=null)
+		public SearchListModel(Peer peer=null)
 		{
             this.peer = peer;
             Query = "";            

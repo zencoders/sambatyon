@@ -211,9 +211,25 @@
     <Folder Include="SampleData\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Kademlia\Kademlia\Kademlia.csproj">
+      <Project>{07C0CD14-D301-44B4-8B1A-7FD5D68F03CB}</Project>
+      <Name>Kademlia</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Metrics\Metrics.csproj">
+      <Project>{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}</Project>
+      <Name>Metrics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Persistence\Persistence.csproj">
       <Project>{DF93835A-ED54-41C5-A878-6DB1411104E5}</Project>
       <Name>Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TransportService\TransportService.csproj">
+      <Project>{8C128D0C-5E16-4709-8EE8-BE8EBF79E9CA}</Project>
+      <Name>TransportService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UdpBinding\UdpBinding.csproj">
+      <Project>{7667D3D1-795F-48E1-B271-BE245159EE34}</Project>
+      <Name>UdpBinding</Name>
     </ProjectReference>
     <ProjectReference Include="..\WebServer\PeerPlayer.csproj">
       <Project>{49FD3F87-0FB7-4605-B256-5A4AA486268B}</Project>

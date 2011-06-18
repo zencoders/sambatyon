@@ -17,7 +17,7 @@ using System.Net.Sockets;
 namespace PeerPlayer
 {
     [ServiceBehavior(InstanceContextMode=InstanceContextMode.Single)]
-    class Peer : IDisposable, IPeer
+    public class Peer : IDisposable, IPeer
     {
         private TransportProtocol transportLayer;
         private static readonly ILog log = LogManager.GetLogger(typeof(Peer));
@@ -198,7 +198,10 @@ namespace PeerPlayer
         public void StopFlow()
         {
             log.Info("Stop flow.");
-            this.transportLayer.Stop();
+            if (this.transportLayer != null)
+            {
+                this.transportLayer.Stop();
+            }
         }
 
         public bool StoreFile(string filename)
@@ -209,7 +212,8 @@ namespace PeerPlayer
             this.trackRep.GetByKey<TrackModel.Track>(track.GetAsDatabaseType().Id, sameTk);
             if ((sameTk != null) && (sameTk.GetAsDatabaseType().Id == track.GetAsDatabaseType().Id))
             {
-                return false;
+                log.Warn("Unable to store duplicate file "+filename+" !");
+                return false;                
             }
             else
             {

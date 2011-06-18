@@ -11,9 +11,9 @@ namespace Examples
     {
         public static void RunExamples() {
             ExampleHelper.ExampleSetPrint("Tag Examples",typeof(TagExamples));
-            TagReadAndWrite();
+            //TagReadAndWrite();
             CompleteTagReadAndWrite();
-            CompleteToLightTag();
+            //CompleteToLightTag();
         }
         private static void CompleteToLightTag()
         {
