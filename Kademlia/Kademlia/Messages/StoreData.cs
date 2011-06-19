@@ -16,6 +16,7 @@ namespace Kademlia.Messages
 	{
 		private CompleteTag data;
 		private DateTime publication;
+        private Uri transportUri;
 		
 		/// <summary>
 		/// Make a mesage to store the given data.
@@ -26,10 +27,11 @@ namespace Kademlia.Messages
 		/// <param name="theDataHash"></param>
 		/// <param name="theData"></param>
 		/// <param name="originalPublication"></param>
-		public StoreData(ID nodeID, StoreResponse request, CompleteTag theData, DateTime originalPublication, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
+		public StoreData(ID nodeID, StoreResponse request, CompleteTag theData, DateTime originalPublication, Uri nodeEndpoint, Uri transportUri) : base(nodeID, request, nodeEndpoint)
 		{
-			data = theData;
-			publication = originalPublication;
+			this.data = theData;
+			this.publication = originalPublication;
+            this.transportUri = transportUri;
 		}
 		
 		/// <summary>
@@ -53,7 +55,14 @@ namespace Kademlia.Messages
             get { return publication.ToUniversalTime(); }
             set { }
 		}
-		
+
+        [DataMember]
+        public Uri TransportUri
+        {
+            get { return transportUri; }
+            set { }
+        }
+
         [DataMember]
 		public override string Name
 		{

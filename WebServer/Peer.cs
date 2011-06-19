@@ -28,6 +28,8 @@ namespace PeerPlayer
         private string btpNode;
         private Persistence.Repository trackRep;
         private string peerAddress;
+        private Uri transportAddress;
+        private Uri kademliaAddress;
 
         #region Properties
         public Dictionary<string, string> ConfOptions {get; set;}
@@ -59,7 +61,8 @@ namespace PeerPlayer
             AppSettingsReader asr = new AppSettingsReader();
             Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(new { data_dir = (string)asr.GetValue("TrackRepository", typeof(string)) });
             this.trackRep = Persistence.RepositoryFactory.GetRepositoryInstance("Raven", conf);
-            IPHostEntry IPHost = Dns.GetHostEntry(Dns.GetHostName());
+            this.peerAddress = "127.0.0.1";
+/*            IPHostEntry IPHost = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress[] listaIP = IPHost.AddressList;
             foreach (IPAddress ip in listaIP)
             {
@@ -68,12 +71,21 @@ namespace PeerPlayer
                     this.peerAddress = ip.ToString();
                     break;
                 }
-            }
+            }*/
+        }
+
+        private void calculateAddresses()
+        {
+            string udpPort = this.ConfOptions["udpPort"];
+            string kademliaPort = this.ConfOptions["kadPort"];
+            this.transportAddress = new Uri("soap.udp://" + this.peerAddress + ":" + udpPort + "/transport_protocol");
+            this.kademliaAddress = new Uri("soap.udp://" + this.peerAddress + ":" + kademliaPort + "/kademlia");
         }
 
         public void runLayers(bool withoutInterface=false)
         {
             log.Debug("Running layers...");
+            this.calculateAddresses();
             svcHosts[0] = this.runKademliaLayer(single, btpNode);
             svcHosts[1] = this.runTransportLayer();
             if(!withoutInterface)
@@ -103,12 +115,9 @@ namespace PeerPlayer
         private ServiceHost runTransportLayer()
         {
             log.Info("Running Transport Layer.");
-            string udpPort = this.ConfOptions["udpPort"];
-            Uri[] addresses = new Uri[1];
-            addresses[0] = new Uri("soap.udp://"+this.peerAddress+":" + udpPort + "/transport_protocol/");
-            TransportProtocol tsp = new TransportProtocol(addresses[0], this.trackRep);
+            TransportProtocol tsp = new TransportProtocol(transportAddress, this.trackRep);
             this.transportLayer = tsp;
-            ServiceHost host = new ServiceHost(tsp, addresses);
+            ServiceHost host = new ServiceHost(tsp, transportAddress);
             try
             {
                 host.Open();
@@ -135,9 +144,9 @@ namespace PeerPlayer
         private ServiceHost runKademliaLayer(bool single, string btpNode)
         {
             log.Info("Running Kademlia layer.");
-            string kademliaPort = this.ConfOptions["kadPort"];
-            KademliaNode node = new KademliaNode(new EndpointAddress("soap.udp://"+this.peerAddress+":"+kademliaPort+"/kademlia"));
-            ServiceHost kadHost = new ServiceHost(node, new Uri("soap.udp://"+this.peerAddress+":" + kademliaPort + "/kademlia"));
+            
+            KademliaNode node = new KademliaNode(new EndpointAddress(kademliaAddress), new EndpointAddress(transportAddress));
+            ServiceHost kadHost = new ServiceHost(node, kademliaAddress);
             try
             {
                 kadHost.Open();
@@ -180,11 +189,11 @@ namespace PeerPlayer
             return this.localStream;
         }
 
-        public void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes)
+        public void GetFlow(string RID, int begin, long length, Dictionary<string, float> nodes)
         {
             this.GetFlow(RID, begin, length, nodes, null);
         }
-        public void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes, Stream stream = null)
+        public void GetFlow(string RID, int begin, long length, Dictionary<string, float> nodes, Stream stream = null)
         {
             log.Info("Beginning to get flow from the network");
             Stream handlingStream = stream;

@@ -15,7 +15,7 @@ namespace PeerPlayer
         Stream ConnectToStream();
 
         [OperationContract]
-        void GetFlow(string RID, int begin, int length, Dictionary<string, float> nodes);
+        void GetFlow(string RID, int begin, long length, Dictionary<string, float> nodes);
 
         [OperationContract]
         void StopFlow();

@@ -30,7 +30,7 @@ namespace TransportService
 
         public string GetBestPeer()
         {
-            if (this.peerQueue.Count() <= 0)
+            while (this.peerQueue.AsParallel().Where(p => p.Value.State == PeerQueueElement.ThreadState.FREE).Count() <= 0)
             {
                 this.peerQueueNotEmpty.WaitOne();
             }

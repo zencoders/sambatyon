@@ -33,7 +33,7 @@ namespace Kademlia.Messages
         [DataMember]
 		public string Key {
             get { return key; }
-            set { this.Key = value; }
+            set { this.key = value; }
 		}
 		
         [DataMember]

@@ -401,7 +401,7 @@ namespace wpf_player
             NotifyPropertyChanged("BufferPortion");
             localstream.WaitedPositionReached += resumePlay;
             localstream.PositionChanged += (sender, args) => { NotifyPropertyChanged("BufferPortion"); };
-            peer.GetFlow(rsc.Id,convertSizeToChunk(startPosition), convertSizeToChunk(rsc.Tag.FileSize), tD, localstream);
+            peer.GetFlow(rsc.Tag.FileHash,(int)startPosition, (int)rsc.Tag.FileSize, tD, localstream);
             BufferingState = true;
             NotifyPropertyChanged("PlayingState");
             startPhaseBuffering = true;

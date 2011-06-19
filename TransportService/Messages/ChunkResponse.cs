@@ -20,6 +20,7 @@ namespace TransportService.Messages
             this.servingBuffer = servingBuffer;
             this.RID = RID;
             this.CID = CID;
+            this.payload = payload;
             this.SenderAddress = SenderAddress;
         }
 

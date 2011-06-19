@@ -26,6 +26,7 @@ namespace Kademlia
 		// Identity
 		private ID nodeID;
         private EndpointAddress nodeEndpoint;
+        private EndpointAddress transportEndpoint;
 		
 		// Network State
 		private BucketList contactCache;
@@ -33,7 +34,8 @@ namespace Kademlia
 		private const int CHECK_INTERVAL = 1;
 		private List<Contact> contactQueue; // Add contacts here to be considered for caching
 		private const int MAX_QUEUE_LENGTH = 10;
-        private const string DEFAULT_ENDPOINT = "soap.udp://localhost:8001/kademlia";
+        private const string DEFAULT_TRANSPORT_ENDPOINT = "soap.udp://localhost:9997/transport_protocol/";
+        private const string DEFAULT_ENDPOINT = "soap.udp://localhost:10000/kademlia";
         private const string DEFAULT_REPOSITORY = @"..\..\Resource\KademliaDatabase";
 		
 		// Response cache
@@ -44,7 +46,7 @@ namespace Kademlia
 			public DateTime arrived;
 		}
 		private SortedList<ID, CachedResponse> responseCache;
-		private TimeSpan MAX_SYNC_WAIT = new TimeSpan(5000000); // 500 ms in ticks
+		private TimeSpan MAX_SYNC_WAIT = new TimeSpan(5000000); // 5 ms in ticks
 		
 		// Application (datastore)
         private KademliaRepository datastore; 
@@ -87,7 +89,7 @@ namespace Kademlia
 		/// <summary>
 		/// Make a node on a random available port, using an ID specific to this machine.
 		/// </summary>
-		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID())
+		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID(), new EndpointAddress(DEFAULT_TRANSPORT_ENDPOINT))
 		{
 			// Nothing to do!
 		}
@@ -96,7 +98,7 @@ namespace Kademlia
 		/// Make a node with a specified ID.
 		/// </summary>
 		/// <param name="id"></param>
-		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id)
+		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id, new EndpointAddress(DEFAULT_TRANSPORT_ENDPOINT))
 		{
 			// Nothing to do!
 		}
@@ -105,20 +107,27 @@ namespace Kademlia
 		/// Make a node on a specified port.
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID())
+		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID(), new EndpointAddress(DEFAULT_TRANSPORT_ENDPOINT))
 		{
 			// Nothing to do!
 		}
+
+        public KademliaNode(EndpointAddress addr, EndpointAddress transportAddr)
+            : this(addr, ID.HostID(), transportAddr)
+        {
+            // Nothing to do!
+        }
 		
 		/// <summary>
 		/// Make a node on a specific port, with a specified ID
 		/// </summary>
 		/// <param name="port"></param>
-		public KademliaNode(EndpointAddress addr, ID id)
+		public KademliaNode(EndpointAddress addr, ID id, EndpointAddress transportAddr)
 		{
 			// Set up all our data
             AppSettingsReader asr = new AppSettingsReader();
             nodeEndpoint = addr;
+            transportEndpoint = transportAddr;
 			nodeID = id;
 			contactCache = new BucketList(nodeID);
 			contactQueue = new List<Contact>();
@@ -222,7 +231,9 @@ namespace Kademlia
 		/// <param name="val"></param>
 		public void Put(string filename)
 		{
-			IterativeStore(new CompleteTag(filename), DateTime.Now);
+            CompleteTag fileTag = new CompleteTag(filename);
+            datastore.StoreResource(fileTag, this.transportEndpoint.Uri, DateTime.Now);
+			IterativeStore(fileTag, DateTime.Now);
 			// TODO: republish
 		}
 		
@@ -233,13 +244,25 @@ namespace Kademlia
 		/// <returns></returns>
 		public IList<KademliaResource> Get(string key)
 		{
-			IList<Contact> close;
-			IList<KademliaResource> found = IterativeFindValue(key, out close);
-			if(found == null) { // Empty list for nothing found
-				return new List<KademliaResource>();
-			} else {
-				return found;
-			}
+            KademliaResource[] results = datastore.SearchFor(key);
+            IList<KademliaResource> found;
+            if (results.Length > 0)
+            {
+                found = new List<KademliaResource>(results);
+            }
+            else
+            {
+                IList<Contact> close;
+                found = IterativeFindValue(key, out close);
+            }
+            if (found == null)
+            { // Empty list for nothing found
+                return new List<KademliaResource>();
+            }
+            else
+            {
+                return found;
+            }
 		}
 		#endregion
 		
@@ -308,7 +331,7 @@ namespace Kademlia
             foreach (Contact c in closest)
             {
                 // Store a copy at each
-                if (endpoint == null)
+                if (endpoint != null)
                 {
                     SyncStore(c, tag, originalInsertion, endpoint);
                 }
@@ -337,6 +360,7 @@ namespace Kademlia
             SortedList<ID, Contact> shortlist = new SortedList<ID, Contact>();
             foreach (Contact c in contactCache.CloseContacts(PARALELLISM, target, null))
             {
+                log.Info("Adding contact " + c.NodeEndPoint + " to shortlist");
                 shortlist.Add(c.NodeID, c);
             }
 
@@ -381,6 +405,7 @@ namespace Kademlia
                     else
                     {
                         // Node down. Remove from shortlist and adjust loop indicies
+                        log.Info("Node " + shortlist.Values[i].NodeEndPoint + " is down. Removing it from shortlist!");
                         shortlist.RemoveAt(i);
                         i--;
                         shortlistIndex--;
@@ -395,6 +420,7 @@ namespace Kademlia
             {
                 shortlist.RemoveAt(shortlist.Count - 1);
             }
+
             return shortlist.Values;
 		}
 		
@@ -731,6 +757,7 @@ namespace Kademlia
 		public void HandleFindValue(FindValue request)
 		{
             HandleMessage(request);
+            log.Info("Searching for: " + request.Key);
             KademliaResource[] results = datastore.SearchFor(request.Key);
 			if(results.Length > 0) {
 				FindValueDataResponse response = new FindValueDataResponse(nodeID, request, results, nodeEndpoint.Uri);
@@ -791,7 +818,7 @@ namespace Kademlia
 					if(request.PublicationTime < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW)) { 
 						// We re-hash since we shouldn't trust their hash
 					//	datastore.Put(request.Key, ID.Hash(request.Data), request.Data, request.PublicationTime, EXPIRE_TIME);
-                        datastore.StoreResource(request.Data, this.nodeEndpoint.Uri, request.PublicationTime);
+                        datastore.StoreResource(request.Data, request.TransportUri, request.PublicationTime);
 					}
 				}
 			}
@@ -811,7 +838,7 @@ namespace Kademlia
 					// We actually sent this
 					// Send along the data and remove it from the list
 					OutstandingStoreRequest toStore = sentStoreRequests[response.ConversationID];
-                    StoreData r = new StoreData(nodeID, response, toStore.val, toStore.publication, nodeEndpoint.Uri);
+                    StoreData r = new StoreData(nodeID, response, toStore.val, toStore.publication, nodeEndpoint.Uri, transportEndpoint.Uri);
                     IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
                         new NetUdpBinding(), new EndpointAddress(response.NodeEndpoint)
                     );

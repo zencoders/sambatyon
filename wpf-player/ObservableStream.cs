@@ -49,6 +49,7 @@ namespace wpf_player
         }
         public override void Write(byte[] buffer, int offset, int count)
         {
+            Console.WriteLine("##### " + this.Capacity + " < " + (base.Length + count) + " #####");
             base.Write(buffer, offset, count);
             launchEvent();
         }
