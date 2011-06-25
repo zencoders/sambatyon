@@ -63,18 +63,21 @@ namespace Kademlia
                     AppSettingsReader asr = new AppSettingsReader();
                     XDocument xmlDoc = XDocument.Load((string)asr.GetValue("KademliaNodesFile", typeof(string)));
 
-                    var nodes = from node in xmlDoc.Descendants("Node")
-                                select new
-                                {
-                                    Host = node.Element("Host").Value,
-                                    Port = node.Element("Port").Value,
-                                };
-
+                    List<EndpointAddress> nodes = new List<EndpointAddress>(from node in xmlDoc.Descendants("Node")
+                                select new EndpointAddress("soap.udp://" + node.Element("Host").Value + ":" + node.Element("Port").Value + "/kademlia"));
 
                     foreach (var node in nodes)
                     {
                         // Each line is <ip> <port>
-                        try
+                        if (dhtNode.AsyncBootstrap(nodes))
+                        {
+                            log.Debug("OK!");
+                        }
+                        else
+                        {
+                            log.Debug("Failed.");
+                        }
+/*                        try
                         {
                             log.Debug("Bootstrapping with " + node.Host + ":" + node.Port);
                             EndpointAddress bootstrapNode = new EndpointAddress("soap.udp://" + node.Host + ":" + node.Port + "/kademlia");
@@ -90,7 +93,7 @@ namespace Kademlia
                         catch (Exception ex)
                         {
                             log.Error("Bad entry!", ex);
-                        }
+                        }*/
                     }
                 }
                 else

@@ -202,7 +202,7 @@ namespace Persistence
             RepositoryResponse resp = _repository.GetByKey<KademliaResource>(tagid, rs);
             if (resp == RepositoryResponse.RepositoryLoad)
             {
-                int eindex = rs.Urls.FindIndex(elem =>
+                int eindex = rs.Urls.ToList().FindIndex(elem =>
                 {
                     return elem.Url.Equals(url);
                 });
@@ -292,7 +292,7 @@ namespace Persistence
             KademliaResource rs = Get(tagid);            
             if (rs!=null)
             {
-                DhtElement elem = rs.Urls.Find(de =>
+                DhtElement elem = rs.Urls.ToList().Find(de =>
                     {
                         return de.Url.Equals(url);
                     }
@@ -317,9 +317,10 @@ namespace Persistence
                                                         {
                                                             iter_desc.TagId = key.Id;
                                                         }
-                                                        for (int k=0;k<key.Urls.Count;k++)
+                                                        List<DhtElement> dhtElementList = key.Urls.ToList();
+                                                        for (int k=0;k<dhtElementList.Count;k++)
                                                         {
-                                                            DhtElement delem = key.Urls[k];
+                                                            DhtElement delem = dhtElementList[k];
                                                             if (DateTime.Compare(delem.Publication.Add(delem.Validity),DateTime.Now) <= 0)
                                                             {
                                                                 iter_desc.Expired.Add(delem);

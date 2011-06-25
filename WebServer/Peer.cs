@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using log4net;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace PeerPlayer
 {
@@ -82,14 +83,20 @@ namespace PeerPlayer
             this.kademliaAddress = new Uri("soap.udp://" + this.peerAddress + ":" + kademliaPort + "/kademlia");
         }
 
-        public void runLayers(bool withoutInterface=false)
+        private void runLayersDelegate(bool withoutInterface = false)
         {
             log.Debug("Running layers...");
             this.calculateAddresses();
             svcHosts[0] = this.runKademliaLayer(single, btpNode);
             svcHosts[1] = this.runTransportLayer();
-            if(!withoutInterface)
+            if (!withoutInterface)
                 svcHosts[2] = this.runInterfaceLayer();
+        }
+
+        public void RunLayers(bool withoutInterface=false)
+        {
+            Thread t = new Thread(new ThreadStart(() => runLayersDelegate(withoutInterface)));
+            t.Start();
         }
 
         #region layersInitialization
@@ -227,6 +234,7 @@ namespace PeerPlayer
             else
             {
                 this.trackRep.Save(track);
+                this.kademliaLayer.Put(filename);
                 return true;
             }
         }
@@ -281,7 +289,7 @@ namespace PeerPlayer
                         p.Configure(p.ConfOptions["udpPort"], p.ConfOptions["kadPort"]);
                     }
                 }
-                p.runLayers(withoutInterface);
+                p.RunLayers(withoutInterface);
                 Console.WriteLine();
                 Console.WriteLine("Press <ENTER> to terminate Host");
                 Console.ReadLine();

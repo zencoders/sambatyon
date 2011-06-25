@@ -82,7 +82,6 @@
     <Compile Include="ID.cs" />
     <Compile Include="IKademliaNode.cs" />
     <Compile Include="KademliaNode.cs" />
-    <Compile Include="LocalStorage.cs" />
     <Compile Include="Messages\FindNode.cs" />
     <Compile Include="Messages\FindNodeResponse.cs" />
     <Compile Include="Messages\FindValue.cs" />

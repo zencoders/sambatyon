@@ -8,19 +8,20 @@ using System.Runtime.Serialization;
 namespace Persistence
 {
     [Serializable]
-    public class KademliaResource: IDocumentType,ILoadable,ISerializable
+    [DataContractAttribute]
+    public class KademliaResource: IDocumentType,ILoadable/*,ISerializable*/
     {
         public KademliaResource()
         {
             this.Tag = null;
-            this.Urls = new List<DhtElement>();
+            this.Urls = new HashSet<DhtElement>();
 
         }
         public KademliaResource(string filename, params DhtElement[] urls) :this() {
             this.Tag = new CompleteTag(filename);
             if (urls.Length != 0)
             {
-                this.Urls.AddRange(urls);
+                this.Urls.UnionWith(urls);
             }
         }
         public KademliaResource(CompleteTag tag, params DhtElement[] urls) : this()
@@ -28,13 +29,13 @@ namespace Persistence
             this.Tag = tag;
             if (urls.Length != 0)
             {
-                this.Urls.AddRange(urls);
+                this.Urls.UnionWith(urls);
             }
         }
         public KademliaResource(SerializationInfo info, StreamingContext ctxt) : this()
         {
             this.Tag = (CompleteTag)info.GetValue("Tag", typeof(CompleteTag));
-            this.Urls = (List<DhtElement>)info.GetValue("Urls", typeof(List<DhtElement>));
+            this.Urls = (HashSet<DhtElement>)info.GetValue("Urls", typeof(HashSet<DhtElement>));
         }
         #region IDocumentType
         public string Id
@@ -56,12 +57,14 @@ namespace Persistence
             }
         }
         #endregion
+        [DataMemberAttribute]
         public CompleteTag Tag
         {
             get;
             set;
         }
-        public List<DhtElement> Urls
+        [DataMemberAttribute]
+        public HashSet<DhtElement> Urls
         {
             get;
             set;
@@ -78,7 +81,7 @@ namespace Persistence
             this.Tag = data.Tag;
             this.Id = data.Id;
             this.Urls.Clear();
-            this.Urls.AddRange(data.Urls);
+            this.Urls.UnionWith(data.Urls);
             return true;
         }
 
@@ -92,6 +95,19 @@ namespace Persistence
         {
             info.AddValue("Tag", this.Tag);
             info.AddValue("Urls", this.Urls);
+        }
+
+        public bool MergeTo(KademliaResource other)
+        {
+            if (this.Tag.FileHash == other.Tag.FileHash)
+            {
+                this.Urls.UnionWith(other.Urls);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

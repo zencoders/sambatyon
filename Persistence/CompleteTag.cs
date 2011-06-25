@@ -11,15 +11,20 @@ namespace Persistence
 {
 namespace Tag
 {
-    public class CompleteTag : ISerializable
+    [DataContractAttribute]
+    public class CompleteTag/* : ISerializable*/
     {
         public CompleteTag() { }
+
         public CompleteTag(string filename)
         {
-            FileStream file = new FileStream(filename, FileMode.Open);
+            byte[] retVal;
             SHA1 crypto = new SHA1CryptoServiceProvider();
-            byte[] retVal = crypto.ComputeHash(file);
-            file.Close();
+            using (FileStream file = new FileStream(filename, FileMode.Open))
+            {
+                retVal = crypto.ComputeHash(file);
+                file.Close();
+            }
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < retVal.Length; i++)
             {
@@ -37,6 +42,7 @@ namespace Tag
             }
             this.TagHash = sb.ToString();
         }
+
         public CompleteTag(SerializationInfo info, StreamingContext ctxt)
         {
             this.Title = (string) info.GetValue("Title", typeof(string));
@@ -123,66 +129,79 @@ namespace Tag
             }            
         }
         #region "Properties"
+        [DataMemberAttribute]
         public string Title
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public string Artist
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public string Album
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public string Genre
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public uint Year
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public uint Track
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public int Length
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public int Bitrate
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public int SampleRate
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public int Channels
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public long FileSize
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public string FileHash
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public string TagHash
         {
             get;

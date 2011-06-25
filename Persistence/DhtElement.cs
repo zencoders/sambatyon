@@ -7,19 +7,23 @@ using System.Runtime.Serialization;
 namespace Persistence
 {
     [Serializable]
-    public class DhtElement: IEquatable<DhtElement>,IEquatable<Uri>, ISerializable
+    [DataContractAttribute]
+    public class DhtElement: IEquatable<DhtElement>,IEquatable<Uri>/*, ISerializable*/
     {
         #region Properties
+        [DataMemberAttribute]
         public Uri Url
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public DateTime Publication
         {
             get;
             set;
         }
+        [DataMemberAttribute]
         public TimeSpan Validity
         {
             get;

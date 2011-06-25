@@ -11,14 +11,14 @@ namespace Kademlia
 	public class Contact
 	{
 		private ID nodeID;
-        private EndpointAddress nodeEndpoint;
+        private Uri nodeEndpoint;
 		
 		/// <summary>
 		/// Make a contact for a node with the given ID at the given location.
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="endpoint"></param>
-		public Contact(ID id, EndpointAddress endpoint)
+		public Contact(ID id, Uri endpoint)
 		{
 			nodeID = id;
 			nodeEndpoint = endpoint;
@@ -36,7 +36,7 @@ namespace Kademlia
 		/// Get the node's endpoint.
 		/// </summary>
 		/// <returns></returns>
-		public EndpointAddress NodeEndPoint {
+		public Uri NodeEndPoint {
             get { return nodeEndpoint; }
 		}
 		

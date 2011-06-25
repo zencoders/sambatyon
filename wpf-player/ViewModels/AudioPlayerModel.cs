@@ -390,7 +390,8 @@ namespace wpf_player
             Dictionary<string, float> tD = new Dictionary<string, float>();
             foreach (DhtElement de in rsc.Urls)
             {
-                tD.Add(de.Url.ToString(), 0);
+                Console.WriteLine(de.Url);
+                tD[de.Url.ToString()] = 0;
             }
             this.streambuff = new byte[rsc.Tag.FileSize];
             localstream = new ObservableStream(streambuff);

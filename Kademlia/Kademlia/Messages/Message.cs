@@ -24,7 +24,7 @@ namespace Kademlia.Messages
 		/// <param name="senderID"></param>
 		public Message(ID senderID, Uri nodeEndpoint) {
 			this.senderID = senderID;
-			conversationID = ID.RandomID();
+			this.conversationID = ID.RandomID();
             this.nodeEndpoint = nodeEndpoint;
 		}
 		
