@@ -9,7 +9,6 @@ namespace TransportService
     internal class ThreadPoolObject
     {
         public enum ThreadState { FREE, BUSY };
-        private Thread threadWorker;
 
         public ThreadPoolObject()
         {
@@ -28,16 +27,20 @@ namespace TransportService
             set;
         }
 
-        public void AssignAndStart(ThreadStart d)
+        private void assignAndStartDelegate(Delegate d)
+        {
+            d.DynamicInvoke();
+            this.State = ThreadState.FREE;
+            this.ThreadLock.Set();
+        }
+
+        public void AssignAndStart(Delegate d)
         {
             this.State = ThreadState.BUSY;
             this.ThreadLock.WaitOne();
             this.ThreadLock.Reset();
-            threadWorker = new Thread(() => d());
-            threadWorker.Start();
-            threadWorker.Join();
-            this.State = ThreadState.FREE;
-            this.ThreadLock.Set();
+            Thread t = new Thread(new ThreadStart(() => assignAndStartDelegate(d)));
+            t.Start();
         }
     }
 }

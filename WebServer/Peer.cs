@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace PeerPlayer
 {
-    [ServiceBehavior(InstanceContextMode=InstanceContextMode.Single)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class Peer : IDisposable, IPeer
     {
         private TransportProtocol transportLayer;
@@ -83,24 +83,23 @@ namespace PeerPlayer
             this.kademliaAddress = new Uri("soap.udp://" + this.peerAddress + ":" + kademliaPort + "/kademlia");
         }
 
-        private void runLayersDelegate(bool withoutInterface = false)
+        public void RunLayers(bool withoutInterface=false)
         {
             log.Debug("Running layers...");
             this.calculateAddresses();
-            svcHosts[0] = this.runKademliaLayer(single, btpNode);
-            svcHosts[1] = this.runTransportLayer();
+            Thread kadThread = new Thread(new ThreadStart(()=>this.runKademliaLayer(single, btpNode, ref svcHosts[0])));
+            Thread transportThread = new Thread(new ThreadStart(()=>this.runTransportLayer(ref svcHosts[1])));
             if (!withoutInterface)
-                svcHosts[2] = this.runInterfaceLayer();
-        }
-
-        public void RunLayers(bool withoutInterface=false)
-        {
-            Thread t = new Thread(new ThreadStart(() => runLayersDelegate(withoutInterface)));
-            t.Start();
+            {
+                Thread interfaceThread = new Thread(new ThreadStart(() => this.runInterfaceLayer(ref svcHosts[2])));
+                interfaceThread.Start();
+            }
+            kadThread.Start();
+            transportThread.Start();
         }
 
         #region layersInitialization
-        private ServiceHost runInterfaceLayer()
+        private void runInterfaceLayer(ref ServiceHost svcHost)
         {
             log.Info("Running Interface Layer.");
             ServiceHost host = new ServiceHost(this);
@@ -116,10 +115,10 @@ namespace PeerPlayer
             {
                 log.Info(uri.ToString());
             }
-            return host;
+            svcHost = host;
         }
 
-        private ServiceHost runTransportLayer()
+        private void runTransportLayer(ref ServiceHost svcHost)
         {
             log.Info("Running Transport Layer.");
             TransportProtocol tsp = new TransportProtocol(transportAddress, this.trackRep);
@@ -145,10 +144,10 @@ namespace PeerPlayer
                 log.Error("Unable to Connect as a Server because there is already one on this machine", aaiue);
                 throw aaiue;
             }
-            return host;
+            svcHost = host;
         }
 
-        private ServiceHost runKademliaLayer(bool single, string btpNode)
+        private void runKademliaLayer(bool single, string btpNode, ref ServiceHost svcHost)
         {
             log.Info("Running Kademlia layer.");
             
@@ -170,7 +169,7 @@ namespace PeerPlayer
             {
                 this.kademliaLayer.Put(t.Filename);
             });
-            return kadHost;
+            svcHost = kadHost;
         }
         #endregion
 

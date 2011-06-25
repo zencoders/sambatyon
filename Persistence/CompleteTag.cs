@@ -20,7 +20,7 @@ namespace Tag
         {
             byte[] retVal;
             SHA1 crypto = new SHA1CryptoServiceProvider();
-            using (FileStream file = new FileStream(filename, FileMode.Open))
+            using (FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 retVal = crypto.ComputeHash(file);
                 file.Close();

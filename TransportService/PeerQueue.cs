@@ -36,8 +36,6 @@ namespace TransportService
             }
             this.peerQueueNotEmpty.Reset();
             PeerQueueElement best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value.PeerScore > r.Value.PeerScore ? l : r).Value;
-            best.State = PeerQueueElement.ThreadState.BUSY;
-            best.TimedPeerBlock(3000);
             return best.PeerAddress;
         }
 
@@ -45,6 +43,18 @@ namespace TransportService
         {
             this.peerQueue[key].PeerScore = newScore;
             this.peerQueue[key].Reset();
+        }
+
+        public PeerQueueElement this[string key]
+        {
+            get
+            {
+                return this.peerQueue[key];
+            }
+            set
+            {
+                this.peerQueue[key] = value;
+            }
         }
     }
 }

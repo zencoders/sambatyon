@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Threading;
+using System.ServiceModel;
+using UdpTransportBinding;
+using TransportService.Messages;
 
 namespace TransportService
 {
@@ -13,6 +16,7 @@ namespace TransportService
 
         private System.Timers.Timer timer;
         private AutoResetEvent peerQueueNotEmpty;
+        private ITransportProtocol channel;
 
         public PeerQueueElement()
         {
@@ -24,6 +28,9 @@ namespace TransportService
             this.PeerScore = peerScore;
             this.State = ThreadState.FREE;
             this.peerQueueNotEmpty = peerQueueNotEmpty;
+            this.channel = ChannelFactory<ITransportProtocol>.CreateChannel(
+                    new NetUdpBinding(), new EndpointAddress(peerAddress)
+            );
         }
 
         public string PeerAddress
@@ -42,6 +49,13 @@ namespace TransportService
         {
             get;
             set;
+        }
+
+        public void GetChunk(ChunkRequest chkrq)
+        {
+            this.State = ThreadState.BUSY;
+            this.TimedPeerBlock(3000);
+            this.channel.GetChunk(chkrq);
         }
 
         public void TimedPeerBlock(int millis)
