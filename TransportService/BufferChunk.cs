@@ -34,6 +34,11 @@ namespace TransportService
                     this.timer.Enabled = true;
                     this.timer.Elapsed += new ElapsedEventHandler(this.cleaner);
                 }
+                else if (value == condition.CLEAN)
+                {
+                    if(this.timer != null)
+                        this.timer.Enabled = false;
+                }
             }
         }
 

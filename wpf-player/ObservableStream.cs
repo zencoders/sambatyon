@@ -50,7 +50,13 @@ namespace wpf_player
         public override void Write(byte[] buffer, int offset, int count)
         {
             Console.WriteLine("##### " + this.Capacity + " < " + (base.Length + count) + " #####");
-            base.Write(buffer, offset, count);
+            try
+            {
+                base.Write(buffer, offset, count);
+            }
+            catch (System.NotSupportedException)
+            {
+            }
             launchEvent();
         }
         public override void WriteByte(byte value)

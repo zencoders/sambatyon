@@ -69,6 +69,8 @@ namespace TransportService
         public void Reset()
         {
             this.State = ThreadState.FREE;
+            if(this.timer != null)
+                this.timer.Enabled = false;
             this.peerQueueNotEmpty.Set();
         }
 

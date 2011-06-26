@@ -62,8 +62,8 @@ namespace PeerPlayer
             AppSettingsReader asr = new AppSettingsReader();
             Persistence.RepositoryConfiguration conf = new Persistence.RepositoryConfiguration(new { data_dir = (string)asr.GetValue("TrackRepository", typeof(string)) });
             this.trackRep = Persistence.RepositoryFactory.GetRepositoryInstance("Raven", conf);
-            this.peerAddress = "127.0.0.1";
-/*            IPHostEntry IPHost = Dns.GetHostEntry(Dns.GetHostName());
+//            this.peerAddress = "127.0.0.1";
+            IPHostEntry IPHost = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress[] listaIP = IPHost.AddressList;
             foreach (IPAddress ip in listaIP)
             {
@@ -72,7 +72,7 @@ namespace PeerPlayer
                     this.peerAddress = ip.ToString();
                     break;
                 }
-            }*/
+            }
         }
 
         private void calculateAddresses()

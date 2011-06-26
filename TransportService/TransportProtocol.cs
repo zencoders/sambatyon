@@ -29,7 +29,7 @@ namespace TransportService
         }
     }
 
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class TransportProtocol : ITransportProtocol
     {
         private string RID;
@@ -47,7 +47,6 @@ namespace TransportService
         private Repository trackRepository;
         private Uri myAddress;
         private PeerQueue peerQueue;
-        private AutoResetEvent bufferLock;
         private static readonly ILog log = LogManager.GetLogger(typeof(TransportProtocol));
 
         public int ChunckLength
@@ -63,7 +62,6 @@ namespace TransportService
             AppSettingsReader asr = new AppSettingsReader();
             int poolSize = (int)asr.GetValue("ThreadPoolSize", typeof(int));
             this.threadPool = new ThreadPool(poolSize);
-            this.worker = new Thread(() => doWork());
             this.nextArrived += new NextArrivedHandler(this.writeOnStream);
             this.chunkLength = ((int)asr.GetValue("ChunkLength", typeof(int)));
             this.myAddress = uri;
@@ -153,7 +151,7 @@ namespace TransportService
             }
             else
             {
-                this.localGetChunk(chkrq);
+                this.GetChunk(chkrq);
             }
         }
 
@@ -205,12 +203,13 @@ namespace TransportService
 
         public void Start(string RID, int begin, long length, Dictionary<string, float> peerQueue, Stream s)
         {
+            this.worker = new Thread(() => doWork());
             this.RID = RID;
             this.peerQueue = new PeerQueue(peerQueue);
             log.Info("Starting download of Resource identified by " + RID + " from " + begin + " with a len of " + length);
             this.maxNumber = System.Convert.ToInt32(
                 Math.Floor((double)(length / (this.chunkLength * 1024)))
-            ) - 1;
+            );
             this.maxNumber -= begin;
             this.writer = s;
             this.buffer = new Dictionary<int, BufferChunk>();
@@ -234,40 +233,7 @@ namespace TransportService
             }
         }
 
-        private void localGetChunk(ChunkRequest chkrq)
-        {
-            TrackModel track = new TrackModel();
-            RepositoryResponse resp = trackRepository.GetByKey<TrackModel.Track>(chkrq.RID, track);
-            List<TrackModel.Track> list = new List<TrackModel.Track>();
-            trackRepository.GetAll(list);
-            Console.WriteLine("#######################################");
-            Console.WriteLine("Searching " + chkrq.RID + " between: ");
-            for (int i = 0; i < list.Count; i++)
-            {
-                Console.WriteLine(list[i].Id);
-            }
-            Console.WriteLine("#######################################");
-            log.Debug("Searching track " + track + " in repository");
-            if (resp >= 0)
-            {
-                log.Debug("Track found! Extracting chunk.");
-                byte[] data;
-                using (FileStream fs = new FileStream(track.Filepath, FileMode.Open, FileAccess.Read))
-                {
-                    int limit = (System.Convert.ToInt32(fs.Length) > (chunkLength * 1024 * (chkrq.CID + 1))) ? chunkLength * 1024 * (chkrq.CID + 1) : (System.Convert.ToInt32(fs.Length));
-                    int begin = chkrq.CID * chunkLength * 1024;
-                    data = new byte[limit - begin];
-                    Console.WriteLine("Reading chunk " + chkrq.CID + " (" + (chkrq.CID * chunkLength * 1024) + " => " + limit + ")");
-                    fs.Seek(begin, SeekOrigin.Begin);
-                    fs.Read(data, 0, (limit - begin));
-                    fs.Close();
-                }
-                ChunkResponse chkrs = new ChunkResponse(servingBuffer, chkrq.RID, chkrq.CID, data, myAddress);
-                this.ReturnChunk(chkrs);
-            }
-        }
-
-        private void getChunkDelegate(ChunkRequest chkrq)
+        public void GetChunk(ChunkRequest chkrq)
         {
             log.Info("Received request to send chunk!");
             servingBuffer++;
@@ -280,28 +246,29 @@ namespace TransportService
                 byte[] data;
                 using (FileStream fs = new FileStream(track.Filepath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
+                    int limit = (System.Convert.ToInt32(fs.Length) > (chunkLength * 1024 * (chkrq.CID + 1))) ? chunkLength * 1024 * (chkrq.CID + 1) : (System.Convert.ToInt32(fs.Length));
                     int begin = chkrq.CID * chunkLength * 1024;
-                    int limit = (System.Convert.ToInt32(track.Tag.FileSize) > (chunkLength * 1024 * (chkrq.CID + 1))) ? chunkLength * 1024 * (chkrq.CID + 1) : (System.Convert.ToInt32(track.Tag.FileSize));
-                    Console.WriteLine("Reading chunk " + chkrq.CID + " (" + (chkrq.CID * chunkLength * 1024) + " => " + limit + ")");
                     data = new byte[limit - begin];
+                    Console.WriteLine("Reading chunk " + chkrq.CID + " (" + (chkrq.CID * chunkLength * 1024) + " => " + limit + ")");
                     fs.Seek(begin, SeekOrigin.Begin);
                     fs.Read(data, 0, (limit - begin));
                     fs.Close();
                 }
                 ChunkResponse chkrs = new ChunkResponse(servingBuffer, chkrq.RID, chkrq.CID, data, myAddress);
-                ITransportProtocol svc = ChannelFactory<ITransportProtocol>.CreateChannel(
-                    new NetUdpBinding(), new EndpointAddress(chkrq.SenderAddress)
-                );
-                svc.ReturnChunk(chkrs);
+                if (chkrq.SenderAddress != myAddress)
+                {
+                    ITransportProtocol svc = ChannelFactory<ITransportProtocol>.CreateChannel(
+                        new NetUdpBinding(), new EndpointAddress(chkrq.SenderAddress)
+                    );
+                    svc.ReturnChunk(chkrs);
+                }
+                else
+                {
+                    this.ReturnChunk(chkrs);
+                }
                 log.Debug("Chunk sent to " + chkrq.SenderAddress);
             }
             servingBuffer--;
-        }
-
-        public void GetChunk(ChunkRequest chkrq)
-        {
-            Thread t = new Thread(new ThreadStart(() => getChunkDelegate(chkrq)));
-            t.Start();
         }
 
         public void ReturnChunk(ChunkResponse chkrs)
