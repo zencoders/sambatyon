@@ -137,6 +137,7 @@
   <ItemGroup>
     <Compile Include="CompleteTag.cs" />
     <Compile Include="DhtElement.cs" />
+    <Compile Include="DhtElementComparer.cs" />
     <Compile Include="ILoadable.cs" />
     <Compile Include="IDocumentType.cs" />
     <Compile Include="KademliaKeyword.cs" />

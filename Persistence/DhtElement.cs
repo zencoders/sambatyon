@@ -74,5 +74,11 @@ namespace Persistence
             info.AddValue("publication", this.Publication);
             info.AddValue("validity", this.Validity);
         }
+
+
+        public override int GetHashCode()
+        {
+            return this.Url.ToString().GetHashCode();
+        }
     }
 }

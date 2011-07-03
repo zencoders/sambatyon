@@ -49,14 +49,7 @@ namespace wpf_player
         }
         public override void Write(byte[] buffer, int offset, int count)
         {
-            Console.WriteLine("##### " + this.Capacity + " < " + (base.Length + count) + " #####");
-            try
-            {
-                base.Write(buffer, offset, count);
-            }
-            catch (System.NotSupportedException)
-            {
-            }
+            base.Write(buffer, offset, count);
             launchEvent();
         }
         public override void WriteByte(byte value)
@@ -64,7 +57,7 @@ namespace wpf_player
             base.WriteByte(value);
             launchEvent();
         }        
-        public void WaitForMore(int how_many = 60000)
+        public void WaitForMore(int how_many = 15000)
         {
             waiting = true;
             positionWaited = Math.Min(Position + how_many,Length);

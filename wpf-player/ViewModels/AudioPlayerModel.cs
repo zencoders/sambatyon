@@ -376,10 +376,34 @@ namespace wpf_player
         {
             this.stop();            
             if (rsc == null) return;
-            if ((this.rsc!=null)&&(rsc.Id.Equals(this.rsc.Id))) return;
-            this.rsc = rsc;
-            setupLocalStream(this.rsc, 0);              
+            if ((this.rsc != null) && (rsc.Id.Equals(this.rsc.Id)))
+            {
+                restartStream();
+            }
+            else
+            {
+                this.rsc = rsc;
+                setupLocalStream(this.rsc, 0);
+            }
         }
+
+        private void restartStream()
+        {
+            NotifyPropertyChanged("Position");
+            NotifyPropertyChanged("BufferPortion");
+            localstream.WaitedPositionReached += resumePlay;
+            localstream.PositionChanged += (sender, args) => { NotifyPropertyChanged("BufferPortion"); };
+            peer.RestartFlow();
+            BufferingState = true;
+            NotifyPropertyChanged("PlayingState");
+            startPhaseBuffering = true;
+            localstream.WaitForMore();
+            NotifyPropertyChanged("ResourceTag");
+            NotifyPropertyChanged("Length");
+            NotifyPropertyChanged("BigBufferSize");
+            NotifyPropertyChanged("HasResource");
+        }
+
         private void setupLocalStream(KademliaResource rsc,long spos)
         {
             if (localstream != null)

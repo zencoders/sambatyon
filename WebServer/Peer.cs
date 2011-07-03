@@ -195,10 +195,22 @@ namespace PeerPlayer
             return this.localStream;
         }
 
+        public void RestartFlow()
+        {
+            if (transportLayer == null)
+            {
+                Thread transportThread = new Thread(new ThreadStart(() => this.runTransportLayer(ref svcHosts[1])));
+                transportThread.Start();
+                transportThread.Join();
+            }
+            this.transportLayer.ReStart();
+        }
+
         public void GetFlow(string RID, int begin, long length, Dictionary<string, float> nodes)
         {
             this.GetFlow(RID, begin, length, nodes, null);
         }
+
         public void GetFlow(string RID, int begin, long length, Dictionary<string, float> nodes, Stream stream = null)
         {
             log.Info("Beginning to get flow from the network");
@@ -206,6 +218,12 @@ namespace PeerPlayer
             if (handlingStream == null)
             {
                 handlingStream = this.localStream;
+            }
+            if (transportLayer == null)
+            {
+                Thread transportThread = new Thread(new ThreadStart(() => this.runTransportLayer(ref svcHosts[1])));
+                transportThread.Start();
+                transportThread.Join();
             }
             this.transportLayer.Start(RID, begin, length, nodes, handlingStream);
         }

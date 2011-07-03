@@ -69,20 +69,28 @@ namespace TransportService
             log.Info("Initialized Transport Layer with " + poolSize + " worker threads");
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         private void writeOnStream(Object o, NextArrivedEventArgs e)
         {
-            this.writer.Write(e.Payload,0,e.Payload.Length);
+            log.Debug("Writing Chunk " + this.nextChunkToWrite + " to the stream");
+            try
+            {
+                this.writer.Write(e.Payload, 0, e.Payload.Length);
+            }
+            catch (Exception ex)
+            {
+                log.Debug(ex.Message);
+            }
             log.Debug("Written Chunk " + this.nextChunkToWrite + " to the stream");
             this.nextChunkToWrite++;
-            while(this.buffer.ContainsKey(this.nextChunkToWrite) && this.buffer[this.nextChunkToWrite].ActualCondition == BufferChunk.condition.DOWNLOADED){
+            while (this.buffer.ContainsKey(this.nextChunkToWrite) && this.buffer[this.nextChunkToWrite].ActualCondition == BufferChunk.condition.DOWNLOADED)
+            {
+                log.Debug("Writing Chunk " + this.nextChunkToWrite + " to the stream");
                 this.writer.Write(this.buffer[this.nextChunkToWrite].Payload, 0, this.buffer[this.nextChunkToWrite].Payload.Length);
                 log.Debug("Written Chunk " + this.nextChunkToWrite + " to the stream");
                 this.nextChunkToWrite++;
             }
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         private void saveOnBuffer(int CID, byte[] payload)
         {
             this.buffer[CID].Payload = payload;
@@ -100,9 +108,8 @@ namespace TransportService
                     try
                     {
                         this.buffer.AsParallel().Where(
-                            Elem => Elem.Key < this.nextChunkToWrite
-                            ).Where(
-                            Elem => Elem.Value.ActualCondition == BufferChunk.condition.DIRTY
+                            Elem => (Elem.Key < CID &&
+                                    Elem.Value.ActualCondition == BufferChunk.condition.DIRTY)
                             ).ForAll(
                             Elem => Elem.Value.ActualCondition = BufferChunk.condition.CLEAN
                         );
@@ -162,6 +169,7 @@ namespace TransportService
             {
                 ThreadPoolObject chunkGetter = this.threadPool.GetNextThreadInPool();
                 chunkGetter.AssignAndStart(new Action(getNextChunk));
+                Thread.Sleep(100);
             }
         }
 
@@ -201,6 +209,13 @@ namespace TransportService
             }
         }
 
+        public void ReStart()
+        {
+            this.started = true;
+            this.worker = new Thread(() => doWork());
+            this.worker.Start();
+        }
+
         public void Start(string RID, int begin, long length, Dictionary<string, float> peerQueue, Stream s)
         {
             this.worker = new Thread(() => doWork());
@@ -218,8 +233,8 @@ namespace TransportService
                 this.buffer[i] = new BufferChunk();
             }
             this.nextChunkToWrite = begin;
-            this.worker.Start();
             this.started = true;
+            this.worker.Start();
         }
 
         public void Stop()
@@ -228,7 +243,10 @@ namespace TransportService
             {
                 log.Info("Stopping download.");
                 this.shouldStop = true;
+                log.Info("Joining Worker thread...");
                 this.worker.Join();
+                log.Info("Stopped!");
+                this.shouldStop = false;
                 this.started = false;
             }
         }

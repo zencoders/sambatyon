@@ -21,7 +21,11 @@ namespace Persistence
             this.Tag = new CompleteTag(filename);
             if (urls.Length != 0)
             {
-                this.Urls.UnionWith(urls);
+                foreach(DhtElement e in urls)
+                {
+                    this.Urls.Add(e);
+                }
+//                this.Urls.Union<DhtElement>(urls, new DhtElementComparer());
             }
         }
         public KademliaResource(CompleteTag tag, params DhtElement[] urls) : this()
@@ -29,7 +33,11 @@ namespace Persistence
             this.Tag = tag;
             if (urls.Length != 0)
             {
-                this.Urls.UnionWith(urls);
+                foreach (DhtElement e in urls)
+                {
+                    this.Urls.Add(e);
+                }
+//                this.Urls.Union<DhtElement>(urls, new DhtElementComparer());
             }
         }
         public KademliaResource(SerializationInfo info, StreamingContext ctxt) : this()
@@ -101,7 +109,11 @@ namespace Persistence
         {
             if (this.Tag.FileHash == other.Tag.FileHash)
             {
-                this.Urls.UnionWith(other.Urls);
+                Console.WriteLine("Merged!");
+                foreach (DhtElement e in other.Urls)
+                {
+                    this.Urls.Add(e);
+                }
                 return true;
             }
             else

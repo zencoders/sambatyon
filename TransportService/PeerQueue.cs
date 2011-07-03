@@ -36,10 +36,10 @@ namespace TransportService
         {
             while (this.peerQueue.AsParallel().Where(p => p.Value.State == PeerQueueElement.ThreadState.FREE).Count() <= 0)
             {
+                this.peerQueueNotEmpty.Reset();
                 this.peerQueueNotEmpty.WaitOne();
             }
-            this.peerQueueNotEmpty.Reset();
-            PeerQueueElement best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value.PeerScore > r.Value.PeerScore ? l : r).Value;
+            PeerQueueElement best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value.PeerScore < r.Value.PeerScore ? l : r).Value;
             return best.PeerAddress;
         }
 

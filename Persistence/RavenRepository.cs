@@ -43,15 +43,18 @@ namespace RepositoryImpl
         {
             try
             {
-                using (TransactionScope tx = new TransactionScope())
+                lock (_store)
                 {
-                    using (IDocumentSession _session = _store.OpenSession())
+                    using (TransactionScope tx = new TransactionScope())
                     {
-                        dynamic entity = data.GetAsDatabaseType();
-                        _session.Store(entity);
-                        _session.SaveChanges();
-                        tx.Complete();
-                        log.Debug("Data saved with id " + entity.Id);
+                        using (IDocumentSession _session = _store.OpenSession())
+                        {
+                            dynamic entity = data.GetAsDatabaseType();
+                            _session.Store(entity);
+                            _session.SaveChanges();
+                            tx.Complete();
+                            log.Debug("Data saved with id " + entity.Id);
+                        }
                     }
                 }
             }
@@ -65,19 +68,54 @@ namespace RepositoryImpl
 
         public override RepositoryResponse Delete<DBType>(string id)
         {
-            using (IDocumentSession _session = _store.OpenSession())
+            lock (_store)
             {
-                var entity = _session.Load<DBType>(id);
-                if (entity != null)
+                using (IDocumentSession _session = _store.OpenSession())
                 {
+                    var entity = _session.Load<DBType>(id);
+                    if (entity != null)
+                    {
+                        try
+                        {
+                            using (TransactionScope tx = new TransactionScope())
+                            {
+                                _session.Delete<DBType>(entity);
+                                _session.SaveChanges();
+                                tx.Complete();
+                                log.Debug("Data with id " + id + " deleted");
+                            }
+                            return RepositoryResponse.RepositoryDelete;
+                        }
+                        catch (TransactionAbortedException tae)
+                        {
+                            log.Error("Transaction Aborted", tae);
+                            return RepositoryResponse.RepositoryGenericError;
+                        }
+                    }
+                    else
+                    {
+                        return RepositoryResponse.RepositoryGenericError;
+                    }
+                }
+            }
+        }
+        public override RepositoryResponse BulkDelete<DBType>(string[] ids)
+        {
+            lock (_store)
+            {
+                using (IDocumentSession _session = _store.OpenSession())
+                {
+                    DBType[] ents = _session.Load<DBType>(ids);
                     try
                     {
                         using (TransactionScope tx = new TransactionScope())
                         {
-                            _session.Delete<DBType>(entity);
+                            foreach (DBType entity in ents)
+                            {
+                                _session.Delete<DBType>(entity);
+                            }
                             _session.SaveChanges();
                             tx.Complete();
-                            log.Debug("Data with id " + id + " deleted");
                         }
                         return RepositoryResponse.RepositoryDelete;
                     }
@@ -86,35 +124,6 @@ namespace RepositoryImpl
                         log.Error("Transaction Aborted", tae);
                         return RepositoryResponse.RepositoryGenericError;
                     }
-                }
-                else
-                {
-                    return RepositoryResponse.RepositoryGenericError;
-                }
-            }
-        }
-        public override RepositoryResponse BulkDelete<DBType>(string[] ids)
-        {
-            using (IDocumentSession _session = _store.OpenSession())
-            {
-                DBType[] ents = _session.Load<DBType>(ids);
-                try
-                {
-                    using (TransactionScope tx = new TransactionScope())
-                    {
-                        foreach (DBType entity in ents)
-                        {
-                            _session.Delete<DBType>(entity);
-                        }
-                        _session.SaveChanges();
-                        tx.Complete();
-                    }
-                    return RepositoryResponse.RepositoryDelete;
-                }
-                catch (TransactionAbortedException tae)
-                {
-                    log.Error("Transaction Aborted", tae);
-                    return RepositoryResponse.RepositoryGenericError;
                 }
             }
         }
@@ -196,11 +205,14 @@ namespace RepositoryImpl
         }
         public override RepositoryResponse CreateIndex(string indexName, string indexQuery)
         {
-            IndexDefinition def = new IndexDefinition() { Map = indexQuery, Name = indexName };
-            //_store.
-            if (_store.DatabaseCommands.GetIndex(indexName) == null)
+            lock (_store)
             {
-                log.Debug(_store.DatabaseCommands.PutIndex(indexName, def));
+                IndexDefinition def = new IndexDefinition() { Map = indexQuery, Name = indexName };
+                //_store.
+                if (_store.DatabaseCommands.GetIndex(indexName) == null)
+                {
+                    log.Debug(_store.DatabaseCommands.PutIndex(indexName, def));
+                }
             }
             return RepositoryResponse.RepositorySuccess;
         }
@@ -215,10 +227,12 @@ namespace RepositoryImpl
         }
         private bool patchDatabase(string key, string propertyName, object value, PatchCommandType type)
         {
-            using (IDocumentSession _session = _store.OpenSession())
+            lock (_store)
             {
-                Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
-                    new[] {
+                using (IDocumentSession _session = _store.OpenSession())
+                {
+                    Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
+                        new[] {
                         new PatchCommandData {
                             Key = key,                        
                             Patches = new [] {
@@ -226,7 +240,8 @@ namespace RepositoryImpl
                             }
                         }
                     }
-                );
+                    );
+                }
             }
             return true;
         }
@@ -249,10 +264,12 @@ namespace RepositoryImpl
         }
         private bool mupliplePatchDatabase(string key,params PatchRequest[] reqs)
         {
-            using (IDocumentSession _session = _store.OpenSession())
+            lock (_store)
             {
-                Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
-                    new [] 
+                using (IDocumentSession _session = _store.OpenSession())
+                {
+                    Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
+                        new[] 
                     {
                         new PatchCommandData 
                         {
@@ -260,16 +277,19 @@ namespace RepositoryImpl
                             Patches = reqs
                         }
                     }
-                );
+                    );
+                }
             }
             return true;
         }
         private bool nestedPatchDatabase(string key,string propertyName, int index, params PatchRequest[] reqs)
         {
-            using (IDocumentSession _session = _store.OpenSession())
+            lock (_store)
             {
-                Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
-                    new [] 
+                using (IDocumentSession _session = _store.OpenSession())
+                {
+                    Raven.Database.BatchResult[] res = _session.Advanced.DatabaseCommands.Batch(
+                        new[] 
                     {
                         new PatchCommandData 
                         {
@@ -286,7 +306,8 @@ namespace RepositoryImpl
                             }
                         }
                     }
-                );
+                    );
+                }
             }
             return true;
         }
@@ -331,9 +352,12 @@ namespace RepositoryImpl
 
         public override void Dispose()
         {
-            log.Debug("Disposing Raven Repository...");
-            this._store.Dispose();
-            log.Info("Raven Repository Disposed. Resource Released");
+            lock (_store)
+            {
+                log.Debug("Disposing Raven Repository...");
+                this._store.Dispose();
+                log.Info("Raven Repository Disposed. Resource Released");
+            }
         }
 
         #endregion

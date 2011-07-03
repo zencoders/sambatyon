@@ -292,6 +292,20 @@ namespace Kademlia
             else
             {
                 Dictionary<string, KademliaResource> toRet = new Dictionary<string,KademliaResource>();
+                Console.WriteLine(found.Count);
+
+                // DEBUG PRINTS
+                foreach (KademliaResource kr in found)
+                {
+                    Console.WriteLine(" ^^^^^ Found Resources " + kr.Id);
+                    foreach (DhtElement u in kr.Urls)
+                    {
+                        Console.WriteLine(u.Url);
+                    }
+                    Console.WriteLine("^^^^^");
+                }
+                //END
+
                 foreach(KademliaResource el in found)
                 {
                     if (toRet.ContainsKey(el.Tag.FileHash))
@@ -303,6 +317,19 @@ namespace Kademlia
                         toRet[el.Tag.FileHash] = el;
                     }
                 }
+
+                // DEBUG PRINTS
+                foreach(KademliaResource kr in toRet.Values)
+                {
+                    Console.WriteLine(" ^^^^^ Resource " + kr.Id);
+                    foreach (DhtElement u in kr.Urls)
+                    {
+                        Console.WriteLine(u.Url);
+                    }
+                    Console.WriteLine("^^^^^");
+                }
+                // END
+
                 return new List<KademliaResource>(toRet.Values);
             }
 		}
@@ -689,8 +716,9 @@ namespace Kademlia
 		#endregion
 
         #region Events Delegates
-        private void handlePingDelegate(Ping ping)
+        private void handlePingDelegate(Object o)
         {
+            Ping ping = (Ping)o;
             HandleMessage(ping);
             Console.WriteLine("Handling ping from: " + ping.NodeEndpoint);
             Pong pong = new Pong(nodeID, ping, nodeEndpoint.Uri);
@@ -700,14 +728,16 @@ namespace Kademlia
             svc.HandlePong(pong);
         }
 
-        private void handlePongDelegate(Pong pong)
+        private void handlePongDelegate(Object o)
         {
+            Pong pong = (Pong)o;
             Console.WriteLine("Handling pong from: " + pong.NodeEndpoint);
             CacheResponse(pong);
         }
 
-        private void handleFindNodeDelegate(FindNode request)
+        private void handleFindNodeDelegate(Object o)
         {
+            FindNode request = (FindNode)o;
             HandleMessage(request);
             List<Contact> closeNodes = contactCache.CloseContacts(request.Target, request.SenderID);
             FindNodeResponse response = new FindNodeResponse(nodeID, request, closeNodes, nodeEndpoint.Uri);
@@ -717,13 +747,15 @@ namespace Kademlia
             svc.HandleFindNodeResponse(response);
         }
 
-        private void handleFindNodeResponseDelegate(FindNodeResponse response)
+        private void handleFindNodeResponseDelegate(Object o)
         {
+            FindNodeResponse response = (FindNodeResponse)o;
             CacheResponse(response);
         }
 
-        private void handleFindValueDelegate(FindValue request)
+        private void handleFindValueDelegate(Object o)
         {
+            FindValue request = (FindValue)o;
             HandleMessage(request);
             log.Info("Searching for: " + request.Key);
             KademliaResource[] results = datastore.SearchFor(request.Key);
@@ -747,8 +779,9 @@ namespace Kademlia
             }
         }
 
-        private void handleStoreQueryDelegate(StoreQuery request)
+        private void handleStoreQueryDelegate(Object o)
         {
+            StoreQuery request = (StoreQuery)o;
             HandleMessage(request);
 
             if (!datastore.ContainsUrl(request.TagHash.ToString(), request.NodeEndpoint))
@@ -767,8 +800,9 @@ namespace Kademlia
             }
         }
 
-        private void handleStoreDataDelegate(StoreData request)
+        private void handleStoreDataDelegate(Object o)
         {
+            StoreData request = (StoreData)o;
             HandleMessage(request);
             // If we asked for it, store it and clear the authorization.
             lock (acceptedStoreRequests)
@@ -792,8 +826,9 @@ namespace Kademlia
             }
         }
 
-        private void handleStoreResponseDelegate(StoreResponse response)
+        private void handleStoreResponseDelegate(Object o)
         {
+            StoreResponse response = (StoreResponse)o;
             CacheResponse(response);
             lock (sentStoreRequests)
             {
@@ -813,13 +848,15 @@ namespace Kademlia
             }
         }
 
-        private void handleFindValueContactResponseDelegate(FindValueContactResponse response)
+        private void handleFindValueContactResponseDelegate(Object o)
         {
+            FindValueContactResponse response = (FindValueContactResponse)o;
             CacheResponse(response);
         }
 
-        private void handleFindValueDataResponseDelegate(FindValueDataResponse response)
+        private void handleFindValueDataResponseDelegate(Object o)
         {
+            FindValueDataResponse response = (FindValueDataResponse)o;
             CacheResponse(response);
         }
         #endregion
@@ -861,14 +898,12 @@ namespace Kademlia
 		/// <param name="p"></param>
 		public void HandlePing(Ping ping)
 		{
-            Thread t = new Thread(new ThreadStart(() => handlePingDelegate(ping)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handlePingDelegate), ping);
 		}
 
         public void HandlePong(Pong pong)
         {
-            Thread t = new Thread(new ThreadStart(() => handlePongDelegate(pong)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handlePongDelegate), pong);
         }
 		
 		/// <summary>
@@ -879,14 +914,12 @@ namespace Kademlia
 		/// <param name="request"></param>
 		public void HandleFindNode(FindNode request)
 		{
-            Thread t = new Thread(new ThreadStart(() => handleFindNodeDelegate(request)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindNodeDelegate), request);
 		}
 
         public void HandleFindNodeResponse(FindNodeResponse response)
         {
-            Thread t = new Thread(new ThreadStart(() => handleFindNodeResponseDelegate(response)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindNodeResponseDelegate), response);
         }
 		
 		/// <summary>
@@ -896,8 +929,7 @@ namespace Kademlia
 		/// <param name="request"></param>
 		public void HandleFindValue(FindValue request)
 		{
-            Thread t = new Thread(new ThreadStart(() => handleFindValueDelegate(request)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindValueDelegate), request);
 		}
 		
 		/// <summary>
@@ -907,8 +939,7 @@ namespace Kademlia
 		/// <param name="request"></param>
 		public void HandleStoreQuery(StoreQuery request)
 		{
-            Thread t = new Thread(new ThreadStart(() => handleStoreQueryDelegate(request)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleStoreQueryDelegate), request);
 		}
 		
 		/// <summary>
@@ -918,8 +949,7 @@ namespace Kademlia
 		/// <param name="request"></param>
 		public void HandleStoreData(StoreData request)
 		{
-            Thread t = new Thread(new ThreadStart(() => handleStoreDataDelegate(request)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleStoreDataDelegate), request);
 		}
 		
 		/// <summary>
@@ -929,20 +959,17 @@ namespace Kademlia
 		/// <param name="request"></param>
 		public void HandleStoreResponse(StoreResponse response)
 		{
-            Thread t = new Thread(new ThreadStart(() => handleStoreResponseDelegate(response)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleStoreResponseDelegate), response);
 		}
 		
         public void HandleFindValueContactResponse(FindValueContactResponse response)
         {
-            Thread t = new Thread(new ThreadStart(() => handleFindValueContactResponseDelegate(response)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindValueContactResponseDelegate), response);
         }
 
         public void HandleFindValueDataResponse(FindValueDataResponse response)
         {
-            Thread t = new Thread(new ThreadStart(() => handleFindValueDataResponseDelegate(response)));
-            t.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindValueDataResponseDelegate), response);
         }
 
 		/// <summary>
