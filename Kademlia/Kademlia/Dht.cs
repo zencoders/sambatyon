@@ -61,6 +61,7 @@ namespace Kademlia
                     log.Info("Getting bootstrap list...");
 
                     AppSettingsReader asr = new AppSettingsReader();
+                    
                     XDocument xmlDoc = XDocument.Load((string)asr.GetValue("KademliaNodesFile", typeof(string)));
 
                     List<EndpointAddress> nodes = new List<EndpointAddress>(from node in xmlDoc.Descendants("Node")
