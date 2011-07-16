@@ -49,7 +49,7 @@ namespace TransportService
         private PeerQueue peerQueue;
         private static readonly ILog log = LogManager.GetLogger(typeof(TransportProtocol));
 
-        public int ChunckLength
+        public int ChunkLength
         {
             get
             {
@@ -85,7 +85,14 @@ namespace TransportService
             while (this.buffer.ContainsKey(this.nextChunkToWrite) && this.buffer[this.nextChunkToWrite].ActualCondition == BufferChunk.condition.DOWNLOADED)
             {
                 log.Debug("Writing Chunk " + this.nextChunkToWrite + " to the stream");
-                this.writer.Write(this.buffer[this.nextChunkToWrite].Payload, 0, this.buffer[this.nextChunkToWrite].Payload.Length);
+                try
+                {
+                    this.writer.Write(this.buffer[this.nextChunkToWrite].Payload, 0, this.buffer[this.nextChunkToWrite].Payload.Length);
+                }
+                catch (Exception ex)
+                {
+                    log.Debug(ex.Message);
+                }
                 log.Debug("Written Chunk " + this.nextChunkToWrite + " to the stream");
                 this.nextChunkToWrite++;
             }

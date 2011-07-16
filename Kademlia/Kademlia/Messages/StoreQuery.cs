@@ -51,7 +51,7 @@ namespace Kademlia.Messages
 		public DateTime PublicationTime
 		{
             get { return publication.ToUniversalTime(); }
-            set { }
+            set { this.publication = value; }
 		}
 		
         [DataMember]

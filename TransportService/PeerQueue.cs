@@ -39,7 +39,7 @@ namespace TransportService
                 this.peerQueueNotEmpty.Reset();
                 this.peerQueueNotEmpty.WaitOne();
             }
-            PeerQueueElement best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value.PeerScore < r.Value.PeerScore ? l : r).Value;
+            PeerQueueElement best = this.peerQueue.AsParallel().Aggregate((l, r) => l.Value.PeerScore < r.Value.PeerScore ? l : (r.Value.PeerScore < l.Value.PeerScore ? r : (new Random().Next(2)) == 0 ? l : r )).Value;
             return best.PeerAddress;
         }
 

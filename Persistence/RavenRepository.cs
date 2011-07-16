@@ -14,6 +14,7 @@ using Raven.Database.Data;
 using Newtonsoft.Json.Linq;
 using Raven.Database.Indexing;
 using Raven.Client.Indexes;
+using System.Runtime.InteropServices;
 
 namespace Persistence
 {
@@ -51,7 +52,14 @@ namespace RepositoryImpl
                         {
                             dynamic entity = data.GetAsDatabaseType();
                             _session.Store(entity);
-                            _session.SaveChanges();
+                            try
+                            {
+                                _session.SaveChanges();
+                            }
+                            catch (COMException comE)
+                            {
+                                log.Warn("Cannot save cause to interop error");
+                            }
                             tx.Complete();
                             log.Debug("Data saved with id " + entity.Id);
                         }

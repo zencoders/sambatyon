@@ -73,7 +73,7 @@ namespace wpf_player
                         sb.Append("\n");
                     }
                 }
-                MessageBox.Show(this, sb.ToString(), "Store Files", MessageBoxButton.OK, MessageBoxImage.Hand);
+                MessageBox.Show(this, sb.ToString(), "Store Files", MessageBoxButton.OK, MessageBoxImage.Information);
                 vm.RefreshList.Execute(null);
                 vm.RefreshList.Execute(null);
                 this.QueryField.IsEnabled = true;

@@ -40,7 +40,7 @@ namespace PeerPlayer
             {
                 if (transportLayer != null)
                 {
-                    return transportLayer.ChunckLength;
+                    return transportLayer.ChunkLength;
                 }
                 else
                 {

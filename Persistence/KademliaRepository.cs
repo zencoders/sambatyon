@@ -19,7 +19,7 @@ namespace Persistence
         public const string DefaultSemanticFilterRegexString=@"\b("+
                                                               "the|a|an|"+//English Articles
                                                               "for|and|nor|but|or|yet|so|of|to|" + //English Coordinating conjunction
-                                                              "both|either|neither|rather|whetever|" + //English Correlative Conjunction (not all)
+                                                              "both|either|neither|rather|whatever|" + //English Correlative Conjunction (not all)
                                                               "as|although|for|if|so|than|unless|until|till|while|" +//English Subordinate Conjunctions (not all)
                                                               "lo|il|la|i|gli|le|l'|"+//Italian Articles
                                                               "di|a|da|in|con|su|per|fra|tra|"+//Italian Prepositions
@@ -55,6 +55,7 @@ namespace Persistence
         public bool StoreResource(CompleteTag tag, Uri peer,DateTime pubtime)
         {
             KademliaResource rs = new KademliaResource();
+            Console.WriteLine("Storing resource from peer " + peer);
             DhtElement dhtElem = new DhtElement(peer, pubtime, this._elementValidity);
             RepositoryResponse resp = _repository.GetByKey<KademliaResource>(tag.TagHash, rs);
             if ( resp == RepositoryResponse.RepositoryLoad)

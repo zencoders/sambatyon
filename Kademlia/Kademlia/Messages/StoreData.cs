@@ -53,14 +53,14 @@ namespace Kademlia.Messages
 		public DateTime PublicationTime
 		{
             get { return publication.ToUniversalTime(); }
-            set { }
+            set { this.publication = value; }
 		}
 
         [DataMember]
         public Uri TransportUri
         {
             get { return transportUri; }
-            set { }
+            set { this.transportUri = value; }
         }
 
         [DataMember]

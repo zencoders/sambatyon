@@ -402,10 +402,12 @@ namespace Kademlia
                 // Store a copy at each
                 if (endpoint != null)
                 {
+                    Console.WriteLine("Using passed endpoint (" + endpoint + ") for Sync Store");
                     SyncStore(c, tag, originalInsertion, endpoint);
                 }
                 else
                 {
+                    Console.WriteLine("Using internal endpoint (" + nodeEndpoint + ") for Sync Store");
                     SyncStore(c, tag, originalInsertion, nodeEndpoint);
                 }
             }
@@ -820,6 +822,7 @@ namespace Kademlia
                     {
                         // We re-hash since we shouldn't trust their hash
                         //	datastore.Put(request.Key, ID.Hash(request.Data), request.Data, request.PublicationTime, EXPIRE_TIME);
+                        Console.WriteLine("Arrived store data from peer with transport: " + request.TransportUri);
                         datastore.StoreResource(request.Data, request.TransportUri, request.PublicationTime);
                     }
                 }
@@ -839,6 +842,7 @@ namespace Kademlia
                     // Send along the data and remove it from the list
                     OutstandingStoreRequest toStore = sentStoreRequests[response.ConversationID];
                     StoreData r = new StoreData(nodeID, response, toStore.val, toStore.publication, nodeEndpoint.Uri, transportEndpoint.Uri);
+                    Console.WriteLine("Transport Endpoint transmitted => " + r.TransportUri);
                     IKademliaNode svc = ChannelFactory<IKademliaNode>.CreateChannel(
                         new NetUdpBinding(), new EndpointAddress(response.NodeEndpoint)
                     );
@@ -949,6 +953,7 @@ namespace Kademlia
 		/// <param name="request"></param>
 		public void HandleStoreData(StoreData request)
 		{
+            Console.WriteLine("Arrived a storeData from " + request.TransportUri);
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleStoreDataDelegate), request);
 		}
 		
