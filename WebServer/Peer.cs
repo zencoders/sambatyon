@@ -57,6 +57,7 @@ namespace PeerPlayer
         private string peerAddress;
         private Uri transportAddress;
         private Uri kademliaAddress;
+        private AutoResetEvent levelBlocker;
 
         #region Properties
         public Dictionary<string, string> ConfOptions {get; set;}
@@ -79,6 +80,7 @@ namespace PeerPlayer
         public Peer(bool single = false, string btpNode = "")
         {
             log.Debug("Initializing peer structure");
+            this.levelBlocker = new AutoResetEvent(true);
             this.ConfOptions = new Dictionary<string, string>();
             this.ConfOptions["udpPort"] = PeerPlayer.Properties.Settings.Default.udpPort;
             this.ConfOptions["kadPort"] = PeerPlayer.Properties.Settings.Default.kademliaPort;
@@ -118,10 +120,16 @@ namespace PeerPlayer
             if (!withoutInterface)
             {
                 Thread interfaceThread = new Thread(new ThreadStart(() => this.runInterfaceLayer(ref svcHosts[2])));
+                levelBlocker.Reset();
                 interfaceThread.Start();
+                levelBlocker.WaitOne();
             }
+            levelBlocker.Reset();
             kadThread.Start();
+            levelBlocker.WaitOne();
+            levelBlocker.Reset();
             transportThread.Start();
+            levelBlocker.WaitOne();
         }
 
         #region layersInitialization
@@ -142,6 +150,7 @@ namespace PeerPlayer
                 log.Info(uri.ToString());
             }
             svcHost = host;
+            levelBlocker.Set();
         }
 
         private void runTransportLayer(ref ServiceHost svcHost)
@@ -171,6 +180,7 @@ namespace PeerPlayer
                 throw aaiue;
             }
             svcHost = host;
+            levelBlocker.Set();
         }
 
         private void runKademliaLayer(bool single, string btpNode, ref ServiceHost svcHost)
@@ -196,6 +206,7 @@ namespace PeerPlayer
                 this.kademliaLayer.Put(t.Filename);
             });
             svcHost = kadHost;
+            levelBlocker.Set();
         }
         #endregion
 

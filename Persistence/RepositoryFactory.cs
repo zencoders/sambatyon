@@ -28,6 +28,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using log4net;
 
 namespace Persistence
 {
@@ -41,6 +42,7 @@ namespace Persistence
     /// <seealso cref="Persistence.Repository"/>
     public static class RepositoryFactory
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(RepositoryFactory));
         /// <summary>
         /// Metodo privato che genera il nome della classe del Repository in base al suo tipo.
         /// </summary>
@@ -77,15 +79,23 @@ namespace Persistence
                 {
                     String className = _generateRepositoryClassName(repType);
                     try
-                    {                        
+                    {
+                        log.Debug("1");
                         Type reflectedRepository = Type.GetType(className, true, true);
+                        log.Debug("2");
                         Type[] args = new Type[1] {config.GetType()};
+                        log.Debug("3");
                         Object[] param = new Object[1] { config };
+                        log.Debug("4");
                         object rep = reflectedRepository.GetConstructor(args).Invoke(param);
+                        log.Debug("5");
                         Repository inst=rep as Repository;
-                        if (inst.RepositoryType.Equals(repType)) {                           
+                        log.Debug("6");
+                        if (inst.RepositoryType.Equals(repType)) {
+                            log.Debug("stella!");
                             return inst;
                         } else {
+                            log.Debug("7");
                             throw new TypeLoadException("Type "+inst.RepositoryType+" is different from the expected "+repType+"!");
                         }
                     }

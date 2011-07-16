@@ -53,6 +53,7 @@ namespace RepositoryImpl
         //private DocumentStore _store;          
         public RavenRepository(RepositoryConfiguration config=null)
         {
+            log.Info("Trying to load RavenRepository class...");
             this.RepositoryType = "Raven";
             string dataDir = System.IO.Path.GetTempPath()+"/p2p-player-db";
             if (config != null)

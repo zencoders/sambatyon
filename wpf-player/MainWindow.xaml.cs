@@ -66,7 +66,7 @@ namespace wpf_player
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message, "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(e.Message+"\n - "+e.StackTrace+"\n - "+e.ToString()+"\n - "+e.Source+"\n - "+e.InnerException.ToString(), "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
                     int udpPort=((peer!=null)?int.Parse(peer.ConfOptions["udpPort"]):0);
                     int kadPort=((peer!=null)?int.Parse(peer.ConfOptions["kadPort"]):0);
                     PeerConfigurationModel vm = new PeerConfigurationModel(udpPort,kadPort);
@@ -145,7 +145,7 @@ namespace wpf_player
         }
 	}
 
-    public class FakePeer
+/*    public class FakePeer
     {
         private List<KademliaResource> res = new List<KademliaResource>();
         private Dictionary<string, string> fileMap = new Dictionary<string, string>();
@@ -262,5 +262,5 @@ namespace wpf_player
             tRep.GetAll(list);
             return list;           
         }
-    }
+    }*/
 }

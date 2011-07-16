@@ -1,4 +1,4 @@
-<!--
+<!-->
 /*****************************************************************************************
  *  p2p-player
  *  An audio player developed in C# based on a shared base to obtain the music from.
@@ -24,8 +24,8 @@
  *  see <http://code.google.com/p/p2p-player/>
  *
  ******************************************************************************************/
--->
-﻿<Application
+<!-->
+<Application
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	x:Class="wpf_player.App"
