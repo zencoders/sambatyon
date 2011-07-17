@@ -41,7 +41,7 @@
         <Grid Height="151" HorizontalAlignment="Left" Margin="396,126,0,0" VerticalAlignment="Top" Width="164"
           x:Name="SplashRoundGrid"
                       local:BusyIndicatorBehavior.BusyState="True"
-                      local:BusyIndicatorBehavior.DimTransitionDuration="00:00:0.1"
+                      local:BusyIndicatorBehavior.DimTransitionDuration="00:10:0"
                       local:BusyIndicatorBehavior.TargetVisual="{Binding ElementName=SplashRoundGrid}"
                       local:BusyIndicatorBehavior.DimBackground="False"></Grid>
         <TextBlock Height="48" Margin="8,0,131,8" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="9.333" Foreground="Black" TextAlignment="Justify"><Run Language="it-it" Text="Copyright "/><Run Text="©"/><Run Language="it-it" Text=" Dario Mazza, Sebastiano Merlino 2010-2011. "/><Run/><LineBreak/><Run Text="This program is free software: you can redistribute it and/or modify"/><Run Language="it-it" Text=" "/><Run Text="it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the"/><Run Language="it-it" Text=" "/><Run Text="License, or (at your option) any later version."/><LineBreak/><Run Language="it-it" Text=""/></TextBlock>        

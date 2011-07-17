@@ -54,10 +54,17 @@ namespace wpf_player
         private SearchListModel listModel = null;
         private LocalStoreModel storeModel=null;
         private Peer peer = null;
+        private Thread splashThread = null;
 		public MainWindow()
 		{
-            AppSplashDialog splash = new AppSplashDialog();
-            splash.Show();
+            this.splashThread = new Thread(() =>
+            {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke((Action)(() => new AppSplashDialog().Show()));
+                System.Windows.Threading.Dispatcher.Run();
+            });
+            splashThread.SetApartmentState(ApartmentState.STA);
+            splashThread.IsBackground = true;
+            splashThread.Start();            
             bool keepTry = true;
             while (keepTry)
             {
@@ -100,7 +107,6 @@ namespace wpf_player
                     keepTry = false;
                 }
             }
-            splash.Close();
             if (peer == null) Environment.Exit(0);
             playerModel = new AudioPlayerModel(peer);
             listModel = new SearchListModel(peer);
@@ -117,7 +123,7 @@ namespace wpf_player
             {
                 SearchList s = item as SearchList;
                 s.SetDataContext(listModel);
-            }            			
+            }            
 		}
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
@@ -158,6 +164,12 @@ namespace wpf_player
             dlg.DataContext = storeModel;
             dlg.Owner = this;
             dlg.Show();
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            splashThread.Abort();
+            this.Activate();
         }
 	}
 
