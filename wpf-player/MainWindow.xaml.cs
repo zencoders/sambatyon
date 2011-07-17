@@ -41,6 +41,7 @@ using System.IO;
 using System.Threading;
 using System.Linq;
 using PeerPlayer;
+using System.ServiceModel;
 
 namespace wpf_player
 {    
@@ -55,6 +56,8 @@ namespace wpf_player
         private Peer peer = null;
 		public MainWindow()
 		{
+            AppSplashDialog splash = new AppSplashDialog();
+            splash.Show();
             bool keepTry = true;
             while (keepTry)
             {
@@ -64,12 +67,12 @@ namespace wpf_player
                     peer.RunLayers(true);
                     keepTry = false;
                 }
-                catch (Exception e)
+                catch (AddressAlreadyInUseException aaiue)
                 {
-                    MessageBox.Show(e.Message+"\n - "+e.StackTrace+"\n - "+e.ToString()+"\n - "+e.Source+"\n - "+e.InnerException.ToString(), "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
-                    int udpPort=((peer!=null)?int.Parse(peer.ConfOptions["udpPort"]):0);
-                    int kadPort=((peer!=null)?int.Parse(peer.ConfOptions["kadPort"]):0);
-                    PeerConfigurationModel vm = new PeerConfigurationModel(udpPort,kadPort);
+                    MessageBox.Show(aaiue.ToString(), "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
+                    int udpPort = ((peer != null) ? int.Parse(peer.ConfOptions["udpPort"]) : 0);
+                    int kadPort = ((peer != null) ? int.Parse(peer.ConfOptions["kadPort"]) : 0);
+                    PeerConfigurationModel vm = new PeerConfigurationModel(udpPort, kadPort);
                     PeerSettingsDialog dlg = new PeerSettingsDialog();
                     dlg.DataContext = vm;
                     dlg.ShowDialog();
@@ -83,7 +86,21 @@ namespace wpf_player
                         keepTry = false;
                     }
                 }
+                catch (FileNotFoundException)
+                {
+                    MessageBox.Show("Unable to find the file containing information about nodes. Download this file and retry.",
+                                        "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Environment.Exit(0);
+                    keepTry = false;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.ToString(), "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Environment.Exit(0);
+                    keepTry = false;
+                }
             }
+            splash.Close();
             if (peer == null) Environment.Exit(0);
             playerModel = new AudioPlayerModel(peer);
             listModel = new SearchListModel(peer);
@@ -100,8 +117,7 @@ namespace wpf_player
             {
                 SearchList s = item as SearchList;
                 s.SetDataContext(listModel);
-            }            
-			// Insert code required on object creation below this point.
+            }            			
 		}
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {

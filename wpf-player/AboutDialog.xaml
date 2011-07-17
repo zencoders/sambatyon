@@ -1,4 +1,4 @@
-<!-->
+﻿<!-->
 /*****************************************************************************************
  *  p2p-player
  *  An audio player developed in C# based on a shared base to obtain the music from.
@@ -33,7 +33,7 @@
 	x:Name="Window"
 	Title="About p2p-player"
     Icon="Images\info_black.png"
-	Width="373" Height="337" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"  ResizeMode="NoResize">
+	Width="525" Height="562" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"  ResizeMode="NoResize">
 
 	<Grid x:Name="LayoutRoot">
 		<Grid.RowDefinitions>
@@ -41,8 +41,8 @@
 			<RowDefinition Height="0.117*"/>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="0.288*"/>
-			<ColumnDefinition Width="0.712*"/>
+			<ColumnDefinition Width="103"/>
+			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
 		<Image HorizontalAlignment="Stretch" Margin="18,40,20.856,0" Source="Images/info_black.png" Stretch="Fill" Width="Auto" Height="64" VerticalAlignment="Top"/>
 		<StackPanel Grid.Column="1" Grid.Row="1">
@@ -52,16 +52,19 @@
 		</StackPanel>
 		<Grid Grid.Column="1" Margin="8,29,8,8">
 			<Grid.RowDefinitions>
-				<RowDefinition Height="0.167*"/>
-				<RowDefinition Height="0.389*"/>
-				<RowDefinition Height="0.444*"/>
+				<RowDefinition Height="0.133*"/>
+				<RowDefinition Height="0.228*"/>
+				<RowDefinition Height="0.168*"/>
+				<RowDefinition Height="0.471*"/>
 			</Grid.RowDefinitions>
 			<TextBlock TextWrapping="Wrap" VerticalAlignment="Top" FontWeight="Bold" FontSize="14.667" Margin="0,0,100.484,0"><Run Language="it-it" Text="p2p-player"/></TextBlock>
-			<TextBlock HorizontalAlignment="Left" Margin="8,0,0,0" TextWrapping="Wrap" VerticalAlignment="Bottom" FontStyle="Italic" FontSize="13.333"><Run Language="it-it" Text="WPF Client"/></TextBlock>
-			<TextBlock HorizontalAlignment="Left" Margin="8,7.999,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Height="60.88" Width="129.7" FontSize="13.333"><Run Language="it-it" Text="Developed by:"/><LineBreak/><Run Language="it-it" Text=" Dario Mazza"/><LineBreak/><Run Language="it-it" Text=" Sebastiano Merlino"/></TextBlock>
+			<TextBlock HorizontalAlignment="Left" Margin="8,0,0,-0.001" TextWrapping="Wrap" VerticalAlignment="Bottom" FontStyle="Italic" FontSize="13.333"><Run Language="it-it" Text="WPF Client"/></TextBlock>
+			<TextBlock Margin="8,7.999,10,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Height="93.245" FontSize="13.333" Foreground="Black"><Run Language="it-it" Text="Developed by:"/><LineBreak/><Run Language="it-it" Text=" Dario Mazza"/><LineBreak/><Run Language="it-it" Text=" Sebastiano Merlino"/><LineBreak/><Run Language="it-it"/><LineBreak/><Run FontSize="10.667" Text=" Copyright (C) 2010-2011 Dario Mazza, Sebastiano Merlino"/><LineBreak/><Run Language="it-it"/></TextBlock>
 			<TextBlock HorizontalAlignment="Left" Margin="8,7.999,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="it-it" Text="Information:"/></TextBlock>
-			<TextBlock Margin="8,27.959,8,8" Grid.Row="2" TextWrapping="Wrap" FontStyle="Italic"><Run Language="it-it" Text="This client permits to stream content over a Kademlia-based peer-to-peer network."/></TextBlock>
+			<TextBlock Margin="8,27.959,8,8.184" Grid.Row="2" TextWrapping="Wrap" FontStyle="Italic"><Run Language="it-it" Text="This client permits to stream content over a Kademlia-based peer-to-peer network."/></TextBlock>
+			<TextBlock HorizontalAlignment="Left" Margin="8,8,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="Black" Height="188.66" Width="381" FontFamily="/p2p-player;component/Fonts/#Segoe UI" FontSize="10.667" TextAlignment="Justify"><Run Text="This program is free software: you can redistribute it and/or modify"/><Run Language="it-it" Text=" i"/><Run Text="t under the terms of the GNU Affero General Public License as"/><Run Language="it-it" Text=" "/><Run Text="published by the Free Software Foundation, either version 3 of the"/><Run Language="it-it" Text=" L"/><Run Text="icense, or (at your option) any later version."/><LineBreak/><Run Text="This program is distributed in the hope that it will be useful,"/><Run Language="it-it" Text=" "/><Run Text="but WITHOUT ANY WARRANTY; without even the implied warranty of"/><Run Language="it-it" Text=" "/><Run Text="MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the"/><Run Language="it-it" Text=" "/><Run Text="GNU Affero General Public License for more details."/><LineBreak/><Run Text="You should have received a copy of the GNU Affero"/><Run Language="it-it" Text=" "/><Run Text="General Public License"/><Run Language="it-it" Text=" "/><Run Text="along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;. "/><LineBreak/><Run/><LineBreak/><Run Text="Full Source and Documentation available on Google Code Project &quot;p2p-player&quot;,"/><Run Language="it-it" Text=" "/><Run Text="see"/><Run Language="it-it" Text=" &lt;"/><Run Text="http://code.google.com/p/p2p-player/"/><Run Language="it-it" Text="&gt;"/></TextBlock>
 		</Grid>
+		<TextBlock HorizontalAlignment="Left" Height="0" Margin="-343,0,0,51.816" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Bottom" Width="11"/>
 
 	</Grid>	
 </Window>

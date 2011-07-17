@@ -57,7 +57,6 @@ namespace PeerPlayer
         private string peerAddress;
         private Uri transportAddress;
         private Uri kademliaAddress;
-        private AutoResetEvent levelBlocker;
 
         #region Properties
         public Dictionary<string, string> ConfOptions {get; set;}
@@ -80,7 +79,6 @@ namespace PeerPlayer
         public Peer(bool single = false, string btpNode = "")
         {
             log.Debug("Initializing peer structure");
-            this.levelBlocker = new AutoResetEvent(true);
             this.ConfOptions = new Dictionary<string, string>();
             this.ConfOptions["udpPort"] = PeerPlayer.Properties.Settings.Default.udpPort;
             this.ConfOptions["kadPort"] = PeerPlayer.Properties.Settings.Default.kademliaPort;
@@ -115,21 +113,57 @@ namespace PeerPlayer
         {
             log.Debug("Running layers...");
             this.calculateAddresses();
-            Thread kadThread = new Thread(new ThreadStart(()=>this.runKademliaLayer(single, btpNode, ref svcHosts[0])));
-            Thread transportThread = new Thread(new ThreadStart(()=>this.runTransportLayer(ref svcHosts[1])));
+            Exception kadStartExp = null;
+            Exception transportStartExp = null;
+            Exception interfaceStartExp = null;
+            Thread kadThread = kadThread = new Thread(new ThreadStart(() => {
+                try {
+                    this.runKademliaLayer(single, btpNode, ref svcHosts[0]);
+                } catch (Exception e)
+                {
+                    kadStartExp = e;
+                }
+            }));
+            Thread transportThread = new Thread(new ThreadStart(() =>
+            {
+                try
+                {
+                    this.runTransportLayer(ref svcHosts[1]);
+                }
+                catch (Exception e)
+                {
+                    transportStartExp = e;
+                }
+            }));            
             if (!withoutInterface)
             {
-                Thread interfaceThread = new Thread(new ThreadStart(() => this.runInterfaceLayer(ref svcHosts[2])));
-                levelBlocker.Reset();
+                Thread interfaceThread = new Thread(new ThreadStart(() => {
+                    try {
+                        this.runInterfaceLayer(ref svcHosts[2]);
+                    } catch (Exception e)
+                    {
+                        interfaceStartExp=e;
+                    }
+                }));
                 interfaceThread.Start();
-                levelBlocker.WaitOne();
-            }
-            levelBlocker.Reset();
+                interfaceThread.Join();
+                if (interfaceStartExp!= null)
+                {
+                    throw interfaceStartExp;
+                }
+            }            
             kadThread.Start();
-            levelBlocker.WaitOne();
-            levelBlocker.Reset();
+            kadThread.Join();
+            if (kadStartExp != null)
+            {
+                throw kadStartExp;
+            }
             transportThread.Start();
-            levelBlocker.WaitOne();
+            transportThread.Join();
+            if (transportStartExp !=null)
+            {
+                throw transportStartExp;
+            }
         }
 
         #region layersInitialization
@@ -150,7 +184,6 @@ namespace PeerPlayer
                 log.Info(uri.ToString());
             }
             svcHost = host;
-            levelBlocker.Set();
         }
 
         private void runTransportLayer(ref ServiceHost svcHost)
@@ -180,7 +213,6 @@ namespace PeerPlayer
                 throw aaiue;
             }
             svcHost = host;
-            levelBlocker.Set();
         }
 
         private void runKademliaLayer(bool single, string btpNode, ref ServiceHost svcHost)
@@ -198,7 +230,15 @@ namespace PeerPlayer
                 log.Error("Unable to Connect as a Server because there is already one on this machine", aaiue);
                 throw aaiue;
             }
-            this.kademliaLayer = new Dht(node, single, btpNode);
+            try
+            {
+                this.kademliaLayer = new Dht(node, single, btpNode);
+            }
+            catch (FileNotFoundException fnfe)
+            {
+                log.Error("Unable to load nodes file (nodes.xml)", fnfe);
+                throw fnfe;
+            }
             List<TrackModel.Track> list = new List<TrackModel.Track>();
             log.Debug("GetAll Response : " + this.trackRep.GetAll(list));
             Parallel.ForEach(list, t =>
@@ -206,7 +246,6 @@ namespace PeerPlayer
                 this.kademliaLayer.Put(t.Filename);
             });
             svcHost = kadHost;
-            levelBlocker.Set();
         }
         #endregion
 
