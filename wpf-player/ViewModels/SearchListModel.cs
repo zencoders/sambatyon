@@ -100,7 +100,7 @@ namespace wpf_player
                 MessageBox.Show("Unable to find resource for query \"" + this.Query + "\"", "Search", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             res.Clear();
-            Query = "";
+            //Query = "";
             NotifyPropertyChanged("QueryResponse");
         }
         private void startStream(object args = null)
