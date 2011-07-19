@@ -35,10 +35,10 @@ namespace TransportService.Messages
     [DataContract]
     public abstract class AbstractMessage
     {
-        protected string messageType;
-        protected string rID;
-        protected int cID;
-        protected Uri senderAddress;
+//        protected string messageType;
+//        protected string rID;
+//        protected int cID;
+//        protected Uri senderAddress;
 
         [DataMember]
         public abstract string MessageType

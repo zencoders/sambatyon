@@ -83,7 +83,6 @@
     <Compile Include="PeerQueueElement.cs" />
     <Compile Include="ThreadPool.cs" />
     <Compile Include="ThreadPoolObject.cs" />
-    <Compile Include="Transferer.cs" />
     <Compile Include="ITransportProtocol.cs" />
     <Compile Include="TransportProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

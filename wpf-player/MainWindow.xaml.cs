@@ -42,6 +42,7 @@ using System.Threading;
 using System.Linq;
 using PeerPlayer;
 using System.ServiceModel;
+using System.Net.Sockets;
 
 namespace wpf_player
 {    
@@ -56,32 +57,34 @@ namespace wpf_player
         private Peer peer = null;
         private Thread splashThread = null;
 		public MainWindow()
-		{
-            this.splashThread = new Thread(() =>
-            {
-                System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke((Action)(() => new AppSplashDialog().Show()));
-                System.Windows.Threading.Dispatcher.Run();
-            });
-            splashThread.SetApartmentState(ApartmentState.STA);
-            splashThread.IsBackground = true;
-            splashThread.Start();            
+		{            
             bool keepTry = true;
             while (keepTry)
             {
+                this.splashThread = new Thread(() =>
+                {
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke((Action)(() => new AppSplashDialog().Show()));
+                    System.Windows.Threading.Dispatcher.Run();
+                });
+                splashThread.SetApartmentState(ApartmentState.STA);
+                splashThread.IsBackground = true;
+                splashThread.Start();            
                 try
                 {
                     peer = new Peer();
                     peer.RunLayers(true);
                     keepTry = false;
                 }
-                catch (AddressAlreadyInUseException aaiue)
+                catch (SocketException aaiue)
                 {
+                    this.splashThread.Abort();
                     MessageBox.Show(aaiue.ToString(), "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
                     int udpPort = ((peer != null) ? int.Parse(peer.ConfOptions["udpPort"]) : 0);
                     int kadPort = ((peer != null) ? int.Parse(peer.ConfOptions["kadPort"]) : 0);
                     PeerConfigurationModel vm = new PeerConfigurationModel(udpPort, kadPort);
                     PeerSettingsDialog dlg = new PeerSettingsDialog();
                     dlg.DataContext = vm;
+                    dlg.Activate();
                     dlg.ShowDialog();
                     if (dlg.DialogResult.HasValue && dlg.DialogResult.Value)
                     {
@@ -95,6 +98,7 @@ namespace wpf_player
                 }
                 catch (FileNotFoundException)
                 {
+                    this.splashThread.Abort();
                     MessageBox.Show("Unable to find the file containing information about nodes. Download this file and retry.",
                                         "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
                     Environment.Exit(0);
@@ -102,6 +106,7 @@ namespace wpf_player
                 }
                 catch (Exception e)
                 {
+                    this.splashThread.Abort();
                     MessageBox.Show(e.ToString(), "Peer initialization", MessageBoxButton.OK, MessageBoxImage.Error);
                     Environment.Exit(0);
                     keepTry = false;

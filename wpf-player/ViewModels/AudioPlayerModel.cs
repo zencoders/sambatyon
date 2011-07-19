@@ -1,4 +1,5 @@
 /*****************************************************************************************
+ * 
  *  p2p-player
  *  An audio player developed in C# based on a shared base to obtain the music from.
  * 
@@ -456,7 +457,7 @@ namespace wpf_player
             BufferingState = true;
             NotifyPropertyChanged("PlayingState");
             startPhaseBuffering = true;
-            localstream.WaitForMore();            
+            localstream.WaitForMore(60000);            
             NotifyPropertyChanged("ResourceTag");
             NotifyPropertyChanged("Length");
             NotifyPropertyChanged("BigBufferSize");

@@ -37,6 +37,7 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
+		Description = An audio player developed in C# based on a shared base to obtain the music from.
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8C128D0C-5E16-4709-8EE8-BE8EBF79E9CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

@@ -39,7 +39,7 @@ namespace TransportService.Messages
 
         public ChunkRequest(/*int activeBuffer, */string RID, int CID, Uri SenderAddress)
         {
-            this.messageType = "CHKRQ";
+            this.MessageType = "CHKRQ";
             //            this.activeBuffer = activeBuffer;
             this.CID = CID;
             this.RID = RID;

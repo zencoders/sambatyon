@@ -21,7 +21,13 @@ namespace wpf_player
         {
             base.Install(stateSaver);
             WebClient webClient = new WebClient();
-            webClient.DownloadFile("http://localhost:8000/nodes.xml", Context.Parameters["targetdir"]+"\\Resource\\nodes.xml");
+            try
+            {
+                webClient.DownloadFile("http://localhost:8000/nodes.xml", Context.Parameters["targetdir"] + "\\Resource\\nodes.xml");
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 }

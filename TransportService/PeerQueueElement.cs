@@ -38,7 +38,7 @@ namespace TransportService
 {
     internal class PeerQueueElement
     {
-        public enum ThreadState { FREE, BUSY };
+        public enum PeerState { FREE, BUSY };
 
         private System.Timers.Timer timer;
         private AutoResetEvent peerQueueNotEmpty;
@@ -52,7 +52,7 @@ namespace TransportService
         {
             this.PeerAddress = peerAddress;
             this.PeerScore = peerScore;
-            this.State = ThreadState.FREE;
+            this.State = PeerState.FREE;
             this.peerQueueNotEmpty = peerQueueNotEmpty;
             this.channel = ChannelFactory<ITransportProtocol>.CreateChannel(
                     new NetUdpBinding(), new EndpointAddress(peerAddress)
@@ -71,7 +71,7 @@ namespace TransportService
             set;
         }
 
-        public ThreadState State
+        public PeerState State
         {
             get;
             set;
@@ -79,14 +79,14 @@ namespace TransportService
 
         public void GetChunk(ChunkRequest chkrq)
         {
-            this.State = ThreadState.BUSY;
+            this.State = PeerState.BUSY;
             this.TimedPeerBlock(3000);
             this.channel.GetChunk(chkrq);
         }
 
         public void TimedPeerBlock(int millis)
         {
-            this.State = ThreadState.BUSY;
+            this.State = PeerState.BUSY;
             this.timer = new System.Timers.Timer(millis);
             this.timer.Enabled = true;
             this.timer.Elapsed += new ElapsedEventHandler(this.timerHandler);
@@ -94,7 +94,7 @@ namespace TransportService
 
         public void Reset()
         {
-            this.State = ThreadState.FREE;
+            this.State = PeerState.FREE;
             if(this.timer != null)
                 this.timer.Enabled = false;
             this.peerQueueNotEmpty.Set();

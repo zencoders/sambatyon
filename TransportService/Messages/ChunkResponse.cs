@@ -35,14 +35,14 @@ namespace TransportService.Messages
     [DataContract]
     public class ChunkResponse : GenericMessage
     {
-        int servingBuffer;
-        byte[] payload;
+        private int servingBuffer;
+        private byte[] payload;
 
         public ChunkResponse() { }
 
         public ChunkResponse(int servingBuffer, string RID, int CID, byte[] payload, Uri SenderAddress)
         {
-            this.messageType = "CHKRQ";
+            this.MessageType = "CHKRS";
             this.servingBuffer = servingBuffer;
             this.RID = RID;
             this.CID = CID;

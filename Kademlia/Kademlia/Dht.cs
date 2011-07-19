@@ -24,14 +24,6 @@
  *
  ******************************************************************************************/
 
-﻿/*
- * Created by SharpDevelop.
- * User: anovak
- * Date: 6/22/2010
- * Time: 7:03 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
 using System;
 using System.Net;
 using System.Collections.Generic;
@@ -95,7 +87,6 @@ namespace Kademlia
 
                     foreach (var node in nodes)
                     {
-                        // Each line is <ip> <port>
                         if (dhtNode.AsyncBootstrap(nodes))
                         {
                             log.Debug("OK!");
@@ -104,28 +95,10 @@ namespace Kademlia
                         {
                             log.Debug("Failed.");
                         }
-/*                        try
-                        {
-                            log.Debug("Bootstrapping with " + node.Host + ":" + node.Port);
-                            EndpointAddress bootstrapNode = new EndpointAddress("soap.udp://" + node.Host + ":" + node.Port + "/kademlia");
-                            if (dhtNode.Bootstrap(bootstrapNode))
-                            {
-                                log.Debug("OK!");
-                            }
-                            else
-                            {
-                                log.Debug("Failed.");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("Bad entry!", ex);
-                        }*/
                     }
                 }
                 else
                 {
-                    // Each line is <ip> <port>
                     try
                     {
                         log.Debug("Bootstrapping with " + btpNode);

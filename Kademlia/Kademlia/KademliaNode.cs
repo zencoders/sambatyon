@@ -1049,6 +1049,7 @@ namespace Kademlia
 
         private void findContactResponseCache(ref Dictionary<ID, bool> toSearch, ref List<Contact> vals)
         {
+            log.Debug("Searching for contact in cache!");
             responseCacheLocker.WaitOne();
             List<ID> keys = new List<ID>(toSearch.Keys);
             for (int i = 0; i < toSearch.Count; i++)
@@ -1073,6 +1074,7 @@ namespace Kademlia
 
         private void findDataResponseCache(ref Dictionary<ID, bool> toSearch, ref IList<KademliaResource> vals)
         {
+            log.Debug("Searching for data in cache!");
             responseCacheLocker.WaitOne();
             List<ID> keys = new List<ID>(toSearch.Keys);
             for (int i = 0; i < toSearch.Count; i++)
@@ -1235,9 +1237,9 @@ namespace Kademlia
 						if(!SyncPing(new EndpointAddress(blocker.NodeEndPoint))) { // If the blocker doesn't respond, pick the applicant.
                             contactCache.Remove(blocker.NodeID);
 							contactCache.Put(applicant);
-							log.Info("Chose applicant");
+							log.Info("Choose applicant");
 						} else {
-							log.Info("Chose blocker");
+							log.Info("Choose blocker");
 						}
 					}
 					

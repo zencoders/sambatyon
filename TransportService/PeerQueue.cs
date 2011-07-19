@@ -60,7 +60,7 @@ namespace TransportService
 
         public string GetBestPeer()
         {
-            while (this.peerQueue.AsParallel().Where(p => p.Value.State == PeerQueueElement.ThreadState.FREE).Count() <= 0)
+            while (this.peerQueue.AsParallel().Where(p => p.Value.State == PeerQueueElement.PeerState.FREE).Count() <= 0)
             {
                 this.peerQueueNotEmpty.Reset();
                 this.peerQueueNotEmpty.WaitOne();
