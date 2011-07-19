@@ -284,9 +284,9 @@
       <Project>{7667D3D1-795F-48E1-B271-BE245159EE34}</Project>
       <Name>UdpBinding</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WebServer\PeerPlayer.csproj">
+    <ProjectReference Include="..\WebServer\PeerLibrary.csproj">
       <Project>{49FD3F87-0FB7-4605-B256-5A4AA486268B}</Project>
-      <Name>PeerPlayer</Name>
+      <Name>PeerLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

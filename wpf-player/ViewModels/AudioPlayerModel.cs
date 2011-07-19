@@ -40,7 +40,7 @@ using Persistence;
 using System.Windows.Markup;
 using Persistence.Tag;
 using NAudio.FileFormats.Mp3;
-using PeerPlayer;
+using PeerLibrary;
 
 
 namespace wpf_player

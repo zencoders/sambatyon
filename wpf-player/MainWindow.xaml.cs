@@ -40,7 +40,7 @@ using Persistence.RepositoryImpl;
 using System.IO;
 using System.Threading;
 using System.Linq;
-using PeerPlayer;
+using PeerLibrary;
 using System.ServiceModel;
 using System.Net.Sockets;
 

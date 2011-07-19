@@ -33,7 +33,7 @@ using Persistence.Tag;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Persistence;
-using PeerPlayer;
+using PeerLibrary;
 
 namespace wpf_player
 {
@@ -73,9 +73,13 @@ namespace wpf_player
                 coll.Clear();
             }
             IList<TrackModel.Track> tl = peer.GetAllTracks();
-            foreach (TrackModel.Track tk in tl)
+            if (tl != null)
             {
-                coll.Add(new CompleteTag(tk.Filename));
+                foreach (TrackModel.Track tk in tl)
+                {
+                    if (tk != null)
+                        coll.Add(new CompleteTag(tk.Filename));
+                }
             }
             NotifyPropertyChanged("LocalStore");
         }

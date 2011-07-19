@@ -41,7 +41,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace PeerPlayer
+namespace PeerLibrary
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class Peer : IDisposable, IPeer
@@ -80,8 +80,8 @@ namespace PeerPlayer
         {
             log.Debug("Initializing peer structure");
             this.ConfOptions = new Dictionary<string, string>();
-            this.ConfOptions["udpPort"] = PeerPlayer.Properties.Settings.Default.udpPort;
-            this.ConfOptions["kadPort"] = PeerPlayer.Properties.Settings.Default.kademliaPort;
+            this.ConfOptions["udpPort"] = PeerLibrary.Properties.Settings.Default.udpPort;
+            this.ConfOptions["kadPort"] = PeerLibrary.Properties.Settings.Default.kademliaPort;
             this.localStream = new MemoryStream();
             this.single = single;
             this.btpNode = btpNode;
@@ -256,13 +256,13 @@ namespace PeerPlayer
             log.Info("Reconfiguring peer with " + (udpPort != "-1" ? "udpPort=" + udpPort : "") + (kademliaPort != "-1" ? "kademliaPort=" + kademliaPort : ""));
             if (udpPort != "-1")
             {
-                PeerPlayer.Properties.Settings.Default.udpPort = udpPort;
+                PeerLibrary.Properties.Settings.Default.udpPort = udpPort;
             }
             if (kademliaPort != "-1")
             {
-                PeerPlayer.Properties.Settings.Default.kademliaPort = kademliaPort;
+                PeerLibrary.Properties.Settings.Default.kademliaPort = kademliaPort;
             }
-            PeerPlayer.Properties.Settings.Default.Save();
+            PeerLibrary.Properties.Settings.Default.Save();
         }
 
         public Stream ConnectToStream()
@@ -344,50 +344,6 @@ namespace PeerPlayer
             return list;
         }
         #endregion
-
-        static void Main(string[] args)
-        {
-            bool withoutInterface = false;
-            using (Peer p = new Peer())
-            {
-                if (args.Length % 2 != 0)
-                {
-                    log.Error("Error in parsing options");
-                    return;
-                }
-                else
-                {
-                    bool storeConf = false;
-                    for (int i = 0; i < args.Length; i += 2)
-                    {
-                        if (args[i] == "--udpPort" || args[i] == "-u")
-                        {
-                            p.ConfOptions["udpPort"] = args[i + 1];
-                        }
-                        else if (args[i] == "--kadPort" || args[i] == "-k")
-                        {
-                            p.ConfOptions["kadPort"] = args[i + 1];
-                        }
-                        else if ((args[i] == "--store" || args[i] == "-s") && (args[i + 1] == "1"))
-                        {
-                            storeConf = true;
-                        }
-                        else if ((args[i] == "--without_interface" || args[i] == "-i") && (args[i + 1] == "1"))
-                        {
-                            withoutInterface = true;
-                        }
-                    }
-                    if (storeConf)
-                    {
-                        p.Configure(p.ConfOptions["udpPort"], p.ConfOptions["kadPort"]);
-                    }
-                }
-                p.RunLayers(withoutInterface);
-                Console.WriteLine();
-                Console.WriteLine("Press <ENTER> to terminate Host");
-                Console.ReadLine();
-            }
-        }
 
         public void Dispose()
         {

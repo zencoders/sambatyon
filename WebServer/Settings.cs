@@ -24,7 +24,7 @@
  *
  ******************************************************************************************/
 
-﻿namespace PeerPlayer.Properties {
+﻿namespace PeerLibrary.Properties {
     
     
     // La classe consente la gestione di eventi specifici sulla classe delle impostazioni:

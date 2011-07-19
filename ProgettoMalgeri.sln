@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransportService", "TransportService\TransportService.csproj", "{8C128D0C-5E16-4709-8EE8-BE8EBF79E9CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeerPlayer", "WebServer\PeerPlayer.csproj", "{49FD3F87-0FB7-4605-B256-5A4AA486268B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeerLibrary", "WebServer\PeerLibrary.csproj", "{49FD3F87-0FB7-4605-B256-5A4AA486268B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metrics", "Metrics\Metrics.csproj", "{73003F98-4A4E-4D9F-A0A0-20CBEBB09631}"
 EndProject
@@ -28,6 +28,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "p2pPlayer", "p2pPlayer\p2pP
 		{73003F98-4A4E-4D9F-A0A0-20CBEBB09631} = {73003F98-4A4E-4D9F-A0A0-20CBEBB09631}
 		{7667D3D1-795F-48E1-B271-BE245159EE34} = {7667D3D1-795F-48E1-B271-BE245159EE34}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cli-peer", "cli-peer\cli-peer.csproj", "{086D4E22-A85E-4958-9B10-42EDE5F2D819}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,6 +144,16 @@ Global
 		{2FFE0CAD-5561-430C-8B5C-15CCE36EA132}.Release|Mixed Platforms.ActiveCfg = Release
 		{2FFE0CAD-5561-430C-8B5C-15CCE36EA132}.Release|Mixed Platforms.Build.0 = Release
 		{2FFE0CAD-5561-430C-8B5C-15CCE36EA132}.Release|x86.ActiveCfg = Release
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Debug|x86.ActiveCfg = Debug|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Debug|x86.Build.0 = Debug|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Release|Any CPU.ActiveCfg = Release|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Release|Mixed Platforms.Build.0 = Release|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Release|x86.ActiveCfg = Release|x86
+		{086D4E22-A85E-4958-9B10-42EDE5F2D819}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

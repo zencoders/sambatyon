@@ -32,7 +32,7 @@ using System.ServiceModel;
 using System.IO;
 using Persistence;
 
-namespace PeerPlayer
+namespace PeerLibrary
 {
     [ServiceContract]
     interface IPeer
