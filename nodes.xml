@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Nodes>
+  <Node>
+    <Host>192.168.0.4</Host>
+    <Port>10000</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.4</Host>
+    <Port>10001</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.4</Host>
+    <Port>10002</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.4</Host>
+    <Port>10003</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.4</Host>
+    <Port>10004</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.3</Host>
+    <Port>10000</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.3</Host>
+    <Port>10001</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.3</Host>
+    <Port>10002</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.3</Host>
+    <Port>10003</Port>
+  </Node>
+  <Node>
+    <Host>192.168.0.3</Host>
+    <Port>10004</Port>
+  </Node>
+</Nodes>
