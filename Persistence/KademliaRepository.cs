@@ -368,6 +368,7 @@ namespace Persistence
             Parallel.ForEach<ExpireIteratorDesc>(cleanList,
                 (iter_desc) =>
                 {
+                    if (iter_desc == null) return;
                     if (iter_desc.ToBeDeleted)
                     {
                         DeleteTag(iter_desc.TagId);

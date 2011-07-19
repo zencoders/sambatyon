@@ -69,12 +69,12 @@ namespace RepositoryImpl
         }        
         public override RepositoryResponse Save(ILoadable data)
         {
-            try
-            {
+            /*try
+            {*/
                 lock (_store)
                 {
-                    using (TransactionScope tx = new TransactionScope())
-                    {
+                    /*using (TransactionScope tx = new TransactionScope())
+                    {*/
                         using (IDocumentSession _session = _store.OpenSession())
                         {
                             dynamic entity = data.GetAsDatabaseType();
@@ -85,19 +85,19 @@ namespace RepositoryImpl
                             }
                             catch (COMException comE)
                             {
-                                log.Warn("Cannot save cause to interop error");
+                                log.Warn("Cannot save cause to interop error",comE);
                             }
-                            tx.Complete();
+                      //      tx.Complete();
                             log.Debug("Data saved with id " + entity.Id);
                         }
-                    }
+                    //}
                 }
-            }
+            /*}
             catch (TransactionAbortedException tae)
             {
                 log.Error("Transaction aborted", tae);
                 return RepositoryResponse.RepositoryTransactionAbort;
-            }
+            }*/
             return RepositoryResponse.RepositorySuccess;
         }
 
@@ -110,22 +110,22 @@ namespace RepositoryImpl
                     var entity = _session.Load<DBType>(id);
                     if (entity != null)
                     {
-                        try
+                        /*try
                         {
                             using (TransactionScope tx = new TransactionScope())
-                            {
+                            {*/
                                 _session.Delete<DBType>(entity);
                                 _session.SaveChanges();
-                                tx.Complete();
+                            //    tx.Complete();
                                 log.Debug("Data with id " + id + " deleted");
-                            }
+                            //}
                             return RepositoryResponse.RepositoryDelete;
-                        }
+                        /*}
                         catch (TransactionAbortedException tae)
                         {
                             log.Error("Transaction Aborted", tae);
                             return RepositoryResponse.RepositoryGenericError;
-                        }
+                        }*/
                     }
                     else
                     {
@@ -141,8 +141,8 @@ namespace RepositoryImpl
                 using (IDocumentSession _session = _store.OpenSession())
                 {
                     DBType[] ents = _session.Load<DBType>(ids);
-                    try
-                    {
+                    /*try
+                    {*/
                         using (TransactionScope tx = new TransactionScope())
                         {
                             foreach (DBType entity in ents)
@@ -153,12 +153,12 @@ namespace RepositoryImpl
                             tx.Complete();
                         }
                         return RepositoryResponse.RepositoryDelete;
-                    }
+                    /*}
                     catch (TransactionAbortedException tae)
                     {
                         log.Error("Transaction Aborted", tae);
                         return RepositoryResponse.RepositoryGenericError;
-                    }
+                    }*/
                 }
             }
         }
