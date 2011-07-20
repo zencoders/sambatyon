@@ -102,6 +102,7 @@ namespace TransportService
 
         private void timerHandler(object source, EventArgs e)
         {
+            this.PeerScore += 1;
             this.Reset();
         }
     }
