@@ -340,6 +340,7 @@ namespace Persistence
                                                     () => new ExpireIteratorDesc(),                                    
                                                     (key,loop,iter_index,iter_desc)  =>
                                                     {
+                                                        if (key == null) return iter_desc;
                                                         if (iter_desc.TagId == null)
                                                         {
                                                             iter_desc.TagId = key.Id;
