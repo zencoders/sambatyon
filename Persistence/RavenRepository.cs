@@ -228,10 +228,10 @@ namespace RepositoryImpl
             if (cont!=null) {
                 using (IDocumentSession _session = _store.OpenSession())
                 {
-                    Parallel.ForEach(_session.Query<DBType>().Customize(x => { x.WaitForNonStaleResults(); }), t =>
+                    foreach (DBType t in _session.Query<DBType>().Customize(x => { x.WaitForNonStaleResults(); }))
                     {
                         cont.Add(t);
-                    });
+                    }
                 }
                 return RepositoryResponse.RepositoryLoad;
             } else {

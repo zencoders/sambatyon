@@ -372,7 +372,14 @@ namespace Kademlia
 				Thread.Sleep(MAINTAINANCE_INTERVAL);
 				log.Info("Performing maintainance");
 				// Expire old
-				datastore.Expire();
+                try
+                {
+                    datastore.Expire();
+                }
+                catch (Exception e)
+                {
+                    log.Debug("Expire not done");
+                }
 				//Log(datastore.GetKeys().Count + " keys stored.");
 				
 				// Replicate all if needed
