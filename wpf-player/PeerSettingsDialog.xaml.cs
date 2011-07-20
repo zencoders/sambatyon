@@ -43,12 +43,20 @@ namespace wpf_player
 	/// </summary>
 	public partial class PeerSettingsDialog : Window
 	{
+        /// <summary>
+        /// Default constructor
+        /// </summary>
 		public PeerSettingsDialog()
 		{
 			this.InitializeComponent();
 			
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}
+        /// <summary>
+        /// Checks if the forms data is valid
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private bool IsValid(DependencyObject node)
         {
             // Check if dependency object was passed
@@ -80,12 +88,23 @@ namespace wpf_player
             // All dependency objects are valid
             return true;
         }
+        /// <summary>
+        /// Cancel button click handler. This method close the dialog and set the result to false
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cancelButton_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
             this.Close();
         }
 
+        /// <summary>
+        /// Ok button click handler. This method check if the form data are valid : if they are the result is true and the dialog
+        /// will be closed else an alert box will be showed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void okButton_Click(object sender, RoutedEventArgs e)
         {
             if (!IsValid(this))

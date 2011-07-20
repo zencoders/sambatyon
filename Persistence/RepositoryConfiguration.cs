@@ -32,9 +32,19 @@ using System.Reflection;
 
 namespace Persistence
 {
+    /// <summary>
+    /// Class that implements a generic container for configurations used by the repository
+    /// </summary>
     public class RepositoryConfiguration: System.Collections.Generic.Dictionary<string,string>
     {
+        /// <summary>
+        /// Default Constructor that initializes an empty configuration
+        /// </summary>
         public RepositoryConfiguration(): base() {}
+        /// <summary>
+        /// Constructor that initializes the configuration dictionary using an anonymous object.
+        /// </summary>
+        /// <param name="anon">Anonymous object used to build the configuration</param>
         public RepositoryConfiguration(Object anon)
             : this()
         {
@@ -44,6 +54,11 @@ namespace Persistence
                 this.SetConfig(props[k].Name ,props[k].GetValue(anon, null).ToString());
             }
         }
+        /// <summary>
+        /// Gets the configuration associated with a key.
+        /// </summary>
+        /// <param name="key">Name of the configuration to get</param>
+        /// <returns>The value of the configuration if it is present, empty string otherwise</returns>
         public string GetConfig(string key)
         {
             if (this.ContainsKey(key))
@@ -55,6 +70,11 @@ namespace Persistence
                 return "";
             }
         }
+        /// <summary>
+        /// Sets the configuration 
+        /// </summary>
+        /// <param name="key">Name of the configuration to set</param>
+        /// <param name="value">The new value of the configuration</param>
         public void SetConfig(string key, string value)
         {
             this.Add(key, value);

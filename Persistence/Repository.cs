@@ -174,11 +174,18 @@ namespace Persistence
         /// <returns>Il risultato dell'operazione sul repository. Ritorna un valore negativo in caso di errori, altrimenti un valore
         /// che identifica l'operazione eseguita</returns>
         public abstract RepositoryResponse ArraySetElement(string key, string property, int index, string obj_prop, object value);
+        /// <summary>
+        /// Name of the Repository Type.
+        /// This property is used by the factory to check if the right repository implementation has been loaded
+        /// </summary>
         public String RepositoryType
         {
             get;
             protected set;
         }
+        /// <summary>
+        /// Disposes the repository
+        /// </summary>
         public abstract void Dispose();
     }
 }

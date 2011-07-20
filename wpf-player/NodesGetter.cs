@@ -12,11 +12,17 @@ namespace wpf_player
     [RunInstaller(true)]
     public partial class NodesGetter : System.Configuration.Install.Installer
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public NodesGetter()
         {
             InitializeComponent();
         }
-
+        /// <summary>
+        /// Method called during installation. This method downloads the nodes file.
+        /// </summary>
+        /// <param name="stateSaver"></param>
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);

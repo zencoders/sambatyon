@@ -34,28 +34,46 @@ using System.Windows;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Converter class used to convert position information to margin setup to move the position indication in the GUI
+    /// </summary>
     class SizeToMarginConverter: MarkupExtension,IMultiValueConverter
     {
+        /// <summary>
+        /// Left Margin at the base position
+        /// </summary>
         public int LeftMargin
         {
             get;
             set;
         }
+        /// <summary>
+        /// Bottom Margin at the base position
+        /// </summary>
         public int BottomMargin
         {
             get;
             set;
         }
+        /// <summary>
+        /// Top margin at the base position
+        /// </summary>
         public int TopMargin
         {
             get;
             set;
         }
+        /// <summary>
+        /// Right margin at the base position
+        /// </summary>
         public int RightMargin
         {
             get;
             set;
         }
+        /// <summary>
+        /// Default constructor for this class. Sets all margins to zero.
+        /// </summary>
         public SizeToMarginConverter()
         {
             LeftMargin = 0;
@@ -63,6 +81,11 @@ namespace wpf_player
             TopMargin = 0;
             RightMargin = 0;
         }
+        /// <summary>
+        /// Method needed for the extension system. Return the current instance.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns>The current instance of the converter</returns>
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             return this;
@@ -70,6 +93,15 @@ namespace wpf_player
 
         #region IValueConverter
 
+        /// <summary>
+        /// Converts the buffer position information to margin information
+        /// </summary>
+        /// <param name="values">Three elements array. The first is the buffer portion, the second is the bar size
+        /// and the third is the file size</param>
+        /// <param name="targetType">Unused param</param>
+        /// <param name="parameter">Unused Param</param>
+        /// <param name="culture">Unused Param</param>
+        /// <returns>Tickness information that will be used to setup margins of the position indicator</returns>
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             KeyValuePair<long,long> kv = (KeyValuePair<long,long>)values[0];
@@ -81,7 +113,14 @@ namespace wpf_player
             Thickness tk = new Thickness(LeftMargin+lm, TopMargin, RightMargin+rm, BottomMargin);
             return tk;
         }
-
+        /// <summary>
+        /// Perform inverse conversion. Currently Not supported
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object[] ConvertBack(object value, Type[] targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             Thickness val = (Thickness)value;            

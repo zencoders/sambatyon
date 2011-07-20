@@ -31,11 +31,25 @@ using System.Text;
 using log4net;
 using log4net.Config;
 
-
 namespace Examples
 {
+    /// <summary>
+    /// This class enables the developer to execute the programming examples contained in the specific classes.
+    /// Currently there are 3 example modules: Tag, Generic Repository, Kademlia-specific repository.
+    /// If the Console Application is launched with one or more example module names only this specific examples 
+    /// will be launched
+    /// <example>ProgrammingExamples.exe tag rep</example>
+    /// </summary>
     class ProgrammingExamples
     {
+        /// <summary>
+        /// Access method for the execution of the console application.
+        /// This method simply use RunExamples() methods of the example modules.
+        /// </summary>
+        /// <param name="args">
+        /// String array of example module names. Strings that do not represent a example
+        /// module name will be ignored.
+        /// </param>
         static void Main(string[] args)
         {
             //LOG4NET

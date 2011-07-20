@@ -30,46 +30,68 @@ using System.CodeDom;
 namespace Metrics
 {
 	/// <summary>
-	/// Description of FileQualityCoefficient.
+	/// Description of File Quality Coefficient.
 	/// </summary>
 	public class FileQualityCoefficient {
-		#region Attributes
+		#region Attributes        
 		private double brComponent;
 		private double cmComponent;
 		private double srComponent;		
 		#endregion
 		#region Properties
-		public double bitRateComponent {
+        /// <summary>
+        /// Read-Only Property for the Bit Rate component of the File Quality Coefficient
+        /// </summary>
+		public double BitRateComponent {
 			get {
 				return this.brComponent;
 			}
 		}
-		public double channelModelComponent {
+        /// <summary>
+        /// Read-Only Property for the Channel Mode component of the File Quality Coefficient
+        /// </summary>
+		public double ChannelModelComponent {
 			get {
 				return this.cmComponent;
 			}
 		}
-		public double sampleRateComponent {
+        /// <summary>
+        /// Read-Only Property for the Sample Rate component of the File Quality Coefficient
+        /// </summary>
+		public double SampleRateComponent {
 			get {
 				return this.srComponent;
 			}
 		}
-		public double coefficient {
+        /// <summary>
+        /// Read-Only Property for the Coefficient calculated with a weighted sum of each component
+        /// </summary>
+		public double Coefficient {
 			get {
 				return (0.5*this.brComponent)+(0.3*cmComponent)+(0.2*srComponent);
 			}
 		}
 		#endregion
 		#region Constructors
+        /// <summary>
+        /// Main Constructor of the coefficient class. This constructor just initializes all the component with the given values.
+        /// </summary>
+        /// <param name="br">Bit Rate Component</param>
+        /// <param name="cm">Channel Mode Component</param>
+        /// <param name="sr">Sample Rate Component</param>
 		public FileQualityCoefficient(double br=0.0,double cm=0.0,double sr=0.0) {
 			this.brComponent=br;
 			this.cmComponent=cm;
 			this.srComponent=sr;
 		}		
 		#endregion
+        /// <summary>
+        /// Returns a string representation of the File Quality Coefficient and of its components.
+        /// </summary>
+        /// <returns>The string containing the coefficient representation</returns>
 		public override string ToString(){
 			return string.Format("[FileQualityCoefficient BitRate={0}, ChannelMode={1}, SampleRate={2}, coefficient={3}]",
-			                     this.bitRateComponent,this.channelModelComponent, this.sampleRateComponent,this.coefficient);
+			                     this.BitRateComponent,this.ChannelModelComponent, this.SampleRateComponent,this.Coefficient);
 		}
 	}
 }

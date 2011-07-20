@@ -31,13 +31,26 @@ using System.Text;
 
 namespace Persistence
 {
+    /// <summary>
+    /// Comparer Class that performs custom comparison for the HashSet containing DhtElement
+    /// </summary>
     class DhtElementComparer : IEqualityComparer<DhtElement>
     {
+        /// <summary>
+        /// Equality Comparison that relies on DhtElement <c>Equals</c> method
+        /// </summary>
+        /// <param name="x">First element of the comparison</param>
+        /// <param name="y">Second element of the comparison</param>
+        /// <returns>True if the elements are equals, false otherwise</returns>
         bool IEqualityComparer<DhtElement>.Equals(DhtElement x, DhtElement y)
         {
             return x.Equals(y);
         }
-
+        /// <summary>
+        /// Method for getting the HashCode of an Element. This relies on DhtElement <c>GetHashCode</c> method.
+        /// </summary>
+        /// <param name="obj">DhtElement of whom we want to know the HashCode</param>
+        /// <returns>The HashCode of the element</returns>
         int IEqualityComparer<DhtElement>.GetHashCode(DhtElement obj)
         {
             return obj.GetHashCode();

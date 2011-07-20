@@ -44,6 +44,9 @@ namespace wpf_player
 	/// </summary>
 	public partial class PositionIndicator : UserControl
 	{
+        /// <summary>
+        /// Default constructor
+        /// </summary>
 		public PositionIndicator()
 		{
 			this.InitializeComponent();

@@ -43,19 +43,33 @@ namespace wpf_player
 	/// </summary>
 	public partial class AudioPlayer : UserControl
 	{
+        /// <summary>
+        /// View Model reference
+        /// </summary>
         private AudioPlayerModel vm= null;
+        /// <summary>
+        /// Default constructor
+        /// </summary>
 		public AudioPlayer()
 		{            
 			this.InitializeComponent();            
             this.Dispatcher.ShutdownStarted += new EventHandler(Dispatcher_ShutdownStarted);
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}
+        /// <summary>
+        /// Sets Data Context for this Control
+        /// </summary>
+        /// <param name="model">Model to be set</param>
         public void SetDataContext(AudioPlayerModel model)
         {
             vm = model;
             this.DataContext = vm;
         }
-
+        /// <summary>
+        /// Method called when the dialog is closing. This calls the dispose for the view model.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void Dispatcher_ShutdownStarted(object sender, EventArgs e)
         {
             if (vm != null)
@@ -64,7 +78,11 @@ namespace wpf_player
                 vm = null;
             }
         }
-
+        /// <summary>
+        /// Mouse Enter event Handler that handles the visibility of the indicator
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Slider_MouseEnter(object sender, MouseEventArgs e)
         {
             Slider s = sender as Slider;
@@ -90,7 +108,11 @@ namespace wpf_player
                 //indicator.Margin = new Thickness(globalP.X, 0, 0, 0);
             }
         }
-
+        /// <summary>
+        /// Mouse Leave event Handler that handles the visibility of the indicator
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TrackSlider_MouseLeave(object sender, MouseEventArgs e)
         {
             object item = this.FindName("position_indicator");
@@ -100,13 +122,22 @@ namespace wpf_player
                 indicator.Visibility = Visibility.Hidden;
             }
         }
-
+        /// <summary>
+        /// Handler for the drag and drop of the track thumb.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TrackSlider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
         {
             AudioPlayerModel vm = (AudioPlayerModel)this.DataContext;
             vm.EnableFlowRestart = false;
             vm.Pause.Execute(null);            
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TrackSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
             AudioPlayerModel vm=(AudioPlayerModel)this.DataContext;
@@ -118,7 +149,11 @@ namespace wpf_player
                 vm.Pause.Execute(null);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TrackSlider_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             Slider s = sender as Slider;

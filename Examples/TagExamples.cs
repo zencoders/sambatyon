@@ -33,14 +33,23 @@ using System.Reflection;
 
 namespace Examples
 {
+    /// <summary>
+    /// Example module for Tag-related operations
+    /// </summary>
     public static class TagExamples
     {
+        /// <summary>
+        /// Access method that will be executed by <c>ProgrammingExamples</c> and runs all the example method of the set.
+        /// </summary>
         public static void RunExamples() {
             ExampleHelper.ExampleSetPrint("Tag Examples",typeof(TagExamples));
             //TagReadAndWrite();
             CompleteTagReadAndWrite();
             //CompleteToLightTag();
         }
+        /// <summary>
+        /// This example shows how to build a <c>CompleteTag</c> and a <c>LightTag</c>.
+        /// </summary>
         private static void CompleteToLightTag()
         {
 
@@ -58,6 +67,9 @@ namespace Examples
             Console.WriteLine("Raw Byte Length: " + miniTag.RawData.Length);
             Console.WriteLine("Raw Byte : " + miniTag.ToString());
         }
+        /// <summary>
+        /// This example shows how to read complete tag from file and write it to the console.
+        /// </summary>
         private static void CompleteTagReadAndWrite()
         {
             ExampleHelper.ExampleMethodPrint("Generating Complete Tag From File and Read it",MethodInfo.GetCurrentMethod());
@@ -76,6 +88,9 @@ namespace Examples
             Console.WriteLine("Sample Rate: " + tag.SampleRate);
             //Console.WriteLine("Specific Tag: " + tag.SpecificTag.GetType().FullName);            
         }
+        /// <summary>
+        /// This example shows how to read light tag from byte array and write it to the console.
+        /// </summary>
         private static void TagReadAndWrite()
         {
             ExampleHelper.ExampleMethodPrint("Tag Read and Write Example", MethodInfo.GetCurrentMethod());

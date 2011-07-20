@@ -34,12 +34,21 @@ using System.Net;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Validator used in peer configurator. This check if port is in uses or not and if it is a valid port or not.
+    /// </summary>
     class PortValidationRule: ValidationRule
     {
         private bool checkInUse=true;
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public PortValidationRule()
         {            
         }
+        /// <summary>
+        /// Flag that indicates if we want to check if the port is in use
+        /// </summary>
         public bool CheckInUse
         {
             get
@@ -52,6 +61,13 @@ namespace wpf_player
                 checkInUse = value;
             }
         }
+        /// <summary>
+        /// Validates the port value. It checks if the port number is valid (it is in the range [1024,65535]) and if it's
+        /// already in use (if this check is enabled).
+        /// </summary>
+        /// <param name="value">Value to validate</param>
+        /// <param name="cultureInfo">Unused Param</param>
+        /// <returns>A validation Result that indicates if the validation has been succeded or not</returns>
         public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo)
         {
             int port = 0; 

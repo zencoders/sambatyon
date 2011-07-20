@@ -37,11 +37,27 @@ namespace Persistence
 {
 namespace Tag
 {
-    [DataContractAttribute]
-    public class CompleteTag/* : ISerializable*/
+    /// <summary>
+    /// This class contains all information need by the system to describe a Track. 
+    /// The complete tag contains semantic information and audio information of the Track.
+    /// Each Tag is identified by a TagHash which is the SHA1 of string containing author, title, album and year information
+    /// about track. Thanks to this, one or more different files (with different hash of the content) can have the same TagHash:
+    /// in other words different files that contains the same song have diffent file hash but same tag hash and so Kademlia Knowledge
+    /// sharing can be tag oriented and not file oriented !
+    /// </summary>
+    [DataContractAttribute]    
+    public class CompleteTag
     {
+        /// <summary>
+        /// Tag Default constructor.
+        /// </summary>
         public CompleteTag() { }
-
+        /// <summary>
+        /// Main constructor of the Tag. This reads information from the given filename and initializes all fields of the tag.
+        /// It's important to know that this constructor has a considerable weight in term of processor time because it calculates two SHA1 hash:
+        /// one for the entire file and one for the relevant tag information.
+        /// </summary>
+        /// <param name="filename">Filename from whom extract the information for the tag</param>
         public CompleteTag(string filename)
         {
             byte[] retVal;
@@ -68,7 +84,11 @@ namespace Tag
             }
             this.TagHash = sb.ToString();
         }
-
+        /// <summary>
+        /// Method used for Serialization purpose
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
         public CompleteTag(SerializationInfo info, StreamingContext ctxt)
         {
             this.Title = (string) info.GetValue("Title", typeof(string));
@@ -86,6 +106,11 @@ namespace Tag
             this.TagHash = (string) info.GetValue("TagHash", typeof(string));
         }
 
+        /// <summary>
+        /// Return a string representation of the relevant information of the tag.
+        /// This method is used to construct the TagHash and its output is given as input for the SHA1 Hashing function.
+        /// </summary>
+        /// <returns>A String containing relevant information</returns>
         private string contentString()
         {
             StringBuilder sb = new StringBuilder();
@@ -98,6 +123,11 @@ namespace Tag
             sb.Append(this.Year);
             return sb.ToString();
         }
+        /// <summary>
+        /// Reads information from a MPEG file and fills the tag fields.
+        /// </summary>
+        /// <param name="filename">Filename from w</param>
+        /// <returns>Filename from whom extract the information for the tag</returns>
         private bool _fillTagMpeg(string filename)
         {
             using (AudioFile mpegFile = new AudioFile(filename))
@@ -137,7 +167,13 @@ namespace Tag
             }
             return true;
         }
-
+        /// <summary>
+        /// Public method used to fill the tag.
+        /// This relies on private specific method for each type of audio file. Currently only MPEG files are supported.
+        /// </summary>
+        /// <exception cref="System.NotImplementedException">Thrown if the file type is not supported</exception>
+        /// <exception cref="System.IO.FileNotFoundException">Thrown if the file does not exist</exception>
+        /// <param name="filename">Filename from whom extract the information for the tag</param>
         public void FillTag(string filename)
         {
             if (System.IO.File.Exists(filename))
@@ -155,78 +191,117 @@ namespace Tag
             }            
         }
         #region "Properties"
+        /// <summary>
+        /// Track Title
+        /// </summary>
         [DataMemberAttribute]
         public string Title
         {
             get;
             set;
         }
+        /// <summary>
+        /// Track Artist
+        /// </summary>
         [DataMemberAttribute]
         public string Artist
         {
             get;
             set;
         }
+        /// <summary>
+        /// Album that contains the track
+        /// </summary>
         [DataMemberAttribute]
         public string Album
         {
             get;
             set;
         }
+        /// <summary>
+        /// Genre of the the track
+        /// </summary>
         [DataMemberAttribute]
         public string Genre
         {
             get;
             set;
         }
+        /// <summary>
+        /// Recording Year of the track
+        /// </summary>
         [DataMemberAttribute]
         public uint Year
         {
             get;
             set;
         }
+        /// <summary>
+        /// Track Number 
+        /// </summary>
         [DataMemberAttribute]
         public uint Track
         {
             get;
             set;
         }
+        /// <summary>
+        /// Track lenght in seconds
+        /// </summary>
         [DataMemberAttribute]
         public int Length
         {
             get;
             set;
         }
+        /// <summary>
+        /// Track Bit Rate in Kbps (Kb per second)
+        /// </summary>
         [DataMemberAttribute]
         public int Bitrate
         {
             get;
             set;
         }
+        /// <summary>
+        /// Sample rate in Hertz
+        /// </summary>
         [DataMemberAttribute]
         public int SampleRate
         {
             get;
             set;
         }
+        /// <summary>
+        /// Number of channels
+        /// </summary>
         [DataMemberAttribute]
         public int Channels
         {
             get;
             set;
         }
+        /// <summary>
+        /// Filesize in Byte
+        /// </summary>
         [DataMemberAttribute]
         public long FileSize
         {
             get;
             set;
         }
+        /// <summary>
+        /// SHA1 hash of the file content
+        /// </summary>
         [DataMemberAttribute]
         public string FileHash
         {
             get;
             set;
         }
+        /// <summary>
+        /// SHA1 hash of the relevant information of the tag (obtained with <see cref="contentString"/>
+        /// </summary>
         [DataMemberAttribute]
         public string TagHash
         {
@@ -234,7 +309,12 @@ namespace Tag
             set;
         }
         #endregion        
-    
+        
+        /// <summary>
+        /// Method used for serialization purpose.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Title", this.Title);

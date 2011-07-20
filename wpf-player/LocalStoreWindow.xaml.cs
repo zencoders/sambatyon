@@ -43,13 +43,21 @@ namespace wpf_player
 	/// </summary>
 	public partial class LocalStoreWindow : Window
 	{
+        /// <summary>
+        /// Default constructor
+        /// </summary>
 		public LocalStoreWindow()
 		{
 			this.InitializeComponent();
 			
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}
-
+        /// <summary>
+        /// Add file button click handler. This method shows a file dialog and insert the track in the repository
+        /// using the peer interface method.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void addFile_Click(object sender, RoutedEventArgs e)
         {
             this.QueryField.IsEnabled = false;

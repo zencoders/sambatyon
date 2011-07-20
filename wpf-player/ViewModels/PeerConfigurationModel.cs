@@ -32,15 +32,33 @@ using System.ComponentModel;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// This class implements the ViewModel in the MVVM pattern. This relais data from the Peer to the 
+    /// configuration windows and allows user to update this configuration
+    /// </summary>
     class PeerConfigurationModel:INotifyPropertyChanged
     {
+        /// <summary>
+        /// Default transport protocol UDP port
+        /// </summary>
         private int udpPort=9997;
+        /// <summary>
+        /// Default kademlia layer UDP port
+        /// </summary>
         private int kademliaPort=10000;
+        /// <summary>
+        /// Constructor that initializes the field with the given values
+        /// </summary>
+        /// <param name="udpPort">Transport Protocol UDP port</param>
+        /// <param name="kademliaPort">Kademlia Layer UDP port</param>
         public PeerConfigurationModel(int udpPort, int kademliaPort)
         {
             this.udpPort = udpPort;
             this.kademliaPort = kademliaPort;
         }
+        /// <summary>
+        /// UDP port used by the Transport Protocol
+        /// </summary>
         public int UdpPort
         {
             get
@@ -53,6 +71,9 @@ namespace wpf_player
                 NotifyPropertyChanged("UdpPort");
             }
         }
+        /// <summary>
+        /// UDP port used by the kademlia netword
+        /// </summary>
         public int KademliaPort
         {
             get
@@ -65,8 +86,14 @@ namespace wpf_player
                 NotifyPropertyChanged("KademliaPort");
             }
         }
+        /// <summary>
+        /// Event for the property changed (this is used by WPF Data Binding)
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
+        /// <summary>
+        /// Method called when a property has been changed. This method rises the event PropertyChange.
+        /// </summary>
+        /// <param name="info">Name of the property that has been changed</param>
         private void NotifyPropertyChanged(String info)
         {
             if (PropertyChanged != null)

@@ -91,8 +91,17 @@ namespace Persistence
         /// Valore che identifica la modifica di una proprietà in fase di Patch del Repository
         /// </summary>
         RepositoryPatchSet = 12,
+        /// <summary>
+        /// Valore che identifica la rimozione di un elemento da un array in fase di Patch del Repository
+        /// </summary>
         RepositoryPatchRemove = 13,
+        /// <summary>
+        /// Valore che identifica che è stato richiesto un indice non esistente
+        /// </summary>
         RepositoryMissingIndex = -11,
+        /// <summary>
+        /// Valore che identifica la modifica di un elemento in fase di Patch del Repository
+        /// </summary>
         RepositoryPatchModify = 14
     }
 }

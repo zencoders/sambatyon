@@ -31,10 +31,27 @@ using System.Text;
 
 namespace Persistence
 {
+    /// <summary>
+    /// Interface that describe an object that can be loaded in the the repository.
+    /// </summary>
     public interface ILoadable
     {
+        /// <summary>
+        /// This method is used to return a instance of an object that contains only information that
+        /// has to be serialized.
+        /// </summary>
+        /// <returns>A representation as database type of the current object</returns>
         dynamic GetAsDatabaseType();
+        /// <summary>
+        /// Load data from an object loaded from the repository as Database type
+        /// </summary>
+        /// <param name="data">Dynamic object containing data</param>
+        /// <returns>True if all data have been successfully loaded, false otherwise</returns>
         bool LoadFromDatabaseType(dynamic data);
+        /// <summary>
+        /// Get database type associated to this object
+        /// </summary>
+        /// <returns>Type reference for the Database Type</returns>
         Type GetDatabaseType();
     }
 }

@@ -33,10 +33,16 @@ using Persistence;
 
 namespace Examples
 {
+    /// <summary>
+    /// Example module for Generic use of raven repository.
+    /// </summary>
     class RepositoryExamples
     {
         private static string _hid;
         private static Persistence.Repository _trackRep;
+        /// <summary>
+        /// Access method that will be executed by <c>ProgrammingExamples</c> and runs all the example method of the set.
+        /// </summary>
         public static void RunExamples()
         {
             ExampleHelper.ExampleSetPrint("Repository Examples", typeof(RepositoryExamples));
@@ -46,6 +52,9 @@ namespace Examples
             InsertCountLoadAllDeleteAndLoadAgain();
             _trackRep.Dispose();
         }
+        /// <summary>
+        /// This example shows how to instantiate a new raven repository
+        /// </summary>
         public static void LoadRavenExample()
         {
             ExampleHelper.ExampleMethodPrint("Generate Raven Repository Instance", MethodInfo.GetCurrentMethod());            
@@ -53,6 +62,9 @@ namespace Examples
             _trackRep= Persistence.RepositoryFactory.GetRepositoryInstance("Raven",conf);
             Console.WriteLine(_trackRep.GetType().FullName+" - " + _trackRep.RepositoryType);
         }
+        /// <summary>
+        /// This example shows how to save a track in a generic repository
+        /// </summary>
         public static void StoreTrackInDb()
         {
             ExampleHelper.ExampleMethodPrint("Create a TrackModel from file and store it in the database",MethodInfo.GetCurrentMethod());
@@ -61,6 +73,9 @@ namespace Examples
             ExampleHelper.DumpObjectProperties(track.GetAsDatabaseType());
             Console.WriteLine("Response : "+_trackRep.Save(track));
         }
+        /// <summary>
+        /// This example shows how to load from the repository a previously stored track.
+        /// </summary>
         public static void LoadTrackFromDb() {
             ExampleHelper.ExampleMethodPrint("Load a TrackModel from the database",MethodInfo.GetCurrentMethod());
             TrackModel track= new TrackModel();
@@ -70,6 +85,12 @@ namespace Examples
                 ExampleHelper.DumpObjectProperties(track.GetAsDatabaseType());
             }
         }
+        /// <summary>
+        /// This method shows the use and the functionality of some repository methods.
+        /// <c>
+        /// Insert a new Track in the Database, Count all elements and the Load it all! Then delete a item and Load it all again
+        /// </c>
+        /// </summary>
         public static void InsertCountLoadAllDeleteAndLoadAgain()
         {
             ExampleHelper.ExampleMethodPrint("Insert a new Track in the Database, Count all elements and the Load it all!\n"+

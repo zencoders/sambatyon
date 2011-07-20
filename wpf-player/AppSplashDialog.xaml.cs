@@ -44,6 +44,9 @@ namespace wpf_player
 	/// </summary>
 	public partial class AppSplashDialog : Window
 	{
+        /// <summary>
+        /// Default constructor
+        /// </summary>
 		public AppSplashDialog()
 		{
 			this.InitializeComponent();     			

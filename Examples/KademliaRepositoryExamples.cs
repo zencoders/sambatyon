@@ -34,10 +34,16 @@ using Persistence.Tag;
 
 namespace Examples
 {
+    /// <summary>
+    /// Example Module for kademlia-specific repository.
+    /// </summary>
     class KademliaRepositoryExamples
     {
         private static KademliaRepository _repository=null;
         private static CompleteTag tag = new CompleteTag(@"..\..\Resource\Garden.mp3");
+        /// <summary>
+        /// Access method that will be executed by <c>ProgrammingExamples</c> and runs all the example method of the set.
+        /// </summary>
         public static void RunExamples()
         {
             ExampleHelper.ExampleSetPrint("Kademlia Repository Examples", typeof(KademliaRepositoryExamples));
@@ -51,16 +57,19 @@ namespace Examples
             SearchExample();
             RefreshExample();
             ExpireExample();
-
             //DeleteExample();
         }
-
+        /// <summary>
+        /// This test the <c>Expire</c> method of the repository
+        /// </summary>
         private static void ExpireExample()
         {
             ExampleHelper.ExampleMethodPrint("Clean Expire Entity", MethodInfo.GetCurrentMethod());
             _repository.Expire();
         }
-
+        /// <summary>
+        /// This example run <c>ContainsTag</c>, <c>ContainsUrl</c> and <c>GetPublicationTime</c> methods of the repository
+        /// </summary>
         private static void MiscGetAndContainsExample()
         {
             ExampleHelper.ExampleMethodPrint("Show how some minor function of Get and Contains works", MethodInfo.GetCurrentMethod());
@@ -74,13 +83,17 @@ namespace Examples
             DateTime pubTime = _repository.GetPublicationTime(tag.TagHash, url);
             Console.WriteLine("Publication Time for Url " + url.ToString() + " on Resource " + tag.TagHash + " is " + pubTime);
         }
-
+        /// <summary>
+        /// This example shows how to use the <c>Put</c> operation to insert new Dht element into an existing Resource
+        /// </summary>
         private static void PutExample()
         {
             ExampleHelper.ExampleMethodPrint("Put a new DhtElement in a Resource", MethodInfo.GetCurrentMethod());
             _repository.Put(tag.TagHash, new Uri("http://127.0.0.1:18181"), DateTime.Now.AddDays(-1).AddHours(-1));
         }
-
+        /// <summary>
+        /// This example use the <c>GetAll</c> method to show all object contained in the repository
+        /// </summary>
         private static void GetAllExample()
         {
             ExampleHelper.ExampleMethodPrint("Print all KademliaResource in the repository", MethodInfo.GetCurrentMethod());
@@ -91,12 +104,18 @@ namespace Examples
                 Console.WriteLine();
             }
         }
+        /// <summary>
+        /// This example shows how the repository discard semanticless words.
+        /// </summary>
         public static void CleanTagExample()
         {
             ExampleHelper.ExampleMethodPrint("Clean a string from semanticless words", MethodInfo.GetCurrentMethod());
             string example1 = "The wind of change";
             Console.WriteLine("\""+example1+ "\" => \""+_repository.DiscardSemanticlessWords(example1)+"\"");
         }
+        /// <summary>
+        /// This example uses the <c>Store</c> method to insert a new resource in the repository
+        /// </summary>
         public static void StoreExample()
         {
             ExampleHelper.ExampleMethodPrint("Store a Tag and linking it with a peer URI", MethodInfo.GetCurrentMethod());
@@ -104,6 +123,9 @@ namespace Examples
             CompleteTag anotherTag = new CompleteTag(@"..\..\Resource\SevenMP3.mp3");
             _repository.StoreResource(anotherTag,new Uri("http://localhost:28182"),DateTime.Now);
         }
+        /// <summary>
+        /// This example show how to perform research inside the repository
+        /// </summary>
         public static void SearchExample()
         {
             ExampleHelper.ExampleMethodPrint("Trying to Search for Tags with a search Query", MethodInfo.GetCurrentMethod());
@@ -114,11 +136,17 @@ namespace Examples
                 ExampleHelper.DumpObjectProperties(rs);
             }
         }
+        /// <summary>
+        /// This example uses the <c>DeleteTag</c> method to delete a tag from the repository
+        /// </summary>
         public static void DeleteExample()
         {
             ExampleHelper.ExampleMethodPrint("Delete a previously loaded tag", MethodInfo.GetCurrentMethod());
             Console.WriteLine("Delete Result: "+_repository.DeleteTag(tag.TagHash));
         }
+        /// <summary>
+        /// This example shows how to refreash a resource inside the repository.
+        /// </summary>
         public static void RefreshExample()
         {
             ExampleHelper.ExampleMethodPrint("Refresh a previously loaded tag", MethodInfo.GetCurrentMethod());

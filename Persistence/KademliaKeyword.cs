@@ -31,20 +31,32 @@ using System.Text;
 
 namespace Persistence
 {
+    /// <summary>
+    /// Class used to represent a keyword inside Kademlia Network. A kademlia keyword has one or more tags associated.
+    /// </summary>
     public class KademliaKeyword: IDocumentType, ILoadable
     {
+        /// <summary>
+        /// List containing the identifiers (hash) of the tags releated to the keyword
+        /// </summary>
         public List<string> Tags
         {
             get;
             set;
         }
-
+        /// <summary>
+        /// Default keyword constructor. 
+        /// </summary>
         public KademliaKeyword()
         {
             this.Id = null;
             this.Tags = new List<string>();
         }
-
+        /// <summary>
+        /// Main keyword constructor. This just initializes the fields with the given values
+        /// </summary>
+        /// <param name="key">keyword itself used as identifier</param>
+        /// <param name="tags">identifier of associated tags</param>
         public KademliaKeyword(string key, params string[] tags)
             : this()
         {
@@ -52,12 +64,19 @@ namespace Persistence
             this.Tags.AddRange(tags);
         }
         #region ILoadable 
-
+        /// <summary>
+        /// Returns the object itself because it's ready to be loaded in the repository (and implements IDocumentType!)
+        /// </summary>
+        /// <returns>The object itself</returns>
         public dynamic GetAsDatabaseType()
         {
             return this;
         }
-
+        /// <summary>
+        /// Loads keyword information from a dynamic object loaded from repository
+        /// </summary>
+        /// <param name="data">Data Object loaded from repository</param>
+        /// <returns>Always True</returns>
         public bool LoadFromDatabaseType(dynamic data)
         {
             this.Id = data.Id;
@@ -66,6 +85,10 @@ namespace Persistence
             return true;
         }
 
+        /// <summary>
+        /// Returns the Type of the KadmeliaKeyword class.
+        /// </summary>
+        /// <returns>The type used for Repository</returns>
         public Type GetDatabaseType()
         {
             return this.GetType();
@@ -75,6 +98,10 @@ namespace Persistence
 
         #region IDocumentType 
 
+        /// <summary>
+        /// Keyword identifier is the keyword itself.
+        /// <example>Keyword <c>fish</c> will have <c>fish</c> as identifier inside the repository</example>
+        /// </summary>
         public string Id
         {
             get;

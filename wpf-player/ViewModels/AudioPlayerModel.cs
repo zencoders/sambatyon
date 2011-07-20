@@ -45,20 +45,66 @@ using PeerLibrary;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Class that implements the ViewModel in MVVM pattern. 
+    /// This class contains the logic for playing audio stream using the Peer as
+    /// point of access for the network. 
+    /// </summary>
 	public class AudioPlayerModel : INotifyPropertyChanged,IDisposable
 	{
+        /// <summary>
+        /// Local Reference to the Peer
+        /// </summary>
         private Peer peer = null;
+        /// <summary>
+        /// Observable stream where the Peer writes data collected from the network
+        /// </summary>
         private ObservableStream localstream=null;
+        /// <summary>
+        /// Stream used by the player to read the byte buffer.
+        /// </summary>
         private MemoryStream lmem = null;
+        /// <summary>
+        /// Byte buffer pointed by both <c>localstream</c> and <c>lmem</c> containing the raw data.
+        /// </summary>
         private byte[] streambuff = null;
+        /// <summary>
+        /// The resource that the player is currently handling
+        /// </summary>
         private KademliaResource rsc=null;
+        /// <summary>
+        /// Flag that indicates if the player is in buffering state
+        /// </summary>
         private bool bufferingState=false;
+        /// <summary>
+        /// NAudio channel used to read the stream
+        /// </summary>
         WaveChannel32 wc=null;
+        /// <summary>
+        /// NAudio player used to read wave channel.
+        /// </summary>
         private IWavePlayer player = new WaveOut();
+        /// <summary>
+        /// Current position inside the byte buffer
+        /// </summary>
         private long pos = 0;
+        /// <summary>
+        /// Current position in time 
+        /// </summary>
         private double currentTime=0.0;
+        /// <summary>
+        /// Start position
+        /// </summary>
         private long startPosition = 0L;
+        /// <summary>
+        /// Flag used to identify if the player is in the buffering state that happens at the begining 
+        /// of the streaming session
+        /// </summary>
         private bool startPhaseBuffering = false;
+        /// <summary>
+        /// Constructor that initializes all commands and the reference to the Peer.
+        /// </summary>
+        /// <param name="p"></param>
         public AudioPlayerModel(Peer p = null)
 		{
             //player.Done += new PlayerEx.DoneEventHandler(player_Done);
@@ -73,6 +119,9 @@ namespace wpf_player
             Volume = 0.4F;
 		}
         #region Properties 
+        /// <summary>
+        /// Flag used to check if the player is in buffering state
+        /// </summary>
         public bool BufferingState
         {
             get
@@ -85,6 +134,9 @@ namespace wpf_player
                 NotifyPropertyChanged("BufferingState");
             }
         }
+        /// <summary>
+        /// Flag used to check if the player is handling a resource
+        /// </summary>
         public bool HasResource
         {
             get
@@ -92,6 +144,9 @@ namespace wpf_player
                 return rsc != null;
             }
         }
+        /// <summary>
+        /// Property containing a string representation of the playing state of the player
+        /// </summary>
         public string PlayingState
         {
             get
@@ -115,6 +170,10 @@ namespace wpf_player
                 }
             }
         }
+        /// <summary>
+        /// Property that contains the portion of Buffer currently used.
+        /// IMPORTANT: by now the start position of the buffer portion is always 0
+        /// </summary>
         public KeyValuePair<long,long> BufferPortion
         {
             get
@@ -129,6 +188,9 @@ namespace wpf_player
                 }
             }            
         }
+        /// <summary>
+        /// Tag information of the currently handling resource
+        /// </summary>
         public CompleteTag ResourceTag
         {
             get
@@ -143,6 +205,9 @@ namespace wpf_player
                 }
             }
         }
+        /// <summary>
+        /// Current volume value
+        /// </summary>
         public float Volume
         {
             get
@@ -165,16 +230,25 @@ namespace wpf_player
                 }
             }
         }
+        /// <summary>
+        /// Max volume value
+        /// </summary>
         public float MaxVolume
         {
             get;
             private set;
         }
+        /// <summary>
+        /// Flag that indicates if flow restart is enabled
+        /// </summary>
         public bool EnableFlowRestart
         {
             get;
             set;
         }
+        /// <summary>
+        /// Current Position of the player inside the byte buffer
+        /// </summary>
         public long Position
         {
             get
@@ -193,6 +267,9 @@ namespace wpf_player
                 NotifyPropertyChanged("Position");
             }
         }
+        /// <summary>
+        /// Current position expressed in seconds from the start
+        /// </summary>
         public double CurrentTime
         {
             get
@@ -212,7 +289,10 @@ namespace wpf_player
                 currentTime = value;
                 NotifyPropertyChanged("CurrentTime");
             }
-        }
+        }        
+        /// <summary>
+        /// Size of the shared byte buffer
+        /// </summary>
         public long BigBufferSize
         {
             get
@@ -227,6 +307,9 @@ namespace wpf_player
                 }
             }
         }
+        /// <summary>
+        /// Lenght of the resource. This information is obtained from the tag.
+        /// </summary>
         public double Length
         {
             get
@@ -243,21 +326,33 @@ namespace wpf_player
         }
         #endregion
         #region Command
+        /// <summary>
+        /// Play Command
+        /// </summary>
         public ICommand Play
         {
             get;
             private set;
         }
+        /// <summary>
+        /// Close command
+        /// </summary>
         public ICommand Close
         {
             get;
             private set;
         }
+        /// <summary>
+        /// Stop command
+        /// </summary>
         public ICommand Stop
         {
             get;
             private set;
         }
+        /// <summary>
+        /// Pause Command
+        /// </summary>
         public ICommand Pause
         {
             get;
@@ -265,6 +360,12 @@ namespace wpf_player
         }
         #endregion
         #region Command Backfunction
+        /// <summary>
+        /// Method used to start (or restart) the execution of the track. This resets peer stream and wave stream then 
+        /// initializes the NAudio player and calls its <c>Play</c> method
+        /// </summary>
+        /// <param name="args">Unused params</param>
+        /// <seealso cref="resetWaveStream"/>
         private void play(object args=null)
         {
             if (rsc == null) return;
@@ -290,6 +391,10 @@ namespace wpf_player
             player.Play();
             NotifyPropertyChanged("PlayingState");
         }        
+        /// <summary>
+        /// This method closes all streams and the disposes the player.
+        /// </summary>
+        /// <param name="args">Unused Params</param>
         private void close(object args=null)
         {
             this.stop();
@@ -308,6 +413,12 @@ namespace wpf_player
                 player.Dispose();
             }
         }
+        /// <summary>
+        /// This method handle the pause operation. If the player is currently playing the methods calls NAudio player <c>Pause</c>
+        /// method, if the player is paused then the <see cref="play"/> method will called, if the player is in the buffering phase
+        /// at the start of the streaming session the method try to close the buffer phase and start the playing phase.
+        /// </summary>
+        /// <param name="args">Unused params</param>
         private void pause(object args = null)
         {
             if (player.PlaybackState == PlaybackState.Playing)
@@ -327,6 +438,11 @@ namespace wpf_player
             }
             NotifyPropertyChanged("PlayingState");
         }
+        /// <summary>
+        /// This method handles the stop operation. If the player is not stopped, the NAudio player will be stopped and some
+        /// structure will be cleaned
+        /// </summary>
+        /// <param name="args">Unused Params</param>
         private void stop(object args=null)
         {            
             if (player.PlaybackState != PlaybackState.Stopped)
@@ -347,11 +463,22 @@ namespace wpf_player
         }
         #endregion
         #region Callback
+        /// <summary>
+        /// Unused callback
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         public void playback_stopped(object sender, EventArgs args)
         {
             MessageBox.Show(args.ToString());            
             this.stop();
         }
+        /// <summary>
+        /// This callback is called everytime a sample is player. This method handles current time and current position updates,
+        /// the stop of the playing at the end of the track and the buffering state.
+        /// </summary>
+        /// <param name="sender">Unused params</param>
+        /// <param name="e">Unused params</param>
         private void wc_Sample(object sender, SampleEventArgs e)
         {
             if (wc == null) return;
@@ -373,6 +500,11 @@ namespace wpf_player
                 localstream.WaitForMore();
             }
         }
+        /// <summary>
+        /// This callback handles playback resuming.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private void resumePlay(object sender, EventArgs args)
         {
             BufferingState = false;
@@ -380,11 +512,22 @@ namespace wpf_player
             Position = pos;
             this.pause();            
         }
+        /// <summary>
+        /// Callback used when the streaming is requested using the seach list. This method calls the <see cref="setResource"/> method.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         public void SetResourceHandler(object sender, StreamRequestedArgs args)
         {
             setResource(args.RequestedResource);
         }
         #endregion
+        /// <summary>
+        /// This method check if the new position is beyond the limit of buffered data; in this case the playback is paused and
+        /// the player will wait for missing data.
+        /// </summary>
+        /// <param name="newPosition">Position that we want to check</param>
+        /// <returns>True if the position is beyond and the player has to wait, false otherwise</returns>
         public bool CheckWaitingBuffering(long newPosition)
         {
             if ((localstream != null) && (newPosition > localstream.Position))
@@ -399,6 +542,11 @@ namespace wpf_player
                 return false;
             }
         }
+        /// <summary>
+        /// Sets the current handling resource. If the player is handling the same resource then the methods call <see cref="restartStream"/>
+        /// otherwise it calls <see cref="setupLocalStream"/>
+        /// </summary>
+        /// <param name="rsc">Resource that has to be handled</param>
         private void setResource(KademliaResource rsc)
         {
             this.stop();            
@@ -413,7 +561,10 @@ namespace wpf_player
                 setupLocalStream(this.rsc, 0);
             }
         }
-
+        /// <summary>
+        /// This method resets all structure of the player related to the playback operation but does not modify the peer state (this
+        /// way the peer keep downloading the file).
+        /// </summary>
         private void restartStream()
         {
             NotifyPropertyChanged("Position");
@@ -430,7 +581,12 @@ namespace wpf_player
             NotifyPropertyChanged("BigBufferSize");
             NotifyPropertyChanged("HasResource");
         }
-
+        /// <summary>
+        /// Sets all configuration to enable the playback and the downloading of the track from the network.
+        /// After setting all configuration, the player will wait for the buffer to be full enough to start playing.
+        /// </summary>
+        /// <param name="rsc">Resource to Handle</param>
+        /// <param name="spos">Starting position</param>
         private void setupLocalStream(KademliaResource rsc,long spos)
         {
             if (localstream != null)
@@ -463,6 +619,9 @@ namespace wpf_player
             NotifyPropertyChanged("BigBufferSize");
             NotifyPropertyChanged("HasResource");
         }
+        /// <summary>
+        /// Resets playback related streams and channel.
+        /// </summary>
         private void resetWaveStream()
         {            
             Mp3FileReader mp3file = new Mp3FileReader(lmem);                        
@@ -470,6 +629,11 @@ namespace wpf_player
             Console.WriteLine(mp3file.WaveFormat);
             wc.Sample += new EventHandler<SampleEventArgs>(wc_Sample);
         }
+        /// <summary>
+        /// Converts a position in the buffer to a time instant withing the range of the song lenght
+        /// </summary>
+        /// <param name="p">Position that we want to convert</param>
+        /// <returns>The time position in seconds</returns>
         private double timeFromPosition(long p)
         {
             if (rsc != null)
@@ -481,6 +645,11 @@ namespace wpf_player
                 return 0.0;
             }
         }
+        /// <summary>
+        /// Convert a size in byte to a number of chunk.
+        /// </summary>
+        /// <param name="size">Size to convert</param>
+        /// <returns>Number of chunk corresponding to the given size. The number is rounded by excess </returns>
         private int convertSizeToChunk(long size)
         {
             int cl = this.peer.ChunkLength * 1024;
@@ -488,8 +657,15 @@ namespace wpf_player
             return (int)(size / cl);
         }
 		#region INotifyPropertyChanged
+        /// <summary>
+        /// Event for the property changed (this is used by WPF Data Binding)
+        /// </summary>
 		public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Method called when a property has been changed. This method rises the event PropertyChange.
+        /// </summary>
+        /// <param name="info">Name of the property that has been changed</param>
 		private void NotifyPropertyChanged(String info)
 		{
 			if (PropertyChanged != null)
@@ -501,6 +677,9 @@ namespace wpf_player
 
         #region IDisposable
 
+        /// <summary>
+        /// Disposes the player calling the <see cref="close"/> method
+        /// </summary>
         public void Dispose()
         {
             this.close();

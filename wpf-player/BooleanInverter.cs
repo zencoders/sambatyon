@@ -33,10 +33,20 @@ using System.Windows.Data;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Converter class that inverts boolean state.
+    /// </summary>
     class BooleanInverter : MarkupExtension, IValueConverter
     {
         #region IValueConverter Membri di
-
+        /// <summary>
+        /// Converts the boolean using the not operator
+        /// </summary>
+        /// <param name="value">Boolean to invert</param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns>Inverted boolean</returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if ((value is bool) && (targetType == typeof(bool)))
@@ -49,14 +59,25 @@ namespace wpf_player
                 return false;
             }
         }
-
+        /// <summary>
+        /// Not implemented method
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
         }
 
         #endregion
-
+        /// <summary>
+        /// Method needed for the extension system. Return the current instance.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns>The current instance of the converter</returns>
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             return this;

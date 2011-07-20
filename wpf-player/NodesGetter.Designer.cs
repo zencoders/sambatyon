@@ -1,5 +1,8 @@
 ﻿namespace wpf_player
 {
+    /// <summary>
+    /// Installer class used to download the nodes file
+    /// </summary>
     partial class NodesGetter
     {
         /// <summary>

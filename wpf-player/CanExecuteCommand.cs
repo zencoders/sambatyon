@@ -33,24 +33,45 @@ using System.Windows;
 using System.Windows.Data;
 
 namespace wpf_player
-{
+{   
+    /// <summary>
+    /// Command that execute always without any can execute condition
+    /// </summary>
     public class AlwaysExecuteCommand : ICommand
     {
         #region ICommand
 
+        /// <summary>
+        /// Can Execute function that always returns true
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns>true</returns>
         public bool CanExecute(object parameter)
         {
             return true;
         }
 
+        /// <summary>
+        /// Delegate to execute
+        /// </summary>
         Action<object> _executeDelegate;
+        /// <summary>
+        /// Can Execute state changed event. This event is never called
+        /// </summary>
         public event EventHandler CanExecuteChanged;
 
+        /// <summary>
+        /// Executes the assinged delegate
+        /// </summary>
+        /// <param name="parameter"></param>
         public void Execute(object parameter)
         {
             _executeDelegate(parameter);
         }
-
+        /// <summary>
+        /// Class constructor
+        /// </summary>
+        /// <param name="executeDelegate">Delegate to execute</param>
         public AlwaysExecuteCommand(Action<object> executeDelegate)
         {
             this._executeDelegate = executeDelegate;
@@ -58,6 +79,7 @@ namespace wpf_player
 
         #endregion
     }
+    /*
     public class CanExecuteCommand : DependencyObject, ICommand
     {
         Action<object> _executeDelegate;
@@ -98,5 +120,5 @@ namespace wpf_player
         {
             (dependencyObject as CanExecuteCommand).RaiseCanExecuteActionChanged();
         }
-    }
+    }*/
 }

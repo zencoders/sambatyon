@@ -33,24 +33,54 @@ using System.Windows.Data;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Converter class that convert the size in byte to a more human readable string
+    /// </summary>
     public class ByteSizeConverter : MarkupExtension, IValueConverter
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public ByteSizeConverter() { }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             long ll = (long)value;
             return formatBytes(ll);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return null;
         }
-
+        /// <summary>
+        /// Method needed for the extension system. Return the current instance.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns>The current instance of the converter</returns>
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             return this;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         private string formatBytes(long bytes)
         {
             const int scale = 1024;

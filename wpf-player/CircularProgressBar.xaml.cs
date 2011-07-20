@@ -47,7 +47,9 @@ namespace Progress
 			                                                                                                   	DefaultValue = 30
 			                                                                                                   });
 		}
-
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
 		public CircularProgressBar()
 		{
 			InitializeComponent();

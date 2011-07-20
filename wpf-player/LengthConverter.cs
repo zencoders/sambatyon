@@ -33,9 +33,23 @@ using System.Windows.Data;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Converter class that converts seconds length to a more human readable string label.
+    /// </summary>
     public class LengthConverter : MarkupExtension, IValueConverter
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public LengthConverter() { }
+        /// <summary>
+        /// Converts the value in seconds to a label in the form <c>MM:SS</c>.
+        /// </summary>
+        /// <param name="value">Time value in seconds</param>
+        /// <param name="targetType">Unused param</param>
+        /// <param name="parameter">Unused param</param>
+        /// <param name="culture">Unused param</param>
+        /// <returns>Human readable string for the time value</returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             double ll;
@@ -43,7 +57,7 @@ namespace wpf_player
             {
                 ll = (double)value;
             }
-            catch (InvalidCastException invc)
+            catch (InvalidCastException)
             {
                 ll = (int)value;
             }
@@ -54,7 +68,14 @@ namespace wpf_player
             sb.Append(ts.Seconds.ToString().PadLeft(2, '0'));
             return sb.ToString();
         }
-
+        /// <summary>
+        /// Performs inverse conversion. This method splits the string and convert them in a time value expressed in seconds
+        /// </summary>
+        /// <param name="value">String containing time value information in the form <c>MM:SS</c></param>
+        /// <param name="targetType">Unused param</param>
+        /// <param name="parameter">Unused param</param>
+        /// <param name="culture">Unused param</param>
+        /// <returns>The time value in seconds</returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             string str = value as string;
@@ -71,7 +92,11 @@ namespace wpf_player
                 return 0;
             }
         }
-
+        /// <summary>
+        /// Method needed for the extension system. Return the current instance.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns>The current instance of the converter</returns>
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             return this;

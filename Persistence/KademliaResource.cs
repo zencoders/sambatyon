@@ -33,16 +33,29 @@ using System.Runtime.Serialization;
 
 namespace Persistence
 {
+    /// <summary>
+    /// Class that describes a Resource shared with Kademlia.
+    /// A Kademlia Resource contains information about Tag and a list of suppliers (stored as set of Dht Elements).
+    /// </summary>
     [Serializable]
     [DataContractAttribute]
-    public class KademliaResource: IDocumentType,ILoadable/*,ISerializable*/
+    public class KademliaResource: IDocumentType,ILoadable
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public KademliaResource()
         {
             this.Tag = null;
             this.Urls = new HashSet<DhtElement>();
 
         }
+        /// <summary>
+        /// Constructor that initializes the suppliers list with the given Urls and fill tag information with
+        /// data read from the filename.
+        /// </summary>
+        /// <param name="filename">Filename from whom extract the tag information</param>
+        /// <param name="urls">List of supplier urls</param>
         public KademliaResource(string filename, params DhtElement[] urls) :this() {
             this.Tag = new CompleteTag(filename);
             if (urls.Length != 0)
@@ -54,6 +67,11 @@ namespace Persistence
 //                this.Urls.Union<DhtElement>(urls, new DhtElementComparer());
             }
         }
+        /// <summary>
+        /// Main Constructor of the resource. This initializes the fields with the given values
+        /// </summary>
+        /// <param name="tag">Tag Information</param>
+        /// <param name="urls">List of supplier urls</param>
         public KademliaResource(CompleteTag tag, params DhtElement[] urls) : this()
         {
             this.Tag = tag;
@@ -66,12 +84,20 @@ namespace Persistence
 //                this.Urls.Union<DhtElement>(urls, new DhtElementComparer());
             }
         }
+        /// <summary>
+        /// Method used for serialization purpose
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
         public KademliaResource(SerializationInfo info, StreamingContext ctxt) : this()
         {
             this.Tag = (CompleteTag)info.GetValue("Tag", typeof(CompleteTag));
             this.Urls = (HashSet<DhtElement>)info.GetValue("Urls", typeof(HashSet<DhtElement>));
         }
         #region IDocumentType
+        /// <summary>
+        /// Identifier of the Resource that is the Hash of the tag
+        /// </summary>
         public string Id
         {
             get
@@ -91,12 +117,18 @@ namespace Persistence
             }
         }
         #endregion
+        /// <summary>
+        /// Tag Information
+        /// </summary>
         [DataMemberAttribute]
         public CompleteTag Tag
         {
             get;
             set;
         }
+        /// <summary>
+        /// Set of Dht Elements that are the suppliers for the resource
+        /// </summary>
         [DataMemberAttribute]
         public HashSet<DhtElement> Urls
         {
@@ -105,11 +137,19 @@ namespace Persistence
         }        
         #region ILoadable
 
+        /// <summary>
+        /// Returns the current object because this is ready to be loaded in the repository.
+        /// </summary>
+        /// <returns>The object as database type</returns>
         public dynamic GetAsDatabaseType()
         {
             return this;
         }
-
+        /// <summary>
+        /// Loads data from a dynamic object loaded from repository
+        /// </summary>
+        /// <param name="data">Object loaded from Repository</param>
+        /// <returns>True if the data has been successfully loaded, false otherwise</returns>
         public bool LoadFromDatabaseType(dynamic data)
         {
             this.Tag = data.Tag;
@@ -118,19 +158,32 @@ namespace Persistence
             this.Urls.UnionWith(data.Urls);
             return true;
         }
-
+        /// <summary>
+        /// Returns the type reference for the database type
+        /// </summary>
+        /// <returns>The current type</returns>
         public Type GetDatabaseType()
         {
             return this.GetType();
         }
         #endregion
 
+        /// <summary>
+        /// Method used for serialization purpose
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Tag", this.Tag);
             info.AddValue("Urls", this.Urls);
         }
 
+        /// <summary>
+        /// Method that merges the Dht Elements of the current resource with the ones of an another resource.
+        /// </summary>
+        /// <param name="other">The other resource</param>
+        /// <returns></returns>
         public bool MergeTo(KademliaResource other)
         {
             if (this.Tag.FileHash == other.Tag.FileHash)

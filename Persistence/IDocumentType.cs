@@ -31,8 +31,15 @@ using System.Text;
 
 namespace Persistence
 {
+    /// <summary>
+    /// Interface that describes a Document that will be stored in a Repository.
+    /// The unique constrait for this type is the presence of a property called Id.
+    /// </summary>
     public interface IDocumentType
     {
+        /// <summary>
+        /// Identifier of the document.
+        /// </summary>
         string Id
         {
             get;

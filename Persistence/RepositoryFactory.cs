@@ -42,6 +42,9 @@ namespace Persistence
     /// <seealso cref="Persistence.Repository"/>
     public static class RepositoryFactory
     {
+        /// <summary>
+        /// Logger used for logging
+        /// </summary>
         private static readonly ILog log = LogManager.GetLogger(typeof(RepositoryFactory));
         /// <summary>
         /// Metodo privato che genera il nome della classe del Repository in base al suo tipo.

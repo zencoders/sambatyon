@@ -40,8 +40,22 @@ using System.Text.RegularExpressions;
 
 namespace Persistence
 {
+    /// <summary>
+    /// Class implementig a specialized repository that will be used by kademlia peer to store information need by the DHT.
+    /// Kademlia repository use two distinct collection to implements the three tier representation of knowledge. 
+    /// The first collection contains keywords which are small enough to be exchanged frequently on the network; each keyword has 
+    /// a list of related tags. A tag is related to a keyword if this word is used in one or more of the following tag fields: title,
+    /// author and album. There's a list of semanticless word that cannot be used as keyword.
+    /// The second collection contains resources which are composed of complete tag information and a list of DHT elements (read 
+    /// Kademlia node references). This resources are necessary for the Transport Layer in order to identify the location of possible
+    /// suppliers for a given track.
+    /// </summary>
     public class KademliaRepository:IDisposable
     {
+        /// <summary>
+        /// Constrant string that contains a regular expression used to find semanticless words: this regex detects articles, conjuction
+        /// and prepositions for English,Italian and French language.
+        /// </summary>
         public const string DefaultSemanticFilterRegexString=@"\b("+
                                                               "the|a|an|"+//English Articles
                                                               "for|and|nor|but|or|yet|so|of|to|" + //English Coordinating conjunction
@@ -55,11 +69,38 @@ namespace Persistence
                                                               "un|une|des|de|"+ //French articles
                                                               "et|ou|ni|mais|donc"+ //French Conjunction (car omitted to avoid clash with english terms)
                                                               @")\b";
+        /// <summary>
+        /// Logger instance used for logging purpose.
+        /// </summary>
         private static readonly ILog log = LogManager.GetLogger(typeof(KademliaRepository));
+        /// <summary>
+        /// Repository used to store Kademlia information
+        /// </summary>
         private Repository _repository;
+        /// <summary>
+        /// Compiled Regex used to remove semanticless words.
+        /// </summary>
         private Regex _semanticRegex;
+        /// <summary>
+        /// Compiled Regex used to remove whitespaces.
+        /// </summary>
         private Regex _whiteSpaceRegex;
+        /// <summary>
+        /// Fixed validity period for the Dht Elements
+        /// </summary>
         private TimeSpan _elementValidity;
+        /// <summary>
+        /// Constructor for the Kademlia Repository. This begins with compiling regular expressions for whitespace and semanticless
+        /// words and setting timespan sing the given values (if they are not passed, it uses the default). Then instantiates the 
+        /// repository of the fiven type and creates two indexes over the instantiatied repository. The first index is used to 
+        /// find keywords with an empty tag list; the second one is used to query keyword using tag identifier. Both indexes are 
+        /// necessary in order to cleanly delete resources and keywords from the repository
+        /// </summary>
+        /// <param name="repType">Name of the repository type. The default repository type is RavenDB ("Raven")</param>
+        /// <param name="conf">Repository Configureation</param>
+        /// <param name="elementValidity">Validity period of a Dht Element. Default value is 24 hours (1 day). The validity must
+        /// be expressed in timespan format as described in MSDN reference for this type.</param>
+        /// <param name="semanticFilter">Regular expression that will be used to remove semanticless word.</param>
         public KademliaRepository(string repType="Raven",
                                   RepositoryConfiguration conf=null,
                                   string elementValidity = "1",
@@ -78,6 +119,18 @@ namespace Persistence
             this._repository.CreateIndex("KademliaKeywords/EmptyKeys",
                                          "from key in docs.KademliaKeywords\nwhere key.Tags.Count() == 0\nselect new { key.Id }");
         }
+        /// <summary>
+        /// Stores a tag as resource into the kademlia repository. If the resource already exists the method tries to add the 
+        /// given Url (with the desired publication time) to the list of suppliers for that resource; if the url is already known
+        /// the method does nothing. If the resource is new first the method adds it to the repository and then generates a set of
+        /// keywords related to the new resource. For each generated keyword, if this is already in the repository the tag
+        /// identifier (that is the resource identifier too) will be added to the related tags list, if the keyword doesn't exist
+        /// it will be created and its related tags list will contains only the new resource.
+        /// </summary>
+        /// <param name="tag">Tag to store in the kademlia resource</param>
+        /// <param name="peer">Url of the supplier</param>
+        /// <param name="pubtime">Publication TIme</param>
+        /// <returns>False if something went wrong, true otherwise</returns>
         public bool StoreResource(CompleteTag tag, Uri peer,DateTime pubtime)
         {
             KademliaResource rs = new KademliaResource();
@@ -135,6 +188,12 @@ namespace Persistence
             }
             return true;
         }
+        /// <summary>
+        /// Performs search query over the repository. This split query in pieces and search for keywords that contains those pieces.
+        /// Then for each keyword the method loads all the related resource. 
+        /// </summary>
+        /// <param name="query">Query string</param>
+        /// <returns>An array containing the resource found</returns>
         public KademliaResource[] SearchFor(string query)
         {
             List<KademliaResource> resources = new List<KademliaResource>();
@@ -159,6 +218,13 @@ namespace Persistence
             _repository.GetByKeySet(tids.ToArray(), resources);
             return resources.ToArray();
         }
+        /// <summary>
+        /// Deletes a tag with a given identifier. This method finds all keywords containing a reference to the tag to be deleted and
+        /// removes the tag identifier from the keyword's list; then it search for keywords that has an empty list and deletes them.
+        /// At the end the method removes the resource from the repository
+        /// </summary>
+        /// <param name="tid">Identifier of the tag to be deleted</param>
+        /// <returns>False if something went wrong, true otherwise</returns>
         public bool DeleteTag(string tid)
         {
             List<KademliaKeyword> results = new List<KademliaKeyword>();
@@ -183,10 +249,20 @@ namespace Persistence
             this._repository.BulkDelete<KademliaKeyword>(ids);
             return true;
         }
+        /// <summary>
+        /// This methods removes all duplicated white space and then removes all semanticless words.
+        /// </summary>
+        /// <param name="str">String to be cleaned</param>
+        /// <returns>Cleaned String</returns>
         public string DiscardSemanticlessWords(string str)
         {
             return _whiteSpaceRegex.Replace(_semanticRegex.Replace(str,"")," ").Trim();
         }
+        /// <summary>
+        /// Generates a clean list (without semanticless words) of keyword related to the given tag
+        /// </summary>
+        /// <param name="tag">Tag for whom we want to generate the keywords</param>
+        /// <returns>A clean array of related keywords</returns>
         private string[] generatePrimaryKey(CompleteTag tag)
         {
             List<string> pkList = new List<string>();            
@@ -223,6 +299,13 @@ namespace Persistence
             }
             return pkList.ToArray();
         }
+        /// <summary>
+        /// Sets the publication time of a Dht Element in order to avoid expiration
+        /// </summary>
+        /// <param name="tagid">Resource Identifier</param>
+        /// <param name="url">URL of the Dht Element to refresh</param>
+        /// <param name="pubtime">Publication time to set</param>
+        /// <returns>True if the Dht Element exists and has been refreshed, false otherwise</returns>
         public bool RefreshResource(string tagid, Uri url,DateTime pubtime)
         {
             KademliaResource rs = new KademliaResource();
@@ -241,6 +324,11 @@ namespace Persistence
             }
             return false;
         }
+        /// <summary>
+        /// Returns the Resource identified by the given taghash.
+        /// </summary>
+        /// <param name="tagid">Identifier of the resource to get</param>
+        /// <returns>The requested resource if it exists, null if not.</returns>
         public KademliaResource Get(string tagid)
         {
             KademliaResource rs = new KademliaResource();
@@ -253,6 +341,10 @@ namespace Persistence
                 return null;
             }
         }
+        /// <summary>
+        /// Returns a list of all resources of the repository.
+        /// </summary>
+        /// <returns>Linked List containing all the resources</returns>
         public LinkedList<KademliaResource> GetAllElements()
         {
             LinkedList<KademliaResource> coll=new LinkedList<KademliaResource>();
@@ -266,6 +358,14 @@ namespace Persistence
             }
 
         }
+        /// <summary>
+        /// Method that implements the registration of a peer as supplier for a given resource.
+        /// This method just load the resource and adds the Dht Element if it's not already in the suppliers list.
+        /// </summary>
+        /// <param name="tagid">Resource Identifier</param>
+        /// <param name="url">Url of the supplier</param>
+        /// <param name="pubtime">Publication Time for the supplier</param>
+        /// <returns></returns>
         public bool Put(string tagid, Uri url, DateTime pubtime)
         {
             KademliaResource rs = new KademliaResource();
@@ -285,6 +385,11 @@ namespace Persistence
             }
             return false;
         }
+        /// <summary>
+        /// Checks if the repository contains a given tag
+        /// </summary>
+        /// <param name="tagid">Resource Identifier to search</param>
+        /// <returns>True if the repository contains the resource, false if not.</returns>
         public bool ContainsTag(string tagid)
         {
             KademliaResource rs = Get(tagid); 
@@ -294,6 +399,12 @@ namespace Persistence
             }
             return false;
         }
+        /// <summary>
+        /// Checks if the given resource contains the Url in its supplier list
+        /// </summary>
+        /// <param name="tagid">Resource identifier</param>
+        /// <param name="url">Url of the supplier</param>
+        /// <returns>True if the Peer with the given Url is a supplier for the resource.</returns>
         public bool ContainsUrl(string tagid, Uri url)
         {
             KademliaResource rs = Get(tagid);
@@ -314,6 +425,12 @@ namespace Persistence
             }
             return false;
         }
+        /// <summary>
+        /// Returns the publication time of a Dht Element related to a Resource.
+        /// </summary>
+        /// <param name="tagid">Resource Identifier</param>
+        /// <param name="url">Url of the Dht Element</param>
+        /// <returns>The publication time of the Dht Element if it exists, the DateTime min value if the element doesn't exist</returns>
         public DateTime GetPublicationTime(string tagid, Uri url)
         {
             KademliaResource rs = Get(tagid);            
@@ -331,6 +448,10 @@ namespace Persistence
             }
             return DateTime.MinValue;
         }
+        /// <summary>
+        /// Method that removes the expired elements from the DHT. This method search for expired element and add it to a structure,
+        /// then delete all the expired elements and if a resource remanins without any supplier will be deleted too.
+        /// </summary>
         public void Expire()
         {
             List<KademliaResource> lr=new List<KademliaResource>();
@@ -381,23 +502,38 @@ namespace Persistence
                 }
             );
         }
+        /// <summary>
+        /// Private class to store Expire method iteration information.
+        /// </summary>
         private class ExpireIteratorDesc
         {
+            /// <summary>
+            /// Tag Identifier for the iteration
+            /// </summary>
             public string TagId
             {
                 get;
                 set;
             }
+            /// <summary>
+            /// Flag that indicates that the tag has to be completely deleted
+            /// </summary>
             public bool ToBeDeleted
             {
                 get;
                 set;
             }
+            /// <summary>
+            /// List of expired element
+            /// </summary>
             public List<DhtElement> Expired
             {
                 get;
                 set;
             }
+            /// <summary>
+            /// Default constructor.
+            /// </summary>
             public ExpireIteratorDesc()
             {
                 TagId = null;
@@ -406,7 +542,9 @@ namespace Persistence
             }
         }
         #region IDisposable
-
+        /// <summary>
+        /// Method used to dispose the repository
+        /// </summary>
         public void Dispose()
         {
             _repository.Dispose();

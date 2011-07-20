@@ -44,19 +44,32 @@ namespace wpf_player
 	/// </summary>    
 	public partial class SearchList : UserControl
 	{
+        /// <summary>
+        /// View Model reference
+        /// </summary>
         private SearchListModel vm = null;
+        /// <summary>
+        /// Default constructor
+        /// </summary>
 		public SearchList()
 		{
 			this.InitializeComponent();
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}        
-       
+       /// <summary>
+       /// Sets Data Context for this Control
+       /// </summary>
+       /// <param name="model">Model to be set</param>
         public void SetDataContext(SearchListModel model)
         {
             vm = model;
             this.DataContext = vm;
         }
-
+        /// <summary>
+        /// Double click handler for the result list. This methods calls the <c>OnStreamRequest</c> of the View Model
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ResultsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (vm != null)
@@ -65,7 +78,11 @@ namespace wpf_player
                 vm.OnStreamRequest(new StreamRequestedArgs(g.SelectedItem as KademliaResource));   
             }
         }
-
+        /// <summary>
+        /// Start Stream Button Click handler. This methods calls the <c>OnStreamRequest</c> of the View Model
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void start_stream_button_Click(object sender, RoutedEventArgs e)
         {
             if (vm != null)

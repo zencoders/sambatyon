@@ -251,6 +251,10 @@ namespace Tag {
                 return sizeArray;                
             }
         }
+        /// <summary>
+        /// String representation of the tag
+        /// </summary>
+        /// <returns>The string representation of the tag</returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

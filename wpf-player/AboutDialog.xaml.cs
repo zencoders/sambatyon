@@ -43,13 +43,20 @@ namespace wpf_player
 	/// </summary>
 	public partial class AboutDialog : Window
 	{
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
 		public AboutDialog()
 		{
 			this.InitializeComponent();
 			
 			// Inserire il codice richiesto per la creazione dell'oggetto al di sotto di questo punto.
 		}
-
+        /// <summary>
+        /// Ok button click handler. This method closes the dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void okButton_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
 			this.Close();

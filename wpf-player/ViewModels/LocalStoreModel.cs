@@ -37,16 +37,33 @@ using PeerLibrary;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Class that implements the ViewModel in the MVVM pattern. This class is used to access peer functionality related
+    /// to the track repository
+    /// </summary>
     public class LocalStoreModel:INotifyPropertyChanged
     {
+        /// <summary>
+        /// Local reference to the Peer
+        /// </summary>
         private Peer peer = null;
+        /// <summary>
+        /// Observable collection containing the resources
+        /// </summary>
         private ObservableCollection<CompleteTag> coll=new ObservableCollection<CompleteTag>();
+        /// <summary>
+        /// Constructor that initializes the commands and the local reference to the peer
+        /// </summary>
+        /// <param name="p">Peer that will be used to get information</param>
         public LocalStoreModel(Peer p = null)
         {
             peer = p;
             RefreshList = new AlwaysExecuteCommand(refreshList);
             refreshList();
         }
+        /// <summary>
+        /// List containing all Resource Tag cointained in the track repository
+        /// </summary>
         public IList<CompleteTag> LocalStore
         {
             get
@@ -59,13 +76,26 @@ namespace wpf_player
                 NotifyPropertyChanged("LocalStore");
             }
         }
+        /// <summary>
+        /// Refresh List command
+        /// </summary>
         public ICommand RefreshList{
             set; get;
         }
+        /// <summary>
+        /// Method used to store a new track in the repository
+        /// </summary>
+        /// <param name="filename">Filename of the file to add</param>
+        /// <returns>True if the track has been successfully added, false otherwise</returns>
         public bool StoreFile(string filename)
         {
             return peer.StoreFile(filename);
         }
+        /// <summary>
+        /// Backend method for the Refresh List Command. This method cleans the local list, reloads all data from the database and 
+        /// then it updates the list.
+        /// </summary>
+        /// <param name="sender">Unused param</param>
         private void refreshList(object sender = null)
         {
             if (coll!=null)
@@ -85,8 +115,14 @@ namespace wpf_player
         }
             
         #region INotifyPropertyChanged
+        /// <summary>
+        /// Event for the property changed (this is used by WPF Data Binding)
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
+        /// <summary>
+        /// Method called when a property has been changed. This method rises the event PropertyChange.
+        /// </summary>
+        /// <param name="info">Name of the property that has been changed</param>
         private void NotifyPropertyChanged(String info)
         {
             if (PropertyChanged != null)

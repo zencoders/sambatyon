@@ -51,11 +51,32 @@ namespace wpf_player
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+        /// <summary>
+        /// Audio Player View Model
+        /// </summary>
         private AudioPlayerModel playerModel = null;
+        /// <summary>
+        ///  Search List View Model
+        /// </summary>
         private SearchListModel listModel = null;
+        /// <summary>
+        /// Local Store View Model
+        /// </summary>
         private LocalStoreModel storeModel=null;
+        /// <summary>
+        /// Peer Instance
+        /// </summary>
         private Peer peer = null;
+        /// <summary>
+        /// Splash Screen trhead 
+        /// </summary>
         private Thread splashThread = null;
+        /// <summary>
+        /// Default constructor. This constructor starts the splash in a different thread and the try to run the Peer.
+        /// If the peer port is already in use a Peer Configuration dialog will be shown. If everything goes well the
+        /// the model will be instantiated and the data context will be set. The splash screen will disappear when all
+        /// GUI element have been loaded.
+        /// </summary>
 		public MainWindow()
 		{            
             bool keepTry = true;
@@ -130,6 +151,10 @@ namespace wpf_player
                 s.SetDataContext(listModel);
             }            
 		}
+        /// <summary>
+        /// Method called on closing of the windows. This methods disposes the peer.
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             if (peer != null)
@@ -138,10 +163,20 @@ namespace wpf_player
             }
             base.OnClosing(e);
         }
+        /// <summary>
+        /// Handler for the exit menu item. This methods close the windows
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void exit_item_Click(object sender, System.Windows.RoutedEventArgs e)
 		{
 			this.Close();
-		}        
+		}
+        /// <summary>
+        /// Handler for the peer configuration menu item. This method shows the Peer configuration dialog.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void peer_config_item_Click(object sender, RoutedEventArgs e)
         {
             PeerConfigurationModel vm = new PeerConfigurationModel(int.Parse(peer.ConfOptions["udpPort"]),int.Parse(peer.ConfOptions["kadPort"]));
@@ -155,13 +190,22 @@ namespace wpf_player
                 MessageBox.Show(this, "Peer Settings successfully changed", "Peer Settings", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+        /// <summary>
+        /// Handler for about menu item. This method shows the dialog.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void about_item_Click(object sender, RoutedEventArgs e)
         {
             AboutDialog dlg = new AboutDialog();
             dlg.Owner = this;
             dlg.ShowDialog();
         }
-
+        /// <summary>
+        /// Handler for local store menu item click. This methods show the local store dialog.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void local_store_Click(object sender, RoutedEventArgs e)
         {
             storeModel = new LocalStoreModel(peer);
@@ -170,7 +214,11 @@ namespace wpf_player
             dlg.Owner = this;
             dlg.Show();
         }
-
+        /// <summary>
+        /// Method called when all the GUI elements have been loaded. This methods close the splash screen.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             splashThread.Abort();

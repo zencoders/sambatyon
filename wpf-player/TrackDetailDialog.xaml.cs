@@ -43,6 +43,9 @@ namespace wpf_player
 	/// </summary>
 	public partial class TrackDetailDialog : Window
 	{
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
 		public TrackDetailDialog()
 		{
 			this.InitializeComponent();

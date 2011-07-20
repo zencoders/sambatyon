@@ -33,22 +33,41 @@ using System.Windows.Markup;
 
 namespace wpf_player
 {
+    /// <summary>
+    /// Converter Class that converts a default value to a given value.
+    /// </summary>
     public class DefaultValueConverter: MarkupExtension,IValueConverter
     {
+        /// <summary>
+        /// Generic default value
+        /// </summary>
         public object DefaultValue
         {
             get;
             set;
         }
+        /// <summary>
+        /// Value to be shown
+        /// </summary>
         public object ShownValue
         {
             get;
             set;
         }
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public DefaultValueConverter()
         { }       
         #region IValueConverter
-
+        /// <summary>
+        /// Converts default value to the value to be shown
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (value.ToString().Equals(DefaultValue.ToString()))
@@ -60,7 +79,14 @@ namespace wpf_player
                 return value;
             }
         }
-
+        /// <summary>
+        /// Converts back the shown value to the default value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (value.ToString().Equals(ShownValue.ToString()))
@@ -74,7 +100,11 @@ namespace wpf_player
         }
 
         #endregion
-
+        /// <summary>
+        /// Method needed for the extension system. Return the current instance.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns>The current instance of the converter</returns>
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             return this;

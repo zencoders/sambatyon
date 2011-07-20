@@ -32,8 +32,16 @@ using System.Reflection;
 
 namespace Examples
 {
+    /// <summary>
+    /// Static class containing some static helper method used during example execution.
+    /// </summary>
     class ExampleHelper
     {
+        /// <summary>
+        /// This method prints on the Console the name of the examples module (set of examples method)
+        /// </summary>
+        /// <param name="message">Description of the example set</param>
+        /// <param name="clazz">Type reference of the example module</param>
         public static void ExampleSetPrint(string message,Type clazz)
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -42,12 +50,22 @@ namespace Examples
             Console.ResetColor();
             Console.WriteLine();
         }
+        /// <summary>
+        /// This method prints on the Console the name of the example method
+        /// </summary>
+        /// <param name="message">Description of the actions executed by the example</param>
+        /// <param name="method">Method type for the example</param>
         public static void ExampleMethodPrint(string message, MethodBase method)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(message + "(" + method.Name + ")");
             Console.ResetColor();
         }
+        /// <summary>
+        /// This method recursively dump object properties in key-value format and return it in a string.
+        /// </summary>
+        /// <param name="obj">Object to dump on string</param>
+        /// <returns>The string representing the object in key-value format</returns>
         private static string dumpObjectOnString(Object obj)
         {
             StringBuilder outputBuilder=new StringBuilder();
@@ -71,6 +89,11 @@ namespace Examples
             }
             return outputBuilder.ToString();
         }
+        /// <summary>
+        /// Public method used to dump object on console.
+        /// This method uses the private method <see cref="dumpObjectOnString"/>
+        /// </summary>
+        /// <param name="obj">Object to dump</param>
         public static void DumpObjectProperties(Object obj)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;

@@ -41,109 +41,181 @@ namespace wpf_player
 	using Progress;
 
 	#endregion
-
+    /// <summary>
+    /// Behaviour Class that implements the reaction of the animation visibility based on a busy state Dependency Property.
+    /// </summary>
 	public static class BusyIndicatorBehavior
 	{
 		#region Attached Properties
-
+        /// <summary>
+        /// 
+        /// </summary>
 		public static readonly DependencyProperty AddMarginsProperty = DependencyProperty.RegisterAttached("AddMargins", typeof(bool),
 		                                                                                                   typeof(BusyIndicatorBehavior),
 		                                                                                                   new UIPropertyMetadata(false));
 
-
+        /// <summary>
+        /// 
+        /// </summary>
 		public static readonly DependencyProperty BusyStateProperty = DependencyProperty.RegisterAttached("BusyState", typeof(bool),
 		                                                                                                  typeof(BusyIndicatorBehavior),
 		                                                                                                  new UIPropertyMetadata(false, OnBusyStateChanged));
-
+        /// <summary>
+        /// 
+        /// </summary>
 		public static readonly DependencyProperty DimBackgroundProperty = DependencyProperty.RegisterAttached("DimBackground", typeof(bool),
 		                                                                                                      typeof(BusyIndicatorBehavior),
 		                                                                                                      new UIPropertyMetadata(true,
 		                                                                                                                             OnDimBackgroundChanged));
-
+        /// <summary>
+        /// 
+        /// </summary>
 		public static readonly DependencyProperty DimmerBrushProperty = DependencyProperty.RegisterAttached("DimmerBrush", typeof(Brush),
 		                                                                                                    typeof(BusyIndicatorBehavior),
 		                                                                                                    new UIPropertyMetadata(Brushes.Black));
-
+        /// <summary>
+        /// 
+        /// </summary>
 		public static readonly DependencyProperty DimmerOpacityProperty = DependencyProperty.RegisterAttached("DimmerOpacity", typeof(double),
 		                                                                                                      typeof(BusyIndicatorBehavior),
 		                                                                                                      new UIPropertyMetadata(0.5));
-
+        /// <summary>
+        /// 
+        /// </summary>
 		public static readonly DependencyProperty DimTransitionDurationProperty = DependencyProperty.RegisterAttached("DimTransitionDuration",
 		                                                                                                              typeof(Duration),
 		                                                                                                              typeof(BusyIndicatorBehavior),
 		                                                                                                              new UIPropertyMetadata(
 		                                                                                                              	new Duration(TimeSpan.FromSeconds(1.0))));
 
-
+        /// <summary>
+        /// 
+        /// </summary>
 		public static readonly DependencyProperty TargetVisualProperty = DependencyProperty.RegisterAttached("TargetVisual", typeof(UIElement),
 		                                                                                                     typeof(BusyIndicatorBehavior),
 		                                                                                                     new UIPropertyMetadata(null));
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
 		public static double GetDimmerOpacity(DependencyObject obj)
 		{
 			return (double) obj.GetValue(DimmerOpacityProperty);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
 		public static void SetDimmerOpacity(DependencyObject obj, double value)
 		{
 			obj.SetValue(DimmerOpacityProperty, value);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
 		public static bool GetAddMargins(DependencyObject obj)
 		{
 			return (bool) obj.GetValue(AddMarginsProperty);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
 		public static void SetAddMargins(DependencyObject obj, bool value)
 		{
 			obj.SetValue(AddMarginsProperty, value);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
 		public static Duration GetDimTransitionDuration(DependencyObject obj)
 		{
 			return (Duration) obj.GetValue(DimTransitionDurationProperty);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
 		public static void SetDimTransitionDuration(DependencyObject obj, Duration value)
 		{
 			obj.SetValue(DimTransitionDurationProperty, value);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
 		public static Brush GetDimmerBrush(DependencyObject obj)
 		{
 			return (Brush) obj.GetValue(DimmerBrushProperty);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
 		public static void SetDimmerBrush(DependencyObject obj, Brush value)
 		{
 			obj.SetValue(DimmerBrushProperty, value);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
 		public static bool GetDimBackground(DependencyObject obj)
 		{
 			return (bool) obj.GetValue(DimBackgroundProperty);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
 		public static void SetDimBackground(DependencyObject obj, bool value)
 		{
 			obj.SetValue(DimBackgroundProperty, value);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
 		public static UIElement GetTargetVisual(DependencyObject obj)
 		{
 			return (UIElement) obj.GetValue(TargetVisualProperty);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
 		public static void SetTargetVisual(DependencyObject obj, UIElement value)
 		{
 			obj.SetValue(TargetVisualProperty, value);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
 		public static bool GetBusyState(DependencyObject obj)
 		{
 			return (bool) obj.GetValue(BusyStateProperty);
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
 		public static void SetBusyState(DependencyObject obj, bool value)
 		{
 			obj.SetValue(BusyStateProperty, value);
@@ -152,7 +224,11 @@ namespace wpf_player
 		#endregion
 
 		#region Implementation
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="e"></param>
 		private static void OnDimBackgroundChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			bool shouldDimBackground = (bool) e.NewValue;
@@ -202,7 +278,11 @@ namespace wpf_player
 				}
 			}
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="e"></param>
 		private static void OnBusyStateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			bool isBusy = (bool) e.NewValue;
@@ -318,7 +398,11 @@ namespace wpf_player
 				}
 			}
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private static void OnPreProcessInput(object sender, PreProcessInputEventArgs e)
 		{
 			if (e.StagingItem.Input.Device != null)
@@ -326,7 +410,12 @@ namespace wpf_player
 				e.Cancel();
 			}
 		}
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="hostGrid"></param>
+        /// <param name="busyIndicator"></param>
 		private static void OnFadeOutAnimationCompleted(DependencyObject d, Panel hostGrid, UIElement busyIndicator)
 		{
 			bool dimBackground = GetDimBackground(d);
