@@ -55,6 +55,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\Release\Kademlia.XML</DocumentationFile>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
@@ -88,7 +89,6 @@
     <Compile Include="Messages\FindValueContactResponse.cs" />
     <Compile Include="Messages\FindValueDataResponse.cs" />
     <Compile Include="Messages\Message.cs" />
-    <Compile Include="Messages\MessageEventHandler.cs" />
     <Compile Include="Messages\Ping.cs" />
     <Compile Include="Messages\Pong.cs" />
     <Compile Include="Messages\Response.cs" />

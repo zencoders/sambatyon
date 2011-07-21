@@ -31,15 +31,30 @@ using System.Text;
 
 namespace TransportService
 {
+    /// <summary>
+    /// ThreadPool implementation realized inside the TransportService.
+    /// It is useful to have an indipendent version of the thread pool in this case because using the official
+    /// .NET implementation the number of total "pool" peer is reduced by other elements; this is bad here because
+    /// in this part of the project there are realtime requirements.
+    /// This class is strictly coupled with the ThreadPoolObject class.
+    /// </summary>
+    /// <seealso cref="TransportService.ThreadPoolObject"/>
     internal class ThreadPool
     {
         private ThreadPoolObject[] pool;
         private int poolSize;
 
+        /// <summary>
+        /// Default constructor of the class.
+        /// </summary>
         public ThreadPool()
         {
         }
 
+        /// <summary>
+        /// Constructor of the class that initialize the pool to a specific size.
+        /// </summary>
+        /// <param name="poolSize">Size of the pool</param>
         public ThreadPool(int poolSize)
         {
             this.poolSize = poolSize;
@@ -50,6 +65,10 @@ namespace TransportService
             }
         }
 
+        /// <summary>
+        /// Get the first free thread in pool. If there are not free peers it returns a busy peer.
+        /// </summary>
+        /// <returns>The peer chosen</returns>
         public ThreadPoolObject GetNextThreadInPool()
         {
             return this.pool.AsParallel().Aggregate((l, r) => l.State == ThreadPoolObject.ThreadState.FREE ? l : r);

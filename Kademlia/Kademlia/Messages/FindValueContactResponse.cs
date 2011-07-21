@@ -44,18 +44,18 @@ namespace Kademlia.Messages
 		/// <summary>
 		/// Make a new response reporting contacts to try.
 		/// </summary>
-		/// <param name="nodeID"></param>
-		/// <param name="request"></param>
-		/// <param name="close"></param>
+		/// <param name="nodeID">the sender identificator</param>
+		/// <param name="request">The FindValue message orginating this response</param>
+		/// <param name="close">The list of suggested contacts</param>
+        /// <param name="nodeEndpoint">The address of the sender</param>
 		public FindValueContactResponse(ID nodeID, FindValue request, List<Contact> close, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			contacts = close;
 		}
 		
 		/// <summary>
-		/// Return the list of contacts sent.
+		/// The list of contacts sent.
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public List<Contact> Contacts
 		{
@@ -63,6 +63,9 @@ namespace Kademlia.Messages
             set { this.contacts = value; }
 		}
 		
+        /// <summary>
+        /// The default name for the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

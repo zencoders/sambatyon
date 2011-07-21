@@ -43,6 +43,13 @@ using System.Threading;
 
 namespace PeerLibrary
 {
+    /// <summary>
+    /// Class implementing the IPeer interface. Because it is necessary for the system to have a memory
+    /// of the status the service is implemented in Singleton. The use of singleton has a bigger
+    /// bad side-effect that exclude the possibility to have more than one method of the singleton class
+    /// executing on WCF at the same time. In order to bypass this problem has been activated the multiple
+    /// concurrency mode and have been used the system threadpool to execute all interfaces method as delegates.
+    /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class Peer : IDisposable, IPeer
     {
@@ -59,7 +66,14 @@ namespace PeerLibrary
         private Uri kademliaAddress;
 
         #region Properties
+        /// <summary>
+        /// Key-value representation of option that can be passed to the peer.
+        /// </summary>
         public Dictionary<string, string> ConfOptions {get; set;}
+
+        /// <summary>
+        /// Property that represents the length of a chunk in the network.
+        /// </summary>
         public int ChunkLength
         {
             get
@@ -76,6 +90,12 @@ namespace PeerLibrary
         }        
         #endregion
 
+        /// <summary>
+        /// Peer Constructor. It initialize configuration according to the options passed, initialize the
+        /// local stream, creates the databases and resolves the IP address using Dns class.
+        /// </summary>
+        /// <param name="single">Indicates if the peer have to run kademlia layer in single bootstrap</param>
+        /// <param name="btpNode">Address of the suggested bootstrap node.</param>
         public Peer(bool single = false, string btpNode = "")
         {
             log.Debug("Initializing peer structure");
@@ -101,6 +121,9 @@ namespace PeerLibrary
             }
         }
 
+        /// <summary>
+        /// Method used to construct all local addresses according to configuration.
+        /// </summary>
         private void calculateAddresses()
         {
             string udpPort = this.ConfOptions["udpPort"];
@@ -109,6 +132,14 @@ namespace PeerLibrary
             this.kademliaAddress = new Uri("soap.udp://" + this.peerAddress + ":" + kademliaPort + "/kademlia");
         }
 
+        /// <summary>
+        /// Method used to run layers (kademlia, transport, interface). Each layer is ran in a separate
+        /// thread in order to allow to register the thread hosting the service with a referrer thread id
+        /// (in global threadpool) that is different from the mai thread.
+        /// The method will wait each layer to have completely finished booting before passing to another
+        /// layer.
+        /// </summary>
+        /// <param name="withoutInterface">indicates whether to start or not the peer interface layer.</param>
         public void RunLayers(bool withoutInterface=false)
         {
             log.Debug("Running layers...");
@@ -167,6 +198,10 @@ namespace PeerLibrary
         }
 
         #region layersInitialization
+        /// <summary>
+        /// Method (usually runned like a thread) that privately hosts the interface service.
+        /// </summary>
+        /// <param name="svcHost">a service host object where is stored newly initalized host.</param>
         private void runInterfaceLayer(ref ServiceHost svcHost)
         {
             log.Info("Running Interface Layer.");
@@ -186,6 +221,10 @@ namespace PeerLibrary
             svcHost = host;
         }
 
+        /// <summary>
+        /// Method that runs the transport layer
+        /// </summary>
+        /// <param name="svcHost">a service host object where is stored newly initalized host.</param>
         private void runTransportLayer(ref ServiceHost svcHost)
         {
             log.Info("Running Transport Layer.");
@@ -215,6 +254,12 @@ namespace PeerLibrary
             svcHost = host;
         }
 
+        /// <summary>
+        /// Method that runs the kademlia layer
+        /// </summary>
+        /// <param name="single">if true indicates that the kademlia layer have to do a single start</param>
+        /// <param name="btpNode">if indicated, it represents the node suggested to do bootstrap</param>
+        /// <param name="svcHost">a service host object where is stored newly initalized host.</param>
         private void runKademliaLayer(bool single, string btpNode, ref ServiceHost svcHost)
         {
             log.Info("Running Kademlia layer.");
@@ -250,7 +295,11 @@ namespace PeerLibrary
         #endregion
 
         #region interface
-
+        /// <summary>
+        /// <see cref="PeerLibrary.IPeer"/>
+        /// </summary>
+        /// <param name="udpPort">String containing the value of the udpPort</param>
+        /// <param name="kademliaPort">String containig the value of the kademliaPort</param>
         public void Configure(string udpPort = "-1", string kademliaPort = "-1")
         {
             log.Info("Reconfiguring peer with " + (udpPort != "-1" ? "udpPort=" + udpPort : "") + (kademliaPort != "-1" ? "kademliaPort=" + kademliaPort : ""));
@@ -265,12 +314,19 @@ namespace PeerLibrary
             PeerLibrary.Properties.Settings.Default.Save();
         }
 
+        /// <summary>
+        /// <see cref="PeerLibrary.IPeer"/>
+        /// </summary>
+        /// <returns>The stream to use</returns>
         public Stream ConnectToStream()
         {
             log.Info("Returning stream to requestor.");
             return this.localStream;
         }
 
+        /// <summary>
+        /// <see cref="PeerLibrary.IPeer"/>
+        /// </summary>
         public void RestartFlow()
         {
             if (transportLayer == null)
@@ -282,11 +338,26 @@ namespace PeerLibrary
             this.transportLayer.ReStart();
         }
 
+        /// <summary>
+        /// <see cref="PeerLibrary.IPeer"/>
+        /// </summary>
+        /// <param name="RID">The resource identifier</param>
+        /// <param name="begin">The begin point from the head of a file to start download</param>
+        /// <param name="length">The total length of file</param>
+        /// <param name="nodes">Nodes with associated score that are used to download a file from the network</param>
         public void GetFlow(string RID, int begin, long length, Dictionary<string, float> nodes)
         {
             this.GetFlow(RID, begin, length, nodes, null);
         }
 
+        /// <summary>
+        /// Overload of the previous method with an extern stream passed.
+        /// </summary>
+        /// <param name="RID">The resource identifier</param>
+        /// <param name="begin">The begin point from the head of a file to start download</param>
+        /// <param name="length">The total length of file</param>
+        /// <param name="nodes">Nodes with associated score that are used to download a file from the network</param>
+        /// <param name="stream">The stream to use</param>
         public void GetFlow(string RID, int begin, long length, Dictionary<string, float> nodes, Stream stream = null)
         {
             log.Info("Beginning to get flow from the network");
@@ -304,6 +375,9 @@ namespace PeerLibrary
             this.transportLayer.Start(RID, begin, length, nodes, handlingStream);
         }
 
+        /// <summary>
+        /// <see cref="PeerLibrary.IPeer"/>
+        /// </summary>
         public void StopFlow()
         {
             log.Info("Stop flow.");
@@ -313,6 +387,11 @@ namespace PeerLibrary
             }
         }
 
+        /// <summary>
+        /// <see cref="PeerLibrary.IPeer"/>
+        /// </summary>
+        /// <param name="filename">filename of the file to download</param>
+        /// <returns>true if the filename have been store; false otherwise</returns>
         public bool StoreFile(string filename)
         {
             log.Info("Storing file:" + filename);
@@ -332,11 +411,20 @@ namespace PeerLibrary
             }
         }
 
+        /// <summary>
+        /// <see cref="PeerLibrary.IPeer"/>
+        /// </summary>
+        /// <param name="queryString">the querystring used to search</param>
+        /// <returns>A list of found resources</returns>
         public IList<KademliaResource> SearchFor(string queryString)
         {
             return this.kademliaLayer.GetAll(queryString);
         }
 
+        /// <summary>
+        /// Method used to get all stored tracks
+        /// </summary>
+        /// <returns>a list of tracks</returns>
         public IList<TrackModel.Track> GetAllTracks()
         {
             List<TrackModel.Track> list = new List<TrackModel.Track>();
@@ -345,6 +433,10 @@ namespace PeerLibrary
         }
         #endregion
 
+        /// <summary>
+        /// Method created to implement the IDisposable interface and used to close all service hosts
+        /// already running.
+        /// </summary>
         public void Dispose()
         {
             log.Info("Disposing Peer");

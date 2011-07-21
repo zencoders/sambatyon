@@ -32,27 +32,56 @@ using System.Threading;
 
 namespace TransportService
 {
+    /// <summary>
+    /// This class represents a single object of the ThreadPool. It contains a Thread using the paradigm
+    /// AsOne in order to hide proper methods of a thread class.
+    /// Each thread has a condition state that indicates wheather the thread is busy or free.
+    /// </summary>
+    /// <seealso cref="TransportService.ThreadPool"/>
     internal class ThreadPoolObject
     {
+        /// <summary>
+        /// Enumeration containing all possible state that a thread can assume.
+        /// A thread can be FREE or BUSY. A free thread can be immediatly used. A BUSY thread put the requestor
+        /// in wait until the thread finish its previuos execution.
+        /// </summary>
         public enum ThreadState { FREE, BUSY };
 
+        /// <summary>
+        /// Default construtor. It is used to create a new ThreadPoolObject and to initialize the internal
+        /// AutoResetEvent.
+        /// </summary>
         public ThreadPoolObject()
         {
             this.ThreadLock = new AutoResetEvent(true);
         }
 
+#region Properties
+        /// <summary>
+        /// Property representing the internal AutoResetEvent used to lock the thread execution
+        /// </summary>
         public AutoResetEvent ThreadLock
         {
             set;
             get;
         }
 
+        /// <summary>
+        /// Property representing the state of the thread referring to the enumeration.
+        /// </summary>
         public ThreadState State
         {
             get;
             set;
         }
+#endregion
 
+        /// <summary>
+        /// Private method used to run a delegate passed. This method is passed (with irony as a Delegate)
+        /// to the internal thread of the class that executes it and so the delegate passed. After the execution
+        /// is terminated the thread is put in FREE state and the ResetEvent is set.
+        /// </summary>
+        /// <param name="d">A delegate to execute</param>
         private void assignAndStartDelegate(Delegate d)
         {
             d.DynamicInvoke();
@@ -60,6 +89,12 @@ namespace TransportService
             this.ThreadLock.Set();
         }
 
+        /// <summary>
+        /// Method called by extern requestors to assign a delegate to execute to the class.
+        /// This method put the thread in BUSY state and reset the AutoResetEvent. It then start the inner
+        /// thread passing using an internal delegate function and passing the delegate to it.
+        /// </summary>
+        /// <param name="d"></param>
         public void AssignAndStart(Delegate d)
         {
             this.State = ThreadState.BUSY;

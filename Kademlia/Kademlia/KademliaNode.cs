@@ -43,28 +43,35 @@ using log4net;
 namespace Kademlia
 {
 	/// <summary>
-	/// Functions as a peer in the overlay network.
-	/// </summary>
-    
+    /// Functions as a peer in the overlay network. Because it is necessary for the system to have a memory
+    /// of the messages arrived and sent, the service is implemented in Singleton. The use of singleton has a bigger
+    /// bad side-effect that exclude the possibility to have more than one method of the singleton class
+    /// executing on WCF at the same time. In order to bypass this problem has been activated the multiple
+    /// concurrency mode and have been used the system threadpool to execute all interfaces method as delegates.
+	/// </summary>   
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
 	public class KademliaNode : IKademliaNode
-	{
-		// Identity
-		private ID nodeID;
+    {
+        private static readonly ILog log = LogManager.GetLogger(typeof(KademliaNode));
+
+        #region identity
+        private ID nodeID;
         private EndpointAddress nodeEndpoint;
         private EndpointAddress transportEndpoint;
-		
-		// Network State
-		private BucketList contactCache;
+        #endregion
+
+        #region NetworkState
+        private BucketList contactCache;
 		private Thread bucketMinder; // Handle updates to cache
-		private const int CHECK_INTERVAL = 100;
 		private List<Contact> contactQueue; // Add contacts here to be considered for caching
 		private const int MAX_QUEUE_LENGTH = 10;
         private const string DEFAULT_TRANSPORT_ENDPOINT = "soap.udp://localhost:9997/transport_protocol/";
         private const string DEFAULT_ENDPOINT = "soap.udp://localhost:10000/kademlia";
         private const string DEFAULT_REPOSITORY = @"..\..\Resource\KademliaDatabase";
-		
-		// Response cache
+        #endregion
+
+        #region caches_and_stores
+        // Response cache
 		// We want to be able to synchronously wait for responses, so we have other threads put them in this cache.
 		// We also need to discard old ones.
 		private struct CachedResponse {
@@ -73,11 +80,8 @@ namespace Kademlia
 		}
 		private SortedList<ID, CachedResponse> responseCache;
         private AutoResetEvent responseCacheLocker;
-        private long max_time = 5000000;
-        private TimeSpan MAX_SYNC_WAIT = new TimeSpan(5000000); // 500 ms in ticks
-		
-		// Application (datastore)
-        private KademliaRepository datastore; 
+
+        private KademliaRepository datastore; // Application datastore
 		private SortedList<ID, DateTime> acceptedStoreRequests; // Store a list of what put requests we actually accepted while waiting for data.
 		// The list of put requests we sent is more complex
 		// We need to keep the data and timestamp, but don't want to insert it in our storage.
@@ -89,14 +93,24 @@ namespace Kademlia
 			public DateTime sent;
 		}
 		private SortedList<ID, OutstandingStoreRequest> sentStoreRequests;
-		
-		// We need a thread to go through and expire all these things
+        #endregion
+
+        #region threads
+        // We need a thread to go through and expire all these things
 		private Thread authMinder;
+        // We need another thread to eliminate old expired things also from stable persistence
+        private Thread maintainanceMinder;
+        #endregion
+
+        #region timers
+        private long max_time = 5000000; // 5 secs. TODO: put it to 500 ms in ticks
+        private const int CHECK_INTERVAL = 100;
+        private TimeSpan MAX_SYNC_WAIT = new TimeSpan(5000000); // 5 secs. TODO: put it to 500 ms in ticks
 		private TimeSpan MAX_CACHE_TIME = new TimeSpan(0, 0, 30);
 		
 		// How much clock skew do we tolerate?
 		private TimeSpan MAX_CLOCK_SKEW = new TimeSpan(1, 0, 0);
-		
+        
 		// Kademlia config
 		private const int PARALELLISM = 3; // Number of requests to run at once for iterative operations.
 		private const int NODES_TO_FIND = 20; // = k = bucket size
@@ -108,14 +122,12 @@ namespace Kademlia
 		
 		// How often do we run high-level maintainance (expiration, etc.)
 		private static TimeSpan MAINTAINANCE_INTERVAL = new TimeSpan(0, 10, 0);
-		private Thread maintainanceMinder;
-
-        private static readonly ILog log = LogManager.GetLogger(typeof(KademliaNode));
+        #endregion
 		
 		#region Setup	
 		
 		/// <summary>
-		/// Make a node on a random available port, using an ID specific to this machine.
+		/// Make a node on a random available port, using an ID specific to this machine. It uses as address the deault endpoint.
 		/// </summary>
 		public KademliaNode() : this(new EndpointAddress(DEFAULT_ENDPOINT), ID.HostID(), new EndpointAddress(DEFAULT_TRANSPORT_ENDPOINT))
 		{
@@ -125,21 +137,26 @@ namespace Kademlia
 		/// <summary>
 		/// Make a node with a specified ID.
 		/// </summary>
-		/// <param name="id"></param>
+		/// <param name="id">The ID defined for the node</param>
 		public KademliaNode(ID id) : this(new EndpointAddress(DEFAULT_ENDPOINT), id, new EndpointAddress(DEFAULT_TRANSPORT_ENDPOINT))
 		{
 			// Nothing to do!
 		}
 		
 		/// <summary>
-		/// Make a node on a specified port.
+		/// Make a node on a specified address.
 		/// </summary>
-		/// <param name="port"></param>
+		/// <param name="addr">The address chosen for the node</param>
 		public KademliaNode(EndpointAddress addr) : this(addr, ID.HostID(), new EndpointAddress(DEFAULT_TRANSPORT_ENDPOINT))
 		{
 			// Nothing to do!
 		}
 
+        /// <summary>
+        /// Makes a node in the specified address and using the specified transport address
+        /// </summary>
+        /// <param name="addr">The address of the node</param>
+        /// <param name="transportAddr">The address of the transport layer</param>
         public KademliaNode(EndpointAddress addr, EndpointAddress transportAddr)
             : this(addr, ID.HostID(), transportAddr)
         {
@@ -147,9 +164,12 @@ namespace Kademlia
         }
 		
 		/// <summary>
-		/// Make a node on a specific port, with a specified ID
+		/// Make a node on a specific address, with a specified ID and a specific transport Address.
+        /// This method initializes chaches, datastore and buckets. At the end it runs maintenance methods.
 		/// </summary>
-		/// <param name="port"></param>
+		/// <param name="addr">The address of the node</param>
+        /// <param name="id">The ID of the node</param>
+        /// <param name="transportAddr">The transport layer address of the node</param>
 		public KademliaNode(EndpointAddress addr, ID id, EndpointAddress transportAddr)
 		{
 			// Set up all our data
@@ -184,10 +204,10 @@ namespace Kademlia
 		}
 		
 		/// <summary>
-		/// Bootstrap by pinging a loacl node on the specified port.
+		/// Bootstrap by pinging the self node endpoint. It is a hack to bootstrap the first node without
+        /// single boot. Returns true if there are no errors.
 		/// </summary>
-		/// <param name="loaclPort"></param>
-		/// <returns></returns>
+		/// <returns>True if there are no errors, false otherwise.</returns>
 		public bool Bootstrap()
 		{
 			return Bootstrap(nodeEndpoint);
@@ -196,7 +216,8 @@ namespace Kademlia
 		/// <summary>
 		/// Bootstrap the node by having it ping another node. Returns true if we get a response.
 		/// </summary>
-		/// <param name="other"></param>
+		/// <param name="other">The endpoint to ping</param>
+        /// <returns>True if there are no errors, false otherwise.</returns>
 		public bool Bootstrap(EndpointAddress other)
 		{
 			// Send a blocking ping.
@@ -205,6 +226,12 @@ namespace Kademlia
 			return worked;
 		}
 
+        /// <summary>
+        /// Makes an asynchronous bootstrap collecting all responses and watching the cache after having
+        /// sent all requests.
+        /// </summary>
+        /// <param name="others">List of endpoint to boorstrap</param>
+        /// <returns>true if at list one node have bootstrapped; false otherwise.</returns>
         public bool AsyncBootstrap(IList<EndpointAddress> others)
         {
             Dictionary<ID, bool> conversationIds = new Dictionary<ID, bool>();
@@ -237,6 +264,7 @@ namespace Kademlia
 		/// Then, refresh most (TODO: all) buckets.
 		/// Returns true if we are connected after all that, false otherwise.
 		/// </summary>
+        /// <returns>true if we are connected after all that, false otherwise.</returns>
 		public bool JoinNetwork() {
 			log.Info("Joining network");
 			IList<Contact> found = IterativeFindNode(nodeID);
@@ -264,7 +292,8 @@ namespace Kademlia
 		/// <summary>
 		/// Returns the ID of the node
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>An ID object representing the identificator of the node</returns>
+        /// <seealso cref="Kademlia.ID"/>
 		public ID GetID() 
 		{
 			return nodeID;
@@ -273,7 +302,7 @@ namespace Kademlia
 		/// <summary>
 		/// Return the port we listen on.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>the port where the node is listening</returns>
 		public int GetPort()
 		{
             return nodeEndpoint.Uri.Port;
@@ -282,21 +311,23 @@ namespace Kademlia
 		/// <summary>
 		/// Store something in the DHT as the original publisher.
 		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="val"></param>
+		/// <param name="filename">
+        /// The filename to analize and to put the resources obtained from into the database.
+        /// </param>
 		public void Put(string filename)
 		{
             CompleteTag fileTag = new CompleteTag(filename);
             datastore.StoreResource(fileTag, this.transportEndpoint.Uri, DateTime.Now);
 			IterativeStore(fileTag, DateTime.Now);
-			// TODO: republish
+			// TODO: republish on suggested nodes.
 		}
 		
 		/// <summary>
 		/// Gets values for a key from the DHT. Returns the values or an empty list.
 		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
+		/// <param name="key">the querystring to serach into the network</param>
+		/// <returns>A list of kademlia resource from the network corresponding to the request</returns>
+        /// <seealso cref="Persistence.KademliaResource"/>
 		public IList<KademliaResource> Get(string key)
 		{
             KademliaResource[] results = datastore.SearchFor(key);
@@ -426,13 +457,18 @@ namespace Kademlia
 		
 		#region Iterative Operations
 
+        /// <summary>
+        /// Method used to store a tag into the network pretending an address passed as parameter
+        /// </summary>
+        /// <param name="tag">The CompleteTag to store into the DHT</param>
+        /// <param name="originalInsertion">Indicates the moment when the tag have been stored into the dht</param>
+        /// <param name="endpoint">Endpoint address to associate with the tag (usually the same of the node)</param>
         private void IterativeStore(CompleteTag tag, DateTime originalInsertion, EndpointAddress endpoint = null)
         {
             IList<Contact> closest = IterativeFindNode(ID.FromString(tag.TagHash));
             log.Info("Storing at " + closest.Count + " nodes");
             foreach (Contact c in closest)
             {
-                // Store a copy at each
                 if (endpoint != null)
                 {
                     Console.WriteLine("Using passed endpoint (" + endpoint + ") for Sync Store");
@@ -447,20 +483,19 @@ namespace Kademlia
         }
 
 		/// <summary>
-		/// Do an iterativeFindNode operation.
+		/// Do an iterativeFindNode operation. It is used to find nodes near the target provided.
 		/// </summary>
-		/// <param name="target"></param>
-		/// <returns></returns>
+		/// <param name="target">ID representing the target </param>
+		/// <returns>A list of contact close to the target</returns>
 		private IList<Contact> IterativeFindNode(ID target)
 		{
-            // Log the lookup
             if (target != nodeID)
             {
                 contactCache.Touch(target);
             }
 
             // Get the alpha closest nodes to the target
-            // TODO: Should actually pick from a certain bucket.
+            // TODO: Pick the nodes from a single specific bucket
             SortedList<ID, Contact> shortlist = new SortedList<ID, Contact>();
             foreach (Contact c in contactCache.CloseContacts(PARALELLISM, target, null))
             {
@@ -470,6 +505,7 @@ namespace Kademlia
 
             int shortlistIndex = 0; // Everyone before this is up.
 
+            //ANALISYS FOR THE CLOSEST
             // Make an initial guess for the closest node
             Contact closest = null;
             foreach (Contact toAsk in shortlist.Values)
@@ -479,12 +515,13 @@ namespace Kademlia
                     closest = toAsk;
                 }
             }
+            //END OF CLOSEST ANALISYS
 
             // Until we run out of people to ask or we're done...
             while (shortlistIndex < shortlist.Count && shortlistIndex < NODES_TO_FIND)
             {
                 // Try the first alpha unexamined contacts
-                bool foundCloser = false; // TODO: WTF does the spec want with this
+                bool foundCloser = false; // TODO: Understand what the specs wants
                 Dictionary<ID, bool> conversationIds = new Dictionary<ID,bool>();
                 for (int i = shortlistIndex; i < shortlistIndex + PARALELLISM && i < shortlist.Count; i++)
                 {
@@ -522,11 +559,14 @@ namespace Kademlia
                     { // Contacts aren't value types so we have to do this.
                         shortlist.Add(suggestion.NodeID, suggestion);
                     }
+
+                    //ANLISYS FOR THE CLOSEST
                     if ((suggestion.NodeID ^ target) < (closest.NodeID ^ target))
                     {
                         closest = suggestion;
                         foundCloser = true;
                     }
+                    //END OF ANALISYS
                 }
 
                 shortlistIndex += PARALELLISM;
@@ -543,13 +583,12 @@ namespace Kademlia
 		}
 
 		/// <summary>
-		/// Perform a Kademlia iterativeFind* operation.
-		/// If getValue is true, it sends out a list of strings if values are found, or null none are.
+		/// Perform a Kademlia iterativeFindValue operation.
+		/// It sends out a list of strings if values are found, or null none are.
 		/// </summary>
-		/// <param name="target"></param>
-		/// <param name="getValue">true for FindValue, false for FindNode</param>
-		/// <param name="vals"></param>
-		/// <returns></returns>
+		/// <param name="target">Value to search</param>
+		/// <param name="vals">Values found</param>
+		/// <returns>A list of contact found near the target</returns>
 		private IList<Contact> IterativeFindValue(string target, ref IList<KademliaResource> vals)
 		{
 			// Log the lookup
@@ -565,7 +604,8 @@ namespace Kademlia
 			}
 			
 			int shortlistIndex = 0; // Everyone before this is up.
-			
+
+            //ANALISYS FOR THE CLOSEST
 			// Make an initial guess for the closest node
 			Contact closest = null;
 			foreach(Contact toAsk in shortlist.Values) {
@@ -574,11 +614,12 @@ namespace Kademlia
 					closest = toAsk;
 				}
 			}
+            //END OF ANALISYS
 			
 			// Until we run out of people to ask or we're done...
 			while(shortlistIndex < shortlist.Count && shortlistIndex < NODES_TO_FIND) {
 				// Try the first alpha unexamined contacts
-				bool foundCloser = false; // TODO: WTF does the spec want with this
+                bool foundCloser = false; // TODO: Understand what the specs wants
                 Dictionary<ID, bool> conversationIds = new Dictionary<ID,bool>();
 				for(int i = shortlistIndex; i < shortlistIndex + PARALELLISM && i < shortlist.Count; i++) {
 					asyncFindValue(shortlist.Values[i], target, ref conversationIds);
@@ -614,7 +655,7 @@ namespace Kademlia
 			}
 			
 			// Drop extra ones
-			// TODO: This isn't what the protocol says at all.
+			// TODO: Adjust it to map better the protocol
 			while(shortlist.Count > NODES_TO_FIND) {
 				shortlist.RemoveAt(shortlist.Count - 1);
 			}
@@ -625,11 +666,10 @@ namespace Kademlia
         /// Do an iterativeFindValue.
         /// If we find values, we return them and put null in close.
         /// If we don't, we return null and put a list of close nodes in close.
-        /// Note that this will NOT EVER CHECK THE LOCAL NODE! DO IT YOURSELF!
         /// </summary>
-        /// <param name="target"></param>
-        /// <param name="close"></param>
-        /// <returns></returns>
+        /// <param name="target">The value to find</param>
+        /// <param name="found">The reference of a list of KademliaResource found</param>
+        /// <param name="close">The output parameter to return close contacts</param>
         private void IterativeFindValue(string target, ref IList<KademliaResource> found, out IList<Contact> close)
         {
             close = IterativeFindValue(target, ref found);
@@ -638,13 +678,12 @@ namespace Kademlia
 		
 		#region Synchronous Operations
 		/// <summary>
-		/// Try to store something at the given node.
-		/// No return so we just pretend it's synchronous
+		/// Try to store the tag passed to the given node.
 		/// </summary>
-		/// <param name="storeAt"></param>
-		/// <param name="key"></param>
-		/// <param name="val"></param>
-		/// <param name="originalInsertion"></param>
+		/// <param name="storeAt">The node where the resource have to be stored</param>
+		/// <param name="tag">The tag to store</param>
+		/// <param name="originalInsertion">Datetime indicating when the tag have been stored</param>
+        /// <param name="endpoint">Endpoint of the original owner of the resource</param>
 		private void SyncStore(Contact storeAt, CompleteTag tag, DateTime originalInsertion, EndpointAddress endpoint)
 		{
 			// Make a message
@@ -666,15 +705,14 @@ namespace Kademlia
                 new NetUdpBinding(), new EndpointAddress(storeAt.NodeEndPoint)
             );
             svc.HandleStoreQuery(storeIt);
-			//SendMessage(storeAt, storeIt);
 		}
 		
 		/// <summary>
-		/// Send a FindNode request, and return an ID to retrieve its response.
+		/// Send a FindNode request asynchronously and adds it to the structure passed.
 		/// </summary>
-		/// <param name="ask"></param>
-		/// <param name="toFind"></param>
-		/// <returns></returns>
+		/// <param name="ask">The contact to ask</param>
+		/// <param name="toFind">The resource (in this case a node) to find</param>
+        /// <param name="conversationIds">A reference to structure that is filled with new question</param>
 		private void asyncFindNode(Contact ask, ID toFind, ref Dictionary<ID, bool> conversationIds)
 		{
 			// Send message
@@ -689,15 +727,11 @@ namespace Kademlia
 		}
 		
 		/// <summary>
-		/// Send a synchronous FindValue.
-		/// If we get a contact list, it gets returned.
-		/// If we get data, it comes out in val and we return null.
-		/// If we get nothing, we return null and val is null.
+		/// Send an asynchronous FindValue and put the question done on the network in the structure passed.
 		/// </summary>
-		/// <param name="ask"></param>
-		/// <param name="toFind"></param>
-		/// <param name="val"></param>
-		/// <returns></returns>
+		/// <param name="ask">The contact to ask</param>
+		/// <param name="toFind">The value to find</param>
+        /// <param name="conversationIds">A reference to structure that is filled with new question</param>
 		private void asyncFindValue(Contact ask, string toFind, ref Dictionary<ID, bool> conversationIds)
 		{
 			// Send message
@@ -710,6 +744,11 @@ namespace Kademlia
             conversationIds[question.ConversationID] = false;
         }
 
+        /// <summary>
+        /// Method used to send a ping asynchronously to a recipient and store the ping into a passed structure.
+        /// </summary>
+        /// <param name="toPing">Node to ping</param>
+        /// <param name="conversationIds">A reference to structure that is filled with new question</param>
         private void asyncPing(EndpointAddress toPing, ref Dictionary<ID, bool> conversationIds)
         {
             // Send message
@@ -725,8 +764,8 @@ namespace Kademlia
 		/// <summary>
 		/// Send a ping and wait for a response or a timeout.
 		/// </summary>
-		/// <param name="ping"></param>
-		/// <returns>true on a respinse, false otherwise</returns>
+		/// <param name="toPing">The node to whom send the message</param>
+		/// <returns>true on a response, false otherwise</returns>
 		private bool SyncPing(EndpointAddress toPing)
 		{
 			// Send message
@@ -751,6 +790,10 @@ namespace Kademlia
 		#endregion
 
         #region Events Delegates
+        /// <summary>
+        /// Delegate for the method HandlePing. This method will send a pong to the requestor.
+        /// </summary>
+        /// <param name="o">An instance of the Ping message</param>
         private void handlePingDelegate(Object o)
         {
             Ping ping = (Ping)o;
@@ -763,6 +806,10 @@ namespace Kademlia
             svc.HandlePong(pong);
         }
 
+        /// <summary>
+        /// Delegate for method HandlePong. This method capture and caches the pong message.
+        /// </summary>
+        /// <param name="o">A pong message object</param>
         private void handlePongDelegate(Object o)
         {
             Pong pong = (Pong)o;
@@ -770,6 +817,11 @@ namespace Kademlia
             CacheResponse(pong);
         }
 
+        /// <summary>
+        /// Delegate for method HandleFindNode. It search a node that is found to the target and the send
+        /// a response to the sender.
+        /// </summary>
+        /// <param name="o">A FindNode message object</param>
         private void handleFindNodeDelegate(Object o)
         {
             FindNode request = (FindNode)o;
@@ -782,12 +834,22 @@ namespace Kademlia
             svc.HandleFindNodeResponse(response);
         }
 
+        /// <summary>
+        /// Delegate method of HandleFindNodeResponse. It receive the FindNodeResponse and cache it.
+        /// </summary>
+        /// <param name="o">A FindNodeResponse object</param>
         private void handleFindNodeResponseDelegate(Object o)
         {
             FindNodeResponse response = (FindNodeResponse)o;
             CacheResponse(response);
         }
 
+        /// <summary>
+        /// Delegate method of HandleFindValue. It receive the FindValue and checks if it is possible to
+        /// find it locally. If so, it sends back a FindValueDataResponse, otherwise it sends back a
+        /// FindValueContactResponse with contact that may better cover te search.
+        /// </summary>
+        /// <param name="o">A FindValue message</param>
         private void handleFindValueDelegate(Object o)
         {
             FindValue request = (FindValue)o;
@@ -814,6 +876,11 @@ namespace Kademlia
             }
         }
 
+        /// <summary>
+        /// Delegate method for HandleStoreQuery that checks if we already have the resource saved locally.
+        /// If so, the resource is refreshed, otherwise an HandleStoreResponse is sent to the requestor.
+        /// </summary>
+        /// <param name="o">A StoreQuery response</param>
         private void handleStoreQueryDelegate(Object o)
         {
             StoreQuery request = (StoreQuery)o;
@@ -835,6 +902,11 @@ namespace Kademlia
             }
         }
 
+        /// <summary>
+        /// Delegate method for HandleStoreData; it checks if we have accepted the StoreQuery and, if so,
+        /// the data is stored into the datastore.
+        /// </summary>
+        /// <param name="o">A StoreData message containing the data</param>
         private void handleStoreDataDelegate(Object o)
         {
             StoreData request = (StoreData)o;
@@ -854,7 +926,6 @@ namespace Kademlia
                     if (request.PublicationTime < DateTime.Now.ToUniversalTime().Add(MAX_CLOCK_SKEW))
                     {
                         // We re-hash since we shouldn't trust their hash
-                        //	datastore.Put(request.Key, ID.Hash(request.Data), request.Data, request.PublicationTime, EXPIRE_TIME);
                         Console.WriteLine("Arrived store data from peer with transport: " + request.TransportUri);
                         datastore.StoreResource(request.Data, request.TransportUri, request.PublicationTime);
                     }
@@ -862,6 +933,11 @@ namespace Kademlia
             }
         }
 
+        /// <summary>
+        /// Delegate method for HandleStoreResponse. Received the message, this method sends back
+        /// the data to store (if requested into the StoreResponse).
+        /// </summary>
+        /// <param name="o">The StoreResponse passed; indicating wheter to send back or not the data</param>
         private void handleStoreResponseDelegate(Object o)
         {
             StoreResponse response = (StoreResponse)o;
@@ -885,12 +961,20 @@ namespace Kademlia
             }
         }
 
+        /// <summary>
+        /// Method used to handle a FindValueContactResponse. This method simply caches the response.
+        /// </summary>
+        /// <param name="o">A FindValueContactResponse from the interroged node</param>
         private void handleFindValueContactResponseDelegate(Object o)
         {
             FindValueContactResponse response = (FindValueContactResponse)o;
             CacheResponse(response);
         }
 
+        /// <summary>
+        /// Method used to handle a FindValueDataResponse. This method simply stores the data in cache.
+        /// </summary>
+        /// <param name="o">A FindValueDataResponse containig the data to store</param>
         private void handleFindValueDataResponseDelegate(Object o)
         {
             FindValueDataResponse response = (FindValueDataResponse)o;
@@ -902,8 +986,7 @@ namespace Kademlia
         /// <summary>
 		/// Record every contact we see in our cache, if applicable. 
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="msg"></param>
+		/// <param name="msg">The message received</param>
 		public void HandleMessage(Message msg)
 		{
 			log.Info(nodeID.ToString() + " got " + msg.Name + " from " + msg.SenderID.ToString());
@@ -913,8 +996,7 @@ namespace Kademlia
 		/// <summary>
 		/// Store responses in the response cache to be picked up by threads waiting for them
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="response"></param>
+		/// <param name="response">The response to cache</param>
 		public void CacheResponse(Response response)
 		{
             HandleMessage(response);
@@ -932,28 +1014,35 @@ namespace Kademlia
 		/// <summary>
 		/// Respond to a ping by sending a pong
 		/// </summary>
-		/// <param name="p"></param>
+		/// <param name="ping">The ping message handled</param>
 		public void HandlePing(Ping ping)
 		{
             ThreadPool.QueueUserWorkItem(new WaitCallback(handlePingDelegate), ping);
 		}
 
+        /// <summary>
+        /// Handles a pong message
+        /// </summary>
+        /// <param name="pong">The pong message to handle</param>
         public void HandlePong(Pong pong)
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(handlePongDelegate), pong);
         }
 		
 		/// <summary>
-		/// Send back the contacts for the K closest nodes to the desired ID, not including the requester.
+		/// Send back the contacts for the K closest nodes to the desired ID, not including the requestor.
 		/// K = BucketList.BUCKET_SIZE;
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="request"></param>
+		/// <param name="request">The FindNode request found</param>
 		public void HandleFindNode(FindNode request)
 		{
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindNodeDelegate), request);
 		}
 
+        /// <summary>
+        /// The method sed to handle a FindNodeResponse.
+        /// </summary>
+        /// <param name="response">The FindNodeResponse message</param>
         public void HandleFindNodeResponse(FindNodeResponse response)
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindNodeResponseDelegate), response);
@@ -962,8 +1051,7 @@ namespace Kademlia
 		/// <summary>
 		/// Give the value if we have it, or the closest nodes if we don't.
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="request"></param>
+		/// <param name="request">The FindValue request originating the search process</param>
 		public void HandleFindValue(FindValue request)
 		{
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindValueDelegate), request);
@@ -972,8 +1060,7 @@ namespace Kademlia
 		/// <summary>
 		/// Ask for data if we don't already have it. Update time info if we do.
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="request"></param>
+		/// <param name="request">The StoreQuery object that requires value storing</param>
 		public void HandleStoreQuery(StoreQuery request)
 		{
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleStoreQueryDelegate), request);
@@ -982,8 +1069,7 @@ namespace Kademlia
 		/// <summary>
 		/// Store the data, if we requested it.
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="request"></param>
+		/// <param name="request">The StoreData message containig the data to store</param>
 		public void HandleStoreData(StoreData request)
 		{
             Console.WriteLine("Arrived a storeData from " + request.TransportUri);
@@ -993,67 +1079,40 @@ namespace Kademlia
 		/// <summary>
 		/// Send data in response to affirmative SendResponses
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="request"></param>
+		/// <param name="response">The response to indicates wheter we can or not store</param>
 		public void HandleStoreResponse(StoreResponse response)
 		{
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleStoreResponseDelegate), response);
 		}
 		
+        /// <summary>
+        /// The method used to return the list of contact that could match a request.
+        /// </summary>
+        /// <param name="response">The FindValueContactResponse that contains the list</param>
         public void HandleFindValueContactResponse(FindValueContactResponse response)
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindValueContactResponseDelegate), response);
         }
 
+        /// <summary>
+        /// The method used to recover information required by a FindValue message
+        /// </summary>
+        /// <param name="response">The message containing the Data</param>
         public void HandleFindValueDataResponse(FindValueDataResponse response)
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(handleFindValueDataResponseDelegate), response);
         }
-
-		/// <summary>
-		/// Expire entries in the accepted/sent store request caches and the response cache.
-		/// </summary>
-		private void MindCaches()
-		{
-            log.Info("Starting cache manager");
-			while(true) {
-				// Do accepted requests
-				lock(acceptedStoreRequests) {
-					for(int i = 0; i < acceptedStoreRequests.Count; i++) {
-						// Remove stuff that is too old
-						if(DateTime.Now.Subtract(acceptedStoreRequests.Values[i]) > MAX_CACHE_TIME) {
-							acceptedStoreRequests.RemoveAt(i);
-							i--;
-						}
-					}
-				}
-				
-				// Do sent requests
-				lock(sentStoreRequests) {
-					for(int i = 0; i < sentStoreRequests.Count; i++) {
-						if(DateTime.Now.Subtract(sentStoreRequests.Values[i].sent) > MAX_CACHE_TIME) {
-							sentStoreRequests.RemoveAt(i);
-							i--;
-						}
-					}
-				}
-				
-				// Do responses
-				responseCacheLocker.WaitOne();
-				for(int i = 0; i < responseCache.Count; i++) {
-					if(DateTime.Now.Subtract(responseCache.Values[i].arrived) > MAX_CACHE_TIME) {
-						responseCache.RemoveAt(i);
-						i--;
-					}
-				}
-                responseCacheLocker.Set();
-				
-				Thread.Sleep(CHECK_INTERVAL);
-			}
-		}
 		
 		#endregion
 
+        #region Cache Works
+        /// <summary>
+        /// Method that, passed a dictionary representing conversations (to whom we have done a request) and a
+        /// list of values to fill, checks if the specific contact have sent some data and then it sets
+        /// the contact to true and add data to the list.
+        /// </summary>
+        /// <param name="toSearch">Conversations to search the responses from</param>
+        /// <param name="vals">List to fill</param>
         private void findContactResponseCache(ref Dictionary<ID, bool> toSearch, ref List<Contact> vals)
         {
             log.Debug("Searching for contact in cache!");
@@ -1079,6 +1138,13 @@ namespace Kademlia
             responseCacheLocker.Set();
         }
 
+        /// <summary>
+        /// Method that, passed a dictionary representing conversations (to whom we have done a request) and a
+        /// list of values to fill, checks if the specific contact have sent some data and then it sets
+        /// the contact to true and add data to the list.
+        /// </summary>
+        /// <param name="toSearch">Conversations to search the responses from</param>
+        /// <param name="vals">List to fill</param>
         private void findDataResponseCache(ref Dictionary<ID, bool> toSearch, ref IList<KademliaResource> vals)
         {
             log.Debug("Searching for data in cache!");
@@ -1105,6 +1171,11 @@ namespace Kademlia
             responseCacheLocker.Set();
         }
 
+        /// <summary>
+        /// Method that, passed a dictionary representing conversations (to whom we have done a request) checks if the specific contact have sent some data and then it sets
+        /// the contact to true.
+        /// </summary>
+        /// <param name="toSearch">Conversations to search the responses from</param>
         private void findPingResponseCache(ref Dictionary<ID, bool> toSearch)
         {
             responseCacheLocker.WaitOne();
@@ -1121,6 +1192,13 @@ namespace Kademlia
             responseCacheLocker.Set();
         }
 
+        /// <summary>
+        /// Method that, passed a dictionary representing conversations (to whom we have done a request) and a
+        /// list of values to fill, checks if the specific contact have sent some data and then it sets
+        /// the contact to true and add data to the list.
+        /// </summary>
+        /// <param name="toSearch">Conversations to search the responses from</param>
+        /// <param name="suggested">List to fill</param>
         private void findNodeResponseCache(ref Dictionary<ID, bool> toSearch, ref List<Contact> suggested)
         {
             responseCacheLocker.WaitOne();
@@ -1148,8 +1226,8 @@ namespace Kademlia
         /// <summary>
         /// Get a properly typed response from the cache, or null if none exists.
         /// </summary>
-        /// <param name="conversation"></param>
-        /// <returns></returns>
+        /// <param name="conversation">The conversation to search</param>
+        /// <returns>The value found typed by T</returns>
         private T GetCachedResponse<T>(ID conversation) where T : Response
         {
             responseCacheLocker.WaitOne();
@@ -1178,13 +1256,65 @@ namespace Kademlia
             }
         }
 
-		#region Framework
-		
-		/// <summary>
+        /// <summary>
+        /// Expire entries in the accepted/sent store request caches and the response cache.
+        /// </summary>
+        private void MindCaches()
+        {
+            log.Info("Starting cache manager");
+            while (true)
+            {
+                // Do accepted requests
+                lock (acceptedStoreRequests)
+                {
+                    for (int i = 0; i < acceptedStoreRequests.Count; i++)
+                    {
+                        // Remove stuff that is too old
+                        if (DateTime.Now.Subtract(acceptedStoreRequests.Values[i]) > MAX_CACHE_TIME)
+                        {
+                            acceptedStoreRequests.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+
+                // Do sent requests
+                lock (sentStoreRequests)
+                {
+                    for (int i = 0; i < sentStoreRequests.Count; i++)
+                    {
+                        if (DateTime.Now.Subtract(sentStoreRequests.Values[i].sent) > MAX_CACHE_TIME)
+                        {
+                            sentStoreRequests.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+
+                // Do responses
+                responseCacheLocker.WaitOne();
+                for (int i = 0; i < responseCache.Count; i++)
+                {
+                    if (DateTime.Now.Subtract(responseCache.Values[i].arrived) > MAX_CACHE_TIME)
+                    {
+                        responseCache.RemoveAt(i);
+                        i--;
+                    }
+                }
+                responseCacheLocker.Set();
+
+                Thread.Sleep(CHECK_INTERVAL);
+            }
+        }
+        #endregion
+
+        #region Buckets
+
+        /// <summary>
 		/// Call this whenever we see a contact.
 		/// We add the contact to the queue to be cached.
 		/// </summary>
-		/// <param name="seen"></param>
+		/// <param name="seen">The contact seen</param>
 		private void SawContact(Contact seen)
 		{
             if (seen.NodeID == nodeID)

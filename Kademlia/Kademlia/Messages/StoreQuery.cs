@@ -47,11 +47,10 @@ namespace Kademlia.Messages
 		/// <summary>
 		/// Make a new STORE_QUERY message.
 		/// </summary>
-		/// <param name="nodeID"></param>
-		/// <param name="toStore"></param>
+		/// <param name="nodeID">The identificator of the sender</param>
 		/// <param name="hash">A hash of the data value</param>
-		/// <param name="originalPublication"></param>
-		/// <param name="dataSize"></param>
+		/// <param name="originalPublication">The time of publication</param>
+        /// <param name="nodeEndpoint">The address of the sender</param>
 		public StoreQuery(ID nodeID, ID hash, DateTime originalPublication, Uri nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			tagHash = hash;
@@ -59,9 +58,8 @@ namespace Kademlia.Messages
 		}
 		
 		/// <summary>
-		/// Gets the hash of the data value we're asking about.
+		/// The hash of the data value we're asking about.
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public ID TagHash
 		{
@@ -70,7 +68,7 @@ namespace Kademlia.Messages
 		}
 
 		/// <summary>
-		/// Get when the data was originally published, in UTC.
+		/// the data was originally published, in UTC.
 		/// </summary>
 		/// <returns></returns>
         [DataMember]
@@ -80,6 +78,9 @@ namespace Kademlia.Messages
             set { this.publication = value; }
 		}
 		
+        /// <summary>
+        /// The default name of the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

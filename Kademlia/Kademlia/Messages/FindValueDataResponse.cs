@@ -45,18 +45,18 @@ namespace Kademlia.Messages
 		/// <summary>
 		/// Make a new response.
 		/// </summary>
-		/// <param name="nodeID"></param>
-		/// <param name="request"></param>
-		/// <param name="data"></param>
+		/// <param name="nodeID">The identificator of the sender</param>
+		/// <param name="request">The FindValue request generating this response</param>
+		/// <param name="data">The list of KademliaResources found</param>
+        /// <param name="nodeEndpoint">The address of the sender</param>
 		public FindValueDataResponse(ID nodeID, FindValue request, IList<KademliaResource> data, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			vals = data;
 		}
 		
 		/// <summary>
-		/// Get the values returned for the key
+		/// the values returned for the key
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public IList<KademliaResource> Values
 		{
@@ -64,6 +64,9 @@ namespace Kademlia.Messages
             set { this.vals = value; }
 		}
 		
+        /// <summary>
+        /// The default name of the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

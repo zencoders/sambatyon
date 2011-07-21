@@ -42,6 +42,13 @@ namespace Kademlia.Messages
 	{
 		private List<Contact> contacts;
 		
+        /// <summary>
+        /// Constructor of the class. It calls the base constructor and store contacts into the message.
+        /// </summary>
+        /// <param name="nodeID">Identificator of the sender</param>
+        /// <param name="request">FindNode request that orginates this response</param>
+        /// <param name="recommended">List of contact that could match the request</param>
+        /// <param name="nodeEndpoint">Address of the sender</param>
 		public FindNodeResponse(ID nodeID, FindNode request, List<Contact> recommended, Uri nodeEndpoint) : base(nodeID, request, nodeEndpoint)
 		{
 			contacts = recommended;
@@ -58,6 +65,9 @@ namespace Kademlia.Messages
             set { this.contacts = value; }
 		}
 		
+        /// <summary>
+        /// Name of the message over the network
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

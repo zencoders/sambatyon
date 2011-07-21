@@ -32,14 +32,28 @@ using System.Runtime.Serialization;
 
 namespace TransportService.Messages
 {
+    /// <summary>
+    /// Class representing the message used to return the payload to a requestor.
+    /// </summary>
     [DataContract]
     public class ChunkResponse : GenericMessage
     {
         private int servingBuffer;
         private byte[] payload;
 
+        /// <summary>
+        /// Default constructor of the class
+        /// </summary>
         public ChunkResponse() { }
 
+        /// <summary>
+        /// Constructor of the class that initialize attributes of the message.
+        /// </summary>
+        /// <param name="servingBuffer">Serving buffer of te peer (that send the message). It is used for load balance</param>
+        /// <param name="RID">Resource identificator</param>
+        /// <param name="CID">Chunk identificator (foundamentally a progressive integer)</param>
+        /// <param name="payload">Payload of the chunk</param>
+        /// <param name="SenderAddress">Address of the sender of this message</param>
         public ChunkResponse(int servingBuffer, string RID, int CID, byte[] payload, Uri SenderAddress)
         {
             this.MessageType = "CHKRS";
@@ -50,6 +64,10 @@ namespace TransportService.Messages
             this.SenderAddress = SenderAddress;
         }
 
+        #region Properties
+        /// <summary>
+        /// Property used to work on ServingBuffer value
+        /// </summary>
         [DataMember]
         public int ServingBuffer
         {
@@ -57,11 +75,15 @@ namespace TransportService.Messages
             set { servingBuffer = value; }
         }
 
+        /// <summary>
+        /// Property used to work on payload.
+        /// </summary>
         [DataMember]
         public byte[] Payload
         {
             get { return payload; }
             set { payload = value; }
         }
+        #endregion
     }
 }

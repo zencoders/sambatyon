@@ -32,6 +32,10 @@ using System.Runtime.Serialization;
 
 namespace TransportService.Messages
 {
+    /// <summary>
+    /// Class used to plasmate an abstract representation of a message.
+    /// It represents the official DataContract of the TransportService.
+    /// </summary>
     [DataContract]
     public abstract class AbstractMessage
     {
@@ -40,6 +44,9 @@ namespace TransportService.Messages
 //        protected int cID;
 //        protected Uri senderAddress;
 
+        /// <summary>
+        /// Property used to recognize the message type associated to the message
+        /// </summary>
         [DataMember]
         public abstract string MessageType
         {
@@ -47,6 +54,9 @@ namespace TransportService.Messages
             set;
         }
 
+        /// <summary>
+        /// Property representing the resource id.
+        /// </summary>
         [DataMember]
         public abstract string RID
         {
@@ -54,6 +64,9 @@ namespace TransportService.Messages
             set;
         }
 
+        /// <summary>
+        /// Property representing the chunk id.
+        /// </summary>
         [DataMember]
         public abstract int CID
         {
@@ -61,6 +74,9 @@ namespace TransportService.Messages
             set;
         }
 
+        /// <summary>
+        /// Property identifying the address of the sender of the message
+        /// </summary>
         [DataMember]
         public abstract Uri SenderAddress
         {

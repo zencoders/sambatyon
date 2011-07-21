@@ -47,12 +47,12 @@ namespace Kademlia.Messages
 		/// <summary>
 		/// Make a mesage to store the given data.
 		/// </summary>
-		/// <param name="nodeID"></param>
-		/// <param name="request"></param>
-		/// <param name="theKey"></param>
-		/// <param name="theDataHash"></param>
-		/// <param name="theData"></param>
-		/// <param name="originalPublication"></param>
+		/// <param name="nodeID">The sender identificator</param>
+		/// <param name="request">The StoreResponse message that originated this message</param>
+		/// <param name="theData">The CompleteTag to store</param>
+		/// <param name="originalPublication">The publication datetime</param>
+        /// <param name="nodeEndpoint">The sender node's kademlia address</param>
+        /// <param name="transportUri">The sender node's transport uri</param>
 		public StoreData(ID nodeID, StoreResponse request, CompleteTag theData, DateTime originalPublication, Uri nodeEndpoint, Uri transportUri) : base(nodeID, request, nodeEndpoint)
 		{
 			this.data = theData;
@@ -61,9 +61,8 @@ namespace Kademlia.Messages
 		}
 		
 		/// <summary>
-		/// Get the data to store.
+		/// The data to store.
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public CompleteTag Data
 		{
@@ -72,9 +71,8 @@ namespace Kademlia.Messages
 		}
 		
 		/// <summary>
-		/// Get when the data was originally published, in UTC.
+		/// When the data was originally published, in UTC.
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public DateTime PublicationTime
 		{
@@ -82,6 +80,9 @@ namespace Kademlia.Messages
             set { this.publication = value; }
 		}
 
+        /// <summary>
+        /// The address of sender peer's transport layer
+        /// </summary>
         [DataMember]
         public Uri TransportUri
         {
@@ -89,6 +90,9 @@ namespace Kademlia.Messages
             set { this.transportUri = value; }
         }
 
+        /// <summary>
+        /// Default name of the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

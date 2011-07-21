@@ -53,14 +53,12 @@ namespace Kademlia
 		/// <summary>
 		/// Create a DHT using the given master server, and specify whether to publish our IP.
 		/// PRECONDITION: Create one per app or you will have a node ID collision.
-		/// TODO: Fix this.
 		/// </summary>
-		/// <param name="overlayUrl"></param>
-		/// <param name="register"></param>
+        /// <param name="dhtNode">The KademliaNode that is used to communicate using the protocol</param>
+        /// <param name="alreadyBootstrapped">Checks if the node have or not to bootstrap</param>
+        /// <param name="btpNode">The node to bootstrap with (can be leaved null)</param>
 		public Dht(KademliaNode dhtNode = null, bool alreadyBootstrapped = false, string btpNode = "")
 		{
-
-			// Make a new node and get port
             if (dhtNode != null)
             {
                 this.dhtNode = dhtNode;
@@ -137,7 +135,7 @@ namespace Kademlia
 		/// Retrieve a value from the DHT.
 		/// </summary>
 		/// <param name="key">The key of the value to retrieve.</param>
-		/// <returns>an arbitrary value stored for the key, or null if no values are found</returns>
+		/// <returns>the best semantically matching value stored for the key, or null if no values are found</returns>
 		public KademliaResource Get(string key)
 		{
             IList<KademliaResource> found = dhtNode.Get(key);
@@ -156,8 +154,8 @@ namespace Kademlia
 		/// <summary>
 		/// Retrieve all applicable values from the DHT.
 		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
+        /// <param name="key">The key of the value to retrieve.</param>
+		/// <returns>All the list of resources found on network, ordered by semantic affinity</returns>
 		public IList<KademliaResource> GetAll(string key)
 		{
             IList<KademliaResource> found = dhtNode.Get(key);
@@ -178,8 +176,7 @@ namespace Kademlia
 		/// <summary>
 		/// Puts a value in the DHT under a key.
 		/// </summary>
-		/// <param name="key">Can be any length, is hashed internally.</param>
-		/// <param name="val">Can be up to and including MaxSize() UTF-8 characters.</param>
+        /// <param name="filename">The filename of resource to store into the network</param>
 		public void Put(string filename)
 		{
 			dhtNode.Put(filename);

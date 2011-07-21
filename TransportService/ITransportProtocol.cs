@@ -34,12 +34,37 @@ using TransportService.Messages;
 
 namespace TransportService
 {
+    /// <summary>
+    /// Interface representing the contract of a TransportService.
+    /// The transport service is used to move chunks from a node to another in the network and then, it
+    /// exposes fundamentally two oneway methods, the first to request a chunk to a peer and the second
+    /// to return chunks to requestors.
+    /// </summary>
     [ServiceContract]
     public interface ITransportProtocol
     {
+        /// <summary>
+        /// This method is used to require a chunk to a peer. The method is a oneway method because is
+        /// supposed to be in use a Udp Binding.
+        /// </summary>
+        /// <param name="chkrq">
+        /// Message passed to the method over the network. It contains details
+        /// about the sender of the message and also to the chunk requested.
+        /// </param>
+        /// <seealso cref="TransportService.Messages.ChunkRequest"/>
+        /// <seealso cref="UdpTransportBinding.NetUdpBinding"/>
         [OperationContract(IsOneWay=true)]
         void GetChunk(ChunkRequest chkrq);
 
+        /// <summary>
+        /// This method is used to return a chunk to a requestor peer. The method is a oneway method because
+        /// it is supposed to be in use a Udp Binding.
+        /// </summary>
+        /// <param name="chkrs">
+        /// Message passed to the method over the network. It contains the chunk
+        /// to send to the requestor and information about the traffic.
+        /// </param>
+        /// <seealso cref="TransportService.Messages.ChunkResponse"/>
         [OperationContract(IsOneWay = true)]
         void ReturnChunk(ChunkResponse chkrs);
     }

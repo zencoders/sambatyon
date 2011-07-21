@@ -44,17 +44,17 @@ namespace Kademlia.Messages
 		/// <summary>
 		/// Make a new FIND_NODE message
 		/// </summary>
-		/// <param name="nodeID"></param>
-		/// <param name="toFind"></param>
+		/// <param name="nodeID">the identificator of the sender</param>
+		/// <param name="toFind">The ID of the node searched</param>
+        /// <param name="nodeEndpoint">The address of the sender</param>
 		public FindNode(ID nodeID, ID toFind, Uri nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			target = toFind;
 		}
 		
 		/// <summary>
-		/// Get the target of this message.
+		/// Get/Set the target of this message.
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public ID Target
 		{
@@ -62,6 +62,9 @@ namespace Kademlia.Messages
             set { this.target = value; }
 		}
 		
+        /// <summary>
+        /// Default Name of the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

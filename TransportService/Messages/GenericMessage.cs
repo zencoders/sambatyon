@@ -32,9 +32,16 @@ using System.Runtime.Serialization;
 
 namespace TransportService.Messages
 {
+    /// <summary>
+    /// Utility class that implements common method from Abstract Message and makes possible
+    /// to avoid repetitions in code.
+    /// </summary>
     [DataContract]
     public class GenericMessage : AbstractMessage
     {
+        /// <summary>
+        /// <see cref="TransportService.Messages.AbstractMessage"/>
+        /// </summary>
         [DataMember]
         public override string MessageType
         {
@@ -42,6 +49,9 @@ namespace TransportService.Messages
             set;
         }
 
+        /// <summary>
+        /// <see cref="TransportService.Messages.AbstractMessage"/>
+        /// </summary>
         [DataMember]
         public override string RID
         {
@@ -49,6 +59,9 @@ namespace TransportService.Messages
             set;
         }
 
+        /// <summary>
+        /// <see cref="TransportService.Messages.AbstractMessage"/>
+        /// </summary>
         [DataMember]
         public override int CID
         {
@@ -56,6 +69,9 @@ namespace TransportService.Messages
             set;
         }
 
+        /// <summary>
+        /// <see cref="TransportService.Messages.AbstractMessage"/>
+        /// </summary>
         [DataMember]
         public override Uri SenderAddress
         {

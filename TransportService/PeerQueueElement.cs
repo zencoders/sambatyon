@@ -36,18 +36,43 @@ using TransportService.Messages;
 
 namespace TransportService
 {
+    /// <summary>
+    /// This class represent an abstraction of the peer from the point of view of a requestor. It is used
+    /// inside a PeerQueue.
+    /// The class internally stores a channel used to communicate with other peer. It is useful to avoid
+    /// opening and closing the channel.
+    /// This class is strictly coupled with PeerQueue.
+    /// </summary>
+    /// <seealso cref="TransportService.PeerQueue"/>
     internal class PeerQueueElement
     {
+        /// <summary>
+        /// Enumeration representing all possible states that a PeerQueueElement (foundamentally an
+        /// abstraction of the peer in the network) can assume.
+        /// Actually there are two states. A peer may be FREE, and so it is possible to use it to request
+        /// resources, or BUSY that indicates that the peer have been recently asked and has not yet answered.
+        /// </summary>
         public enum PeerState { FREE, BUSY };
 
         private System.Timers.Timer timer;
         private AutoResetEvent peerQueueNotEmpty;
         private ITransportProtocol channel;
 
+        /// <summary>
+        /// Default constructor of the class.
+        /// </summary>
         public PeerQueueElement()
         {
         }
 
+        /// <summary>
+        /// Constructor of the class that effectively valorize its attributes.
+        /// </summary>
+        /// <param name="peerAddress">URI address of the peer</param>
+        /// <param name="peerScore">Score of the peer (the less it is the better is the peer</param>
+        /// <param name="peerQueueNotEmpty">
+        /// AutoResetEvent used to communicate to the Peer Queue that the queue is not empty.
+        /// </param>
         public PeerQueueElement(string peerAddress, float peerScore, ref AutoResetEvent peerQueueNotEmpty)
         {
             this.PeerAddress = peerAddress;
@@ -59,24 +84,38 @@ namespace TransportService
             );
         }
 
+        /// <summary>
+        /// Property representing the address of the peer.
+        /// </summary>
         public string PeerAddress
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Property representing the score of the peer. The less it is the better is the peer.
+        /// </summary>
         public float PeerScore
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Property representing the state of the peer according to the condition enum.
+        /// </summary>
         public PeerState State
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Method used to require a chunk to the peer represented by the inner channel.
+        /// </summary>
+        /// <param name="chkrq">ChunkRequest object containing informations about the resource.</param>
+        /// <seealso cref="TransportService.Messages.ChunkRequest"/>
         public void GetChunk(ChunkRequest chkrq)
         {
             this.State = PeerState.BUSY;
@@ -84,6 +123,12 @@ namespace TransportService
             this.channel.GetChunk(chkrq);
         }
 
+        /// <summary>
+        /// Method used to block the peer (avoid to request again) for a certain number of milliseconds as
+        /// passed by argument. For the time indicated the peer is put in the BUSY state; after that time
+        /// the peer is resettled in FREE state.
+        /// </summary>
+        /// <param name="millis">time used to block the peer.</param>
         public void TimedPeerBlock(int millis)
         {
             this.State = PeerState.BUSY;
@@ -92,6 +137,10 @@ namespace TransportService
             this.timer.Elapsed += new ElapsedEventHandler(this.timerHandler);
         }
 
+        /// <summary>
+        /// Method actively used to reset a peer putting it in free state. If the peer have a timer active
+        /// the timer is disabled.
+        /// </summary>
         public void Reset()
         {
             this.State = PeerState.FREE;
@@ -100,6 +149,12 @@ namespace TransportService
             this.peerQueueNotEmpty.Set();
         }
 
+        /// <summary>
+        /// Method called by the timer to automatically call the Reset method. Each time this method
+        /// is called the peer score is augmented by one.
+        /// </summary>
+        /// <param name="source">ND</param>
+        /// <param name="e">ND</param>
         private void timerHandler(object source, EventArgs e)
         {
             this.PeerScore += 1;

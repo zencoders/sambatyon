@@ -42,8 +42,8 @@ namespace Kademlia
 		/// <summary>
 		/// Make a contact for a node with the given ID at the given location.
 		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="endpoint"></param>
+		/// <param name="id">The identificator of the node</param>
+		/// <param name="endpoint">The address of the node</param>
 		public Contact(ID id, Uri endpoint)
 		{
 			nodeID = id;
@@ -53,7 +53,7 @@ namespace Kademlia
 		/// <summary>
 		/// Get the node's ID.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The node ID</returns>
 		public ID NodeID {
             get { return nodeID; }
 		}
@@ -61,11 +61,15 @@ namespace Kademlia
 		/// <summary>
 		/// Get the node's endpoint.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The address</returns>
 		public Uri NodeEndPoint {
             get { return nodeEndpoint; }
 		}
 		
+        /// <summary>
+        /// Method used to obtain a string representation of the class
+        /// </summary>
+        /// <returns>A string representing the object</returns>
 		public override string ToString()
 		{
 			return NodeID.ToString() + "@" + NodeEndPoint.ToString();

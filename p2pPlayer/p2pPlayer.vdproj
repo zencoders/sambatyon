@@ -664,7 +664,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C1FDB50E2D457736B7F648581BB28CEC"
+        "OwnerKey" = "8:_CA48181457114BA6A1AD0F50F6DDD461"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -676,19 +676,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6584AF489BD3F789AA22ED4193B23E3C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_37823AE6850873557D7CC10438653E97"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_50C00FCC002B97AC6D0791890B24ED3F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_6584AF489BD3F789AA22ED4193B23E3C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -700,7 +694,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CA48181457114BA6A1AD0F50F6DDD461"
+        "OwnerKey" = "8:_37823AE6850873557D7CC10438653E97"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -845,6 +839,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_71DCC66363EDD28C62E0F9772901D0EC"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_C1FDB50E2D457736B7F648581BB28CEC"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -1145,7 +1145,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Kademlia, Version=0.2.4217.35550, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:Kademlia, Version=0.2.4218.3374, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_37823AE6850873557D7CC10438653E97"
@@ -1639,7 +1639,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Kademlia, Version=0.2.4217.35550, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:Kademlia, Version=0.2.4218.3374, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_B07A3356DCB150D0437A79CCBD9E8FAF"
@@ -2057,7 +2057,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:p2pPlayer"
         "ProductCode" = "8:{F4412F89-F999-4C31-BCC2-85B546676149}"
-        "PackageCode" = "8:{6678A0F8-DC5A-4648-BEE7-D0AFFA5D271A}"
+        "PackageCode" = "8:{011E3352-04BA-4680-8A3E-831DC96D368C}"
         "UpgradeCode" = "8:{738078F2-A470-41D8-965B-180A153356F5}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

@@ -35,22 +35,27 @@ namespace Kademlia.Messages
 {
 	/// <summary>
 	/// A reply to a store query.
-	/// Say if we're willing to store the data, and if we already have it.
 	/// </summary>
 	[DataContract]
 	public class StoreResponse : Response
 	{
 		private bool sendData;
 		
+        /// <summary>
+        /// Constructor of the class
+        /// </summary>
+        /// <param name="nodeID">Identificator of the sender</param>
+        /// <param name="query">StoreQuery originating this message</param>
+        /// <param name="accept">Param that indicates if the node has accepted the request to store</param>
+        /// <param name="nodeEndpoint">Address of the sender node</param>
 		public StoreResponse(ID nodeID, StoreQuery query, bool accept, Uri nodeEndpoint) : base(nodeID, query, nodeEndpoint)
 		{
 			sendData = accept;
 		}
 		
 		/// <summary>
-		/// Returns true if we should send them the data.
+		/// Indicator to verify if it is necessary or not to send data
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public bool ShouldSendData
 		{
@@ -58,6 +63,9 @@ namespace Kademlia.Messages
             set { this.sendData = value; }
 		}
 		
+        /// <summary>
+        /// Default name of the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

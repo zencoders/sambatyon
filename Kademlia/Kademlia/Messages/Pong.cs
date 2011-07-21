@@ -39,10 +39,19 @@ namespace Kademlia.Messages
 	[DataContract]
 	public class Pong : Response
 	{
+        /// <summary>
+        /// Constructor of the Ping class
+        /// </summary>
+        /// <param name="senderID">Identificator of the Sender</param>
+        /// <param name="ping">Ping message originating the pong</param>
+        /// <param name="nodeEndpoint">URI endpoint of the Sender</param>
 		public Pong(ID senderID, Ping ping, Uri nodeEndpoint) : base(senderID, ping, nodeEndpoint)
 		{
 		}
 		
+        /// <summary>
+        /// Name of the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

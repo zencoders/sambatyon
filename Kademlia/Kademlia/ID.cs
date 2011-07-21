@@ -45,7 +45,8 @@ namespace Kademlia
 	[Serializable]
 	public class ID : IComparable
 	{
-		public const int ID_LENGTH = 20; // This is how long IDs should be, in bytes.
+        /// This is how long IDs should be, in bytes.
+		public const int ID_LENGTH = 20;
 		private byte[] data;
 		
 		// We want to be able to generate random IDs without timing issues.
@@ -64,6 +65,11 @@ namespace Kademlia
             IDInit(data);
 		}
 
+        /// <summary>
+        /// Make a new ID starting from a string. Pay attention, the string is not hashed, it is
+        /// simply translated to an ID object.
+        /// </summary>
+        /// <param name="new_id">The string to translate</param>
         public ID(string new_id)
         {
             BinaryFormatter bf = new BinaryFormatter();
@@ -75,6 +81,10 @@ namespace Kademlia
             IDInit(data);
         }
 
+        /// <summary>
+        /// This method initialize an id starting from a byte array.
+        /// </summary>
+        /// <param name="data">Data converted</param>
         private void IDInit(byte[] data)
         {
             if (data.Length == ID_LENGTH)
@@ -91,14 +101,19 @@ namespace Kademlia
 		/// <summary>
 		/// Hash a string to produce an ID
 		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
+		/// <param name="key">Key string to convert</param>
+		/// <returns>An ID that represents the hash of the input string</returns>
 		public static ID Hash(string key)
 		{
 			HashAlgorithm hasher = new SHA1CryptoServiceProvider(); // Keeping this around results in exceptions
 			return new ID(hasher.ComputeHash(Encoding.UTF8.GetBytes(key)));
 		}
 
+        /// <summary>
+        /// Method that generates an ID starting from a generic string. This is not hashing.
+        /// </summary>
+        /// <param name="hash">The hash string originating an ID</param>
+        /// <returns>The ID generated</returns>
         public static ID FromString(string hash)
         {
             return new ID(
@@ -112,8 +127,8 @@ namespace Kademlia
 		/// XOR operator.
 		/// This is our distance metric in the DHT.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="a">The first ID to make xor</param>
+        /// <param name="b">The second ID to make xor</param>
 		/// <returns></returns>
 		public static ID operator^(ID a, ID b)
 		{
@@ -125,7 +140,12 @@ namespace Kademlia
 			return new ID(xoredData);
 		}
 		
-		// We need to compare these when measuring distance
+		/// <summary>
+        /// We need to compare these when measuring distance
+		/// </summary>
+		/// <param name="a">First ID to compare</param>
+		/// <param name="b">Second ID to compare</param>
+		/// <returns>true if a is less than b; false otherwise</returns>
 		public static bool operator<(ID a, ID b)
 		{
 			for(int i = 0; i < ID_LENGTH; i++) {
@@ -137,7 +157,13 @@ namespace Kademlia
 			}
 			return false; // No mismatches
 		}
-		
+
+        /// <summary>
+        /// We need to compare these when measuring distance
+        /// </summary>
+        /// <param name="a">First ID to compare</param>
+        /// <param name="b">Second ID to compare</param>
+        /// <returns>true if a is greater than b; false otherwise</returns>
 		public static bool operator>(ID a, ID b) {
 			for(int i = 0; i < ID_LENGTH; i++) {
 				if(a.data[i] < b.data[i]) {
@@ -148,8 +174,13 @@ namespace Kademlia
 			}
 			return false; // No mismatches
 		}
-		
-		// We're a value, so we override all these
+
+        /// <summary>
+        /// We need to compare these when measuring distance
+        /// </summary>
+        /// <param name="a">First ID to compare</param>
+        /// <param name="b">Second ID to compare</param>
+        /// <returns>true if a is equals to b; false otherwise</returns>
 		public static bool operator==(ID a, ID b) {
 			// Handle null
 			if(ValueType.ReferenceEquals(a, null)) {
@@ -167,14 +198,24 @@ namespace Kademlia
 			}
 			return true; // Must match
 		}
-		
+
+        /// <summary>
+        /// We need to compare these when measuring distance
+        /// </summary>
+        /// <param name="a">First ID to compare</param>
+        /// <param name="b">Second ID to compare</param>
+        /// <returns>true if a is different from b; false otherwise</returns>
 		public static bool operator!=(ID a, ID b) {
 			return !(a == b); // Already have that
 		}
 		
+        /// <summary>
+        /// Method used to get the hash code according to the algorithm: 
+        /// http://stackoverflow.com/questions/16340/how-do-i-generate-a-hashcode-from-a-byte-array-in-c/425184#425184
+        /// </summary>
+        /// <returns>integer representing the hashcode</returns>
 		public override int GetHashCode()
 		{
-			// Algorithm from http://stackoverflow.com/questions/16340/how-do-i-generate-a-hashcode-from-a-byte-array-in-c/425184#425184
 			int hash = 0;
 			for(int i = 0; i < ID_LENGTH; i++) {
 				unchecked {
@@ -185,6 +226,11 @@ namespace Kademlia
 			return hash;
 		}
 		
+        /// <summary>
+        /// Method used to verify if two objects are equals.
+        /// </summary>
+        /// <param name="obj">The object to compare to</param>
+        /// <returns>true if the objects are equals.</returns>
 		public override bool Equals(object obj)
 		{
 			if(obj is ID) {
@@ -198,8 +244,8 @@ namespace Kademlia
 		/// Determines the least significant bit at which the given ID differs from this one, from 0 through 8 * ID_LENGTH - 1.
 		/// PRECONDITION: IDs do not match.
 		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
+		/// <param name="other">The ID to compare to</param>
+		/// <returns>The least significant bit where can be found the difference</returns>
 		public int DifferingBit(ID other)
 		{
 			ID differingBits = this ^ other;
@@ -226,8 +272,8 @@ namespace Kademlia
 		/// <summary>
 		/// Return a copy of ourselves that differs from us at the given bit and is random beyond that.
 		/// </summary>
-		/// <param name="bit"></param>
-		/// <returns></returns>
+		/// <param name="bit">the bit to start to launch random bits</param>
+		/// <returns>The new ID obtained</returns>
 		public ID RandomizeBeyond(int bit)
 		{
 			byte[] randomized = new byte[ID_LENGTH];
@@ -248,8 +294,8 @@ namespace Kademlia
 		/// Flips the given bit in the byte array.
 		/// Byte array must be ID_LENGTH long.
 		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="bit"></param>
+		/// <param name="data">Data to work on</param>
+		/// <param name="bit">Bit used to generate the mask</param>
 		private static void FlipBit(byte[] data, int bit)
 		{
 			int byteIndex = bit / 8;
@@ -261,9 +307,8 @@ namespace Kademlia
 		
 		/// <summary>
 		/// Produce a random ID.
-		/// TODO: Make into a constructor?
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>random ID generated</returns>
 		public static ID RandomID()
 		{
 			byte[] data = new byte[ID_LENGTH];
@@ -276,7 +321,7 @@ namespace Kademlia
 		/// same machine by the same app run by the same user.
 		/// If that ID is taken, returns a random ID.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The ID generated for host</returns>
 		public static ID HostID()
 		{
 			// If we already have a mutex handle, we're not the first.
@@ -317,7 +362,7 @@ namespace Kademlia
 		/// <summary>
 		/// Turn this ID into a string.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>A string representation for the ID</returns>
 		public override string ToString()
 		{
 			return Convert.ToBase64String(data);
@@ -326,7 +371,7 @@ namespace Kademlia
 		/// <summary>
 		/// Returns this ID represented as a path-safe string.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>A UrlEncoded string representing the ID</returns>
 		public string ToPathString()
 		{
 			return HttpServerUtility.UrlTokenEncode(data); // This is path safe.
@@ -335,8 +380,11 @@ namespace Kademlia
 		/// <summary>
 		/// Compare ourselves to an object
 		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
+		/// <param name="obj">An obect to compare to</param>
+		/// <returns>
+        /// 1 if the ID is greater than the object, 0 if the object are equals and -1 if object is greater
+        /// than this.
+        /// </returns>
 		public int CompareTo(object obj)
 		{
 			if(obj is ID) {

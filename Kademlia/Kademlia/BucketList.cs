@@ -63,8 +63,8 @@ namespace Kademlia
 		/// <summary>
 		/// Returns what contact is blocking insertion (least promoted), or null if no contact is.
 		/// </summary>
-		/// <param name="toAdd"></param>
-		/// <returns></returns>
+		/// <param name="toAdd">The node to add</param>
+		/// <returns>The first element of the bucket</returns>
 		public Contact Blocker(ID toAdd)
 		{
 			int bucket = BucketFor(toAdd);
@@ -80,8 +80,8 @@ namespace Kademlia
 		/// <summary>
 		/// See if we have a contact with the given ID.
 		/// </summary>
-		/// <param name="toCheck"></param>
-		/// <returns></returns>
+		/// <param name="toCheck">The ID to find into the structure</param>
+		/// <returns>true if the contact is found into the structure</returns>
 		public bool Contains(ID toCheck)
 		{
 			return this.Get(toCheck) != null;
@@ -89,9 +89,8 @@ namespace Kademlia
 		
 		/// <summary>
 		/// Add the given contact at the end of its bucket.
-		/// PRECONDITION: Won't over-fill bucket.
 		/// </summary>
-		/// <param name="toAdd"></param>
+		/// <param name="toAdd">The new contact to add</param>
 		public void Put(Contact toAdd)
 		{
 			if(toAdd == null) {
@@ -109,7 +108,7 @@ namespace Kademlia
 		/// Report that a lookup was done for the given key.
 		/// Key must not match our ID.
 		/// </summary>
-		/// <param name="key"></param>
+		/// <param name="key">The bucket that refer the bucket to touch</param>
 		public void Touch(ID key)
 		{
 			lock(accessTimes) {
@@ -120,8 +119,8 @@ namespace Kademlia
 		/// <summary>
 		/// Return the contact with the given ID, or null if it's not found.
 		/// </summary>
-		/// <param name="toGet"></param>
-		/// <returns></returns>
+		/// <param name="toGet">The ID of the contact to Get</param>
+		/// <returns>The contact found</returns>
 		public Contact Get(ID toGet) {
 			int bucket = BucketFor(toGet);
 			lock(buckets[bucket]) { // Nobody can move it while we're getting it
@@ -137,7 +136,7 @@ namespace Kademlia
 		/// <summary>
 		/// Return how many contacts are cached.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The number of contacts in structure</returns>
 		public int GetCount()
 		{
 			int found = 0;
@@ -153,7 +152,7 @@ namespace Kademlia
 		/// <summary>
 		/// Move the contact with the given ID to the front of its bucket.
 		/// </summary>
-		/// <param name="toPromote"></param>
+		/// <param name="toPromote">The identificator of the contact to promote</param>
 		public void Promote(ID toPromote)
 		{
 			Contact promotee = Get(toPromote);
@@ -172,7 +171,7 @@ namespace Kademlia
 		/// <summary>
 		/// Remove a contact.
 		/// </summary>
-		/// <param name="toRemove"></param>
+		/// <param name="toRemove">The identificator od the contact to remove</param>
 		public void Remove(ID toRemove)
 		{
 			int bucket = BucketFor(toRemove);
@@ -190,9 +189,9 @@ namespace Kademlia
 		/// Return a list of the BUCKET_SIZE contacts with IDs closest to 
 		/// target, not containing any contacts with the excluded ID. 
 		/// </summary>
-		/// <param name="target"></param>
-		/// <param name="excluded"></param>
-		/// <returns></returns>
+		/// <param name="target">The target to find the close node to</param>
+		/// <param name="excluded">The excluded ID</param>
+		/// <returns>The list of contacts found</returns>
 		public List<Contact> CloseContacts(ID target, ID excluded)
 		{
 			return CloseContacts(NUM_BUCKETS, target, excluded);
@@ -202,10 +201,10 @@ namespace Kademlia
 		/// Returns a list of the specified number of contacts with IDs closest 
 		/// to the given key, excluding the excluded ID.
 		/// </summary>
-		/// <param name="count"></param>
-		/// <param name="target"></param>
-		/// <param name="excluded"></param>
-		/// <returns></returns>
+		/// <param name="count">The number of contacts to found</param>
+		/// <param name="target">The target node</param>
+		/// <param name="excluded">The excluded node</param>
+        /// <returns>The list of contacts found</returns>
 		public List<Contact> CloseContacts(int count, ID target, ID excluded)
 		{
 			// These lists are sorted by distance.
@@ -250,8 +249,8 @@ namespace Kademlia
 		/// Return the number of nodes in the network closer to the key than us.
 		/// This is a guess as described at http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html
 		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
+		/// <param name="key">The key to analize</param>
+		/// <returns>the number of nodes found</returns>
 		public int NodesToKey(ID key) {
 			int j = BucketFor(key);
 			
@@ -278,8 +277,8 @@ namespace Kademlia
 		/// Returns what bucket an ID maps to.
 		/// PRECONDITION: ourID not passed.
 		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
+		/// <param name="id">The id to check</param>
+		/// <returns>The bucket number</returns>
 		private int BucketFor(ID id) 
 		{
 			return(ourID.DifferingBit(id));
@@ -288,8 +287,8 @@ namespace Kademlia
 		/// <summary>
 		/// Return an ID that belongs in the given bucket.
 		/// </summary>
-		/// <param name="bucket"></param>
-		/// <returns></returns>
+		/// <param name="bucket">The bucket to analize</param>
+		/// <returns>The bucket baricentrum</returns>
 		private ID ForBucket(int bucket)
 		{
 			// The same as ours, but differ at the given bit and be random past it.
@@ -299,7 +298,7 @@ namespace Kademlia
 		/// <summary>
 		/// A ToString for debugging.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>A string representation of the object</returns>
 		public override string ToString()
 		{
 			string toReturn = "BucketList:";
@@ -320,8 +319,8 @@ namespace Kademlia
 		/// <summary>
 		/// Gets a list of IDs that fall in buckets that haven't been written to in tooOld.
 		/// </summary>
-		/// <param name="tooOld"></param>
-		/// <returns></returns>
+		/// <param name="tooOld">The timespan to discriminate</param>
+		/// <returns>The list of IDs found</returns>
 		public IList<ID> IDsForRefresh(TimeSpan tooOld)
 		{
 			List<ID> toReturn = new List<ID>();

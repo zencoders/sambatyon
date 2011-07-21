@@ -35,7 +35,7 @@ namespace Kademlia.Messages
 {
 	/// <summary>
 	/// Represents a request to get a value.
-	/// Reciever should either send key or a node list.
+	/// Receiver should either send key or a node list.
 	/// </summary>
 	[DataContract]
 	public class FindValue : Message
@@ -45,23 +45,26 @@ namespace Kademlia.Messages
 		/// <summary>
 		/// Make a new FindValue message.
 		/// </summary>
-		/// <param name="nodeID"></param>
-		/// <param name="wantedKey"></param>
+		/// <param name="nodeID">The sender identificator</param>
+		/// <param name="wantedKey">The desired key by the sender</param>
+        /// <param name="nodeEndpoint">The address of the sender</param>
 		public FindValue(ID nodeID, string wantedKey, Uri nodeEndpoint) : base(nodeID, nodeEndpoint)
 		{
 			this.key = wantedKey;
 		}
 		
 		/// <summary>
-		/// Return the key this message wants.
+		/// The key that the message searches.
 		/// </summary>
-		/// <returns></returns>
         [DataMember]
 		public string Key {
             get { return key; }
             set { this.key = value; }
 		}
 		
+        /// <summary>
+        /// the default name of the message
+        /// </summary>
         [DataMember]
 		public override string Name
 		{

@@ -32,11 +32,23 @@ using System.Runtime.Serialization;
 
 namespace TransportService.Messages
 {
+    /// <summary>
+    /// Class representing the message used to request a chunk to a requestor.
+    /// </summary>
     [DataContract]
     public class ChunkRequest : GenericMessage
     {
+        /// <summary>
+        /// Default constructor of the class
+        /// </summary>
         public ChunkRequest() { }
 
+        /// <summary>
+        /// Constructor that initialize attributes of the class.
+        /// </summary>
+        /// <param name="RID">Resource id of the file to download</param>
+        /// <param name="CID">Chunk id of the chunk</param>
+        /// <param name="SenderAddress">URI representing the address of transport layer of the sender of this message</param>
         public ChunkRequest(/*int activeBuffer, */string RID, int CID, Uri SenderAddress)
         {
             this.MessageType = "CHKRQ";

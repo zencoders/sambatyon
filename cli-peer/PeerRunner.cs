@@ -33,9 +33,16 @@ using PeerLibrary;
 
 namespace cli_peer
 {
+    /// <summary>
+    /// Runner class created to execute the peer without a GUI, in a cli way.
+    /// </summary>
     class PeerRunner
     {
     //    private static readonly ILog log = LogManager.GetLogger(typeof(PeerRunner));
+        /// <summary>
+        /// Main method of the class.
+        /// </summary>
+        /// <param name="args">List of arguments passed to the method from terminal</param>
         static void Main(string[] args)
         {
             bool withoutInterface = true;
