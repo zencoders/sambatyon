@@ -24,21 +24,41 @@
     <SdkLinkTarget>Top</SdkLinkTarget>
     <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Privates, Protected, SealedProtected, PrivateFields</VisibleItems>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Examples\Examples.csproj" />
-<DocumentationSource sourceFile="..\Kademlia\Kademlia\Kademlia.csproj" />
-<DocumentationSource sourceFile="..\Metrics\Metrics.csproj" />
-<DocumentationSource sourceFile="..\WebServer\PeerLibrary.csproj" />
-<DocumentationSource sourceFile="..\Persistence\Persistence.csproj" />
-<DocumentationSource sourceFile="..\TransportService\TransportService.csproj" />
-<DocumentationSource sourceFile="..\wpf-player\wpf-player.csproj" /></DocumentationSources>
+      <DocumentationSource sourceFile="..\cli-peer\bin\Release\cli-peer.exe" />
+<DocumentationSource sourceFile="..\cli-peer\bin\Release\cli-peer.XML" />
+<DocumentationSource sourceFile="..\Examples\bin\Release\Examples.exe" />
+<DocumentationSource sourceFile="..\Examples\bin\Release\Examples.XML" />
+<DocumentationSource sourceFile="..\Kademlia\Kademlia\bin\Release\Kademlia.dll" />
+<DocumentationSource sourceFile="..\Kademlia\Kademlia\bin\Release\Kademlia.XML" />
+<DocumentationSource sourceFile="..\Metrics\bin\Release\Metrics.dll" />
+<DocumentationSource sourceFile="..\Metrics\bin\Release\Metrics.XML" />
+<DocumentationSource sourceFile="..\wpf-player\bin\Release\p2p-player.exe" />
+<DocumentationSource sourceFile="..\wpf-player\bin\Release\p2p-player.XML" />
+<DocumentationSource sourceFile="..\WebServer\bin\Release\PeerLibrary.dll" />
+<DocumentationSource sourceFile="..\WebServer\bin\Release\PeerLibrary.XML" />
+<DocumentationSource sourceFile="..\Persistence\bin\Release\Persistence.dll" />
+<DocumentationSource sourceFile="..\Persistence\bin\Release\Persistence.XML" />
+<DocumentationSource sourceFile="..\TransportService\bin\Release\TransportService.dll" />
+<DocumentationSource sourceFile="..\TransportService\bin\Release\TransportService.XML" /></DocumentationSources>
     <HelpFileFormat>Website</HelpFileFormat>
     <CopyrightHref>http://www.gnu.org/licenses/</CopyrightHref>
     <BinaryTOC>False</BinaryTOC>
     <ContentPlacement>BelowNamespaces</ContentPlacement>
     <HelpTitle>p2p-player</HelpTitle>
     <NamespaceSummaries>
-      <NamespaceSummaryItem name="Persistence" isDocumented="True" />
-<NamespaceSummaryItem name="(global)" isDocumented="True" /></NamespaceSummaries>
+      <NamespaceSummaryItem name="Persistence" isDocumented="True">Persistence namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="(global)" isDocumented="True">An experimental shared audio player on a p2p network</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Persistence.Tag" isDocumented="True">Persistence.Tag namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Examples" isDocumented="True">Example namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Kademlia" isDocumented="True">Kademlia namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Kademlia.Messages" isDocumented="True">Kademlia Message namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Metrics" isDocumented="True">Metrics namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="PeerLibrary" isDocumented="True">Peer library namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Progress" isDocumented="True">Progress namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="TransportService" isDocumented="True">Transport service namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="TransportService.Messages" isDocumented="True">transport service message namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="wpf_player" isDocumented="True">WPF player namespace</NamespaceSummaryItem>
+<NamespaceSummaryItem name="XamlGeneratedNamespace" isDocumented="True">Xaml generated file namespace</NamespaceSummaryItem></NamespaceSummaries>
     <RootNamespaceContainer>True</RootNamespaceContainer>
     <CopyrightText>Copyright &amp;#169%3b Dario Mazza, Sebastiano Merlino 2010-2011. This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or %28at your option%29 any later version.</CopyrightText>
     <ProjectSummary>An experimental shared audio player on a p2p network</ProjectSummary>
