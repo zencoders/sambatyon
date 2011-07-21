@@ -29,13 +29,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+
 namespace Persistence
 {
     /// <summary>
     /// Classe astratta rappresentante un generico Repository.
     /// Questa classe viene usata per schermare le diverse implementazioni del repository attraverso un pattern Factory.
     /// Per istanziare una classe derivata da Repository usare il metodo statico GetRepositoryInstance della classe 
-    /// <see cref="Persistence.TrackRepositoryFactory"/>.
+    /// <see cref="Persistence.RepositoryFactory"/>.
     /// </summary>
     /// 
     public abstract class Repository: IDisposable  {
